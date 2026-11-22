@@ -1158,13 +1158,17 @@
 
  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
  <div class="form-field">
- <label class="form-label" for="ownedInputNote">비고 / 시리즈</label>
- <input type="text" id="ownedInputNote" class="form-input" placeholder="시리즈명 등">
+ <label class="form-label" for="ownedInputSeries">시리즈</label>
+ <input type="text" id="ownedInputSeries" class="form-input" placeholder="예: 펭귄클래식 시리즈 99">
+ </div>
+ <div class="form-field">
+ <label class="form-label" for="ownedInputMemo">메모</label>
+ <input type="text" id="ownedInputMemo" class="form-input" placeholder="수록작, 옮긴이, 판본 등">
+ </div>
  </div>
  <div class="form-field">
  <label class="form-label" for="ownedInputIsbn">ISBN (자동 입력)</label>
  <input type="text" id="ownedInputIsbn" class="form-input" placeholder="선택 사항">
- </div>
  </div>
 
  <div class="memo-modal-actions">
@@ -1312,8 +1316,20 @@
  return s;
  }
 
+ function getOwnedSeries(b) {
+ return String(b?.series || b?.note || '').trim();
+ }
+
+ function getOwnedMemo(b) {
+ return String(b?.memo || '').trim();
+ }
+
+ function extractSeriesGroupName(seriesStr) {
+ return String(seriesStr || '').trim().replace(/\s+\d+(?:\s*권|\s*호)?$/, '').trim();
+ }
+
  function isOwnedEbook(ownedBook) {
- const combined = `${ownedBook?.tags || ''} ${ownedBook?.note || ''}`.toLowerCase();
+ const combined = `${ownedBook?.tags || ''} ${getOwnedSeries(ownedBook)} ${getOwnedMemo(ownedBook)}`.toLowerCase();
  return combined.includes('전자책') || combined.includes('ebook') || combined.includes('e-book');
  }
 
@@ -1416,7 +1432,8 @@
  if (selectedNormTitle && normalizeBookTitle(b.title) === selectedNormTitle) return;
 
  const ownedAuthorPeople = extractPersonRoleEntries(b.author, '저자');
- const ownedNotePeople = extractPersonRoleEntries(b.note, detectRoleFromSegment(b.note) || '참여');
+ const memoAndSeries = `${getOwnedMemo(b)} ; ${getOwnedSeries(b)}`;
+ const ownedNotePeople = extractPersonRoleEntries(memoAndSeries, detectRoleFromSegment(memoAndSeries) || '참여');
  const ownedAllPeople = [...ownedAuthorPeople, ...ownedNotePeople];
 
  let bestMatch = null;
@@ -1581,7 +1598,7 @@
  const bIsbn = normalizeIsbn(b.isbn);
  const normTitle = normalizeBookTitle(b.title);
  const normAuthor = String(b.author || '').toLowerCase().replace(/[\s·・.,]+/g, '');
- const hay = `${b.title || ''} ${b.author || ''} ${b.tags || ''} ${b.publisher || ''} ${b.note || ''} ${b.review || ''}`.toLowerCase();
+ const hay = `${b.title || ''} ${b.author || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${getOwnedMemo(b)} ${b.review || ''}`.toLowerCase();
  const hayCompact = hay.replace(/\s+/g, '');
 
  let score = 0;
@@ -2009,7 +2026,7 @@
  container.innerHTML = `
  <div class="random-pick-box">
  <p class="random-pick-title">${ebook ? '📱 ' : '📘 '}${escapeHtml(formatOwnedTitle(b))}</p>
- <p class="random-pick-meta">${escapeHtml(b.author || '저자 미상')}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${b.note ? ' · ' + escapeHtml(b.note) : ''}</p>
+ <p class="random-pick-meta">${escapeHtml(b.author || '저자 미상')}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${getOwnedSeries(b) ? ' · ' + escapeHtml(getOwnedSeries(b)) : ''}${getOwnedMemo(b) ? ' · ' + escapeHtml(getOwnedMemo(b)) : ''}</p>
  <div class="mylib-item-badges">${st === '읽을 예정' ? '<span class="mylib-badge status-planned">읽을 예정</span>' : ''}${tags}</div>
  <div class="random-pick-actions">
  <button class="owned-action-btn add" onclick="startReadingOwnedByIndex(${idx})">📖 읽는 중으로 시작</button>
@@ -2107,7 +2124,7 @@
  const statusBadge = st ? ` · ${escapeHtml(st)}` : '';
  const ratingShort = formatRatingShort(b.rating);
  const ratingBadge = ratingShort ? ` · ${ratingShort}` : '';
- const seriesText = b.note ? ` · ${escapeHtml(b.note)}` : '';
+ const seriesVal = getOwnedSeries(b); const memoVal = getOwnedMemo(b); const seriesText = (seriesVal ? ` · ${escapeHtml(seriesVal)}` : '') + (memoVal ? ` · ${escapeHtml(memoVal)}` : '');
  const rowIdx = myOwnedBooks.indexOf(b);
  const pill = kind === 'exact'
  ? '<span class="match-pill">일치</span>'
@@ -2152,7 +2169,7 @@
  const ratingShort = formatRatingShort(b.rating);
  const ratingText = ratingShort ? ` · ${ratingShort}` : '';
  const pubText = b.publisher ? ` · ${escapeHtml(b.publisher)}` : '';
- const noteText = (role !== '저자' && b.note) ? ` · ${escapeHtml(b.note)}` : '';
+ const memoVal = getOwnedMemo(b); const noteText = (role !== '저자' && memoVal) ? ` · ${escapeHtml(memoVal)}` : '';
  const roleIcon = roleIcons[role] || '🤝';
  const roleLabel = role === '저자' ? '저자' : `${roleIcon} ${role}${personName ? ' · ' + escapeHtml(personName) : ''}`;
  const rolePill = role === '저자'
@@ -2217,7 +2234,7 @@
  const ratingShort = formatRatingShort(owned.rating);
  const ratingText = ratingShort ? ` · ${ratingShort}` : '';
  const dateText = owned.finishDate ? ` · 완독일 ${escapeHtml(owned.finishDate)}` : '';
- const noteText = owned.note ? ` · ${escapeHtml(owned.note)}` : '';
+ const seriesVal = getOwnedSeries(owned); const memoVal = getOwnedMemo(owned); const noteText = (seriesVal ? ` · ${escapeHtml(seriesVal)}` : '') + (memoVal ? ` · ${escapeHtml(memoVal)}` : '');
  const tagText = owned.tags ? `태그: ${escapeHtml(owned.tags)}` : '';
 
  bar.className = `owned-status-bar ${ebook ? 'is-ebook' : 'is-owned'}`;
@@ -2368,8 +2385,8 @@
  const tagCount = new Map();
 
  myOwnedBooks.forEach(b => {
- const note = String(b.note || '').trim();
- if (note) seriesCount.set(note, (seriesCount.get(note) || 0) + 1);
+ const seriesGrp = extractSeriesGroupName(getOwnedSeries(b));
+ if (seriesGrp) seriesCount.set(seriesGrp, (seriesCount.get(seriesGrp) || 0) + 1);
 
  String(b.tags || '').split(',').forEach(t => {
  const clean = t.trim();
@@ -2448,12 +2465,12 @@
  if (!tags.includes(myLibTagFilter)) return false;
  }
 
- if (seriesFilter && String(b.note || '').trim() !== seriesFilter) {
+ if (seriesFilter && extractSeriesGroupName(getOwnedSeries(b)) !== seriesFilter) {
  return false;
  }
 
  if (q) {
- const hay = `${b.title || ''} ${b.author || ''} ${b.tags || ''} ${b.publisher || ''} ${b.note || ''} ${b.isbn || ''} ${b.review || ''}`.toLowerCase();
+ const hay = `${b.title || ''} ${b.author || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${getOwnedMemo(b)} ${b.isbn || ''} ${b.review || ''}`.toLowerCase();
  if (!hay.includes(q) && !(qCompact.length >= 2 && hay.replace(/\s+/g, '').includes(qCompact))) {
  return false;
  }
@@ -2570,7 +2587,8 @@
  ${statusVal ? `<span class="mylib-badge ${statusCls}">${escapeHtml(statusVal)}</span>` : ''}
  ${ratingShort ? `<span class="mylib-badge rating">${ratingShort}</span>` : ''}
  ${b.finishDate ? `<span class="mylib-badge date">📅 ${escapeHtml(b.finishDate)}</span>` : ''}
- ${b.note ? `<span class="mylib-badge series">${escapeHtml(b.note)}</span>` : ''}
+ ${getOwnedSeries(b) ? `<span class="mylib-badge series">${escapeHtml(getOwnedSeries(b))}</span>` : ''}
+ ${getOwnedMemo(b) ? `<span class="mylib-badge">📌 ${escapeHtml(getOwnedMemo(b))}</span>` : ''}
  ${tagBadges}
  </div>
  </div>
@@ -2611,7 +2629,7 @@
  mode: 'add',
  book: {
  title: document.getElementById('searchInput').value.trim(),
- author: '', publisher: '', tags: '', note: '', status: '읽을 예정', rating: '', isbn: '', finishDate: '', review: ''
+ author: '', publisher: '', tags: '', series: '', memo: '', status: '읽을 예정', rating: '', isbn: '', finishDate: '', review: ''
  }
  });
  return;
@@ -2623,7 +2641,7 @@
  title: currentSelectedBook.bookname || '',
  author: formatAuthorText(currentSelectedBook.authors || ''),
  publisher: currentSelectedBook.publisher || '',
- tags: '', note: '', status: '읽을 예정', rating: '',
+ tags: '', series: '', memo: '', status: '읽을 예정', rating: '',
  isbn: String(currentSelectedBook.isbn13 || currentSelectedBook.isbn || ''),
  finishDate: '', review: ''
  }
@@ -2659,7 +2677,7 @@
  function openOwnedEditModal(context) {
  const ctx = context || {
  mode: 'add',
- book: { title: '', author: '', publisher: '', tags: '', note: '', status: '읽을 예정', rating: '', isbn: '', finishDate: '', review: '' }
+ book: { title: '', author: '', publisher: '', tags: '', series: '', memo: '', status: '읽을 예정', rating: '', isbn: '', finishDate: '', review: '' }
  };
  activeOwnedEditContext = ctx;
  const b = ctx.book;
@@ -2684,7 +2702,8 @@
  document.getElementById('ownedInputAuthor').value = b.author || '';
  document.getElementById('ownedInputPublisher').value = b.publisher || '';
  document.getElementById('ownedInputTags').value = b.tags || '';
- document.getElementById('ownedInputNote').value = b.note || '';
+ document.getElementById('ownedInputSeries').value = getOwnedSeries(b);
+ document.getElementById('ownedInputMemo').value = getOwnedMemo(b);
  document.getElementById('ownedInputIsbn').value = b.isbn || '';
  document.getElementById('ownedInputFinishDate').value = b.finishDate || '';
  document.getElementById('ownedInputReview').value = b.review || '';
@@ -2811,7 +2830,8 @@
  author: document.getElementById('ownedInputAuthor').value.trim(),
  publisher: document.getElementById('ownedInputPublisher').value.trim(),
  tags: document.getElementById('ownedInputTags').value.trim(),
- note: document.getElementById('ownedInputNote').value.trim(),
+ series: document.getElementById('ownedInputSeries').value.trim(),
+ memo: document.getElementById('ownedInputMemo').value.trim(),
  status: selectedOwnedStatus,
  rating: selectedOwnedRating > 0 ? formatStarRating(selectedOwnedRating) : '',
  isbn: normalizeIsbn(document.getElementById('ownedInputIsbn').value),

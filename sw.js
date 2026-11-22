@@ -1,4 +1,4 @@
-const CACHE_NAME = 'allbooks-cache-v17';
+const CACHE_NAME = 'allbooks-cache-v18';
 const CORE_URLS = [
   './index.html',
   './manifest.json',
@@ -48,7 +48,6 @@ self.addEventListener('fetch', event => {
   const requestUrl = new URL(event.request.url);
   const isSameOrigin = requestUrl.origin === self.location.origin;
 
-  // 외부 API(정보나루, Google Apps Script, CDN 등)는 브라우저 기본 네트워크 요청 사용
   if (!isSameOrigin) return;
 
   const isDynamicCore = (

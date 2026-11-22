@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALL BOOK - 프리미엄 통합 도서 검색</title>
+    <title>ALL BOOKS - 프리미엄 통합 도서 검색</title>
     
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/svg+xml" href="AllBook_logo3(512white).svg">
@@ -41,12 +41,37 @@
             margin: 0; padding: 15px; overflow-x: hidden; max-width: 100vw; 
         }
 
-        .header { text-align: center; margin: 30px 0 25px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .main-logo { width: 100px; height: auto; margin-bottom: 5px; } 
-        .main-headline { font-size: 32px; font-weight: 800; color: #3730a3; margin: 10px 0 5px 0; word-break: keep-all; letter-spacing: -0.5px; }
+        .header { text-align: center; margin: 26px 0 20px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .brand-mark { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 4px; }
+        .brand-emblem-wrap { width: 112px; height: 64px; overflow: hidden; display: flex; justify-content: center; align-items: flex-start; }
+        .main-logo { width: 175px; height: auto; display: block; flex-shrink: 0; }
+        .brand-wordmark {
+            font-size: 26px; font-weight: 900; color: #17356a; letter-spacing: 2px; line-height: 1;
+            font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", sans-serif;
+        }
+        .brand-wordmark span { font-weight: 500; }
+        .main-headline { font-size: 30px; font-weight: 800; color: #3730a3; margin: 6px 0 4px 0; word-break: keep-all; letter-spacing: -0.5px; }
         .header p { font-size: 15px; color: var(--sec-text); margin: 0; word-break: keep-all; font-weight: 500; }
 
-        .search-container { max-width: 1200px; margin: 0 auto 20px auto; min-width: 0; position: relative;}
+        .search-container { max-width: 1200px; margin: 0 auto 20px auto; min-width: 0; position: relative; }
+
+        /* 검색창 상단 주요 사이트 바로가기 */
+        .top-quick-links {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+            margin-bottom: 12px;
+        }
+        .top-quick-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 8px 13px; border-radius: 999px;
+            background-color: #ffffff; color: var(--text);
+            border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            font-size: 13px; font-weight: 700; text-decoration: none;
+            transition: transform 0.12s, border-color 0.2s, background-color 0.2s;
+            white-space: nowrap;
+        }
+        .top-quick-btn:hover { border-color: #c7d2fe; background-color: #eef2ff; }
+        .top-quick-btn:active { transform: scale(0.95); background-color: #e0e7ff; }
+        .top-quick-btn img { width: 15px; height: 15px; border-radius: 3px; flex-shrink: 0; object-fit: contain; }
         
         .main-container { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; min-width: 0; }
 
@@ -96,12 +121,14 @@
         .recent-tag i { color: #818cf8 !important; }
 
         .search-results-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; margin-top: 10px; }
-        .search-result-item { min-width: 90px; width: 90px; text-align: center; cursor: pointer; transition: all 0.2s; opacity: 0.5; position: relative;}
+        .search-result-item { min-width: 104px; width: 104px; text-align: center; cursor: pointer; transition: all 0.2s; opacity: 0.72; position: relative; flex-shrink: 0; }
         .search-result-item:active { transform: scale(0.95); }
         .search-result-item.active { opacity: 1; transform: translateY(-3px); } 
         .search-result-item.active img { border: 3px solid #4f46e5; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); }
-        .search-result-item img { width: 90px; height: 130px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px var(--shadow); border: 1px solid var(--border); margin-bottom: 6px; }
-        .search-result-item p { font-size: 12px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; color: var(--text); }
+        .search-result-item img { width: 104px; height: 148px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px var(--shadow); border: 1px solid var(--border); margin-bottom: 6px; background-color: #f9fafb; }
+        .search-result-item .result-title { font-size: 12px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; color: var(--text); }
+        .search-result-item .result-author { font-size: 11px; margin: 2px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #4b5563; font-weight: 500; }
+        .search-result-item .result-year { font-size: 10.5px; margin: 1px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--sec-text); font-weight: 500; }
 
         .kyobo-mini-btn {
             background-color: var(--primary); color: white; padding: 8px 16px; border-radius: 10px;
@@ -133,8 +160,8 @@
 
         .recommend-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; }
         .recommend-card { min-width: 90px; text-align: center; cursor: pointer; }
-        .recommend-card img { width: 90px; height: 130px; border-radius: 8px; box-shadow: 0 2px 8px var(--shadow); border: 1px solid var(--border); margin-bottom: 6px; object-fit: cover;}
-        .recommend-card p { font-size: 12px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600;}
+        .recommend-card img { width: 90px; height: 130px; border-radius: 8px; box-shadow: 0 2px 8px var(--shadow); border: 1px solid var(--border); margin-bottom: 6px; object-fit: cover; }
+        .recommend-card p { font-size: 12px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
 
         .links-container { display: flex; flex-direction: column; gap: 15px; }
         .link-group-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
@@ -158,11 +185,11 @@
         details[open].hidden-districts summary::before { content: "▲"; }
 
         .library-list { list-style: none; padding: 0; margin: 0; max-height: 320px; overflow-y: auto; }
-        .library-item { padding: 12px 10px; border-bottom: 1px solid var(--border); font-size: 13px; display: flex; justify-content: space-between; align-items: center; gap: 8px; transition: background-color 0.2s;}
+        .library-item { padding: 12px 10px; border-bottom: 1px solid var(--border); font-size: 13px; display: flex; justify-content: space-between; align-items: center; gap: 8px; transition: background-color 0.2s; }
         .library-item:active { background-color: #e2e8f0; }
         .fav-item { background-color: #f8fafc; border: 1px solid #bae6fd; border-radius: 10px; margin-bottom: 8px; cursor: pointer; }
         .fav-lib-wrap { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding-right: 6px; }
-        .fav-lib-text { font-weight: 800; color: #0369a1; display:flex; align-items:center; gap:5px; line-height: 1.25; word-break: keep-all; cursor: pointer;} 
+        .fav-lib-text { font-weight: 800; color: #0369a1; display:flex; align-items:center; gap:5px; line-height: 1.25; word-break: keep-all; cursor: pointer; } 
 
         /* 청파도서관 상호대차 전용 강조 스타일 */
         .interlibrary-item { background-color: #f5f3ff; border: 1px solid #c4b5fd; border-left: 4px solid #7c3aed; }
@@ -170,12 +197,12 @@
         .interlibrary-text { color: #6d28d9; }
         .interlibrary-sub { font-size: 11px; color: #7c3aed; font-weight: 600; padding-left: 19px; }
 
-        .status-available { background-color: #d1fae5; color: #047857; padding: 5px 10px; border-radius: 20px; font-weight: 800; font-size: 12px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(16, 185, 129, 0.2);} 
-        .status-interlibrary { background-color: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; padding: 5px 10px; border-radius: 20px; font-weight: 800; font-size: 12px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(124, 58, 237, 0.18);}
+        .status-available { background-color: #d1fae5; color: #047857; padding: 5px 10px; border-radius: 20px; font-weight: 800; font-size: 12px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(16, 185, 129, 0.2); } 
+        .status-interlibrary { background-color: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; padding: 5px 10px; border-radius: 20px; font-weight: 800; font-size: 12px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(124, 58, 237, 0.18); }
         .status-unavailable { background-color: #fee2e2; color: #b91c1c; padding: 5px 10px; border-radius: 20px; font-weight: 800; font-size: 12px; flex-shrink: 0; } 
-        .status-normal { background-color: #f3f4f6; color: #6b7280; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px; flex-shrink: 0;} 
+        .status-normal { background-color: #f3f4f6; color: #6b7280; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px; flex-shrink: 0; } 
 
-        .loading-msg { color: var(--sec-text); font-size: 14px; text-align: center; padding: 20px; width: 100%;}
+        .loading-msg { color: var(--sec-text); font-size: 14px; text-align: center; padding: 20px; width: 100%; }
         .hidden { display: none !important; }
 
         .fab-container { position: fixed; bottom: 25px; left: 20px; z-index: 1000; }
@@ -183,20 +210,22 @@
         .fab-btn:active { transform: scale(0.9); }
         .fab-badge { position: absolute; top: -2px; right: -2px; background-color: #ef4444; color: white; font-size: 11px; font-weight: bold; width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; border: 2px solid white; }
         
-        .bookmark-modal { position: absolute; bottom: 75px; left: 0; width: 340px; max-width: calc(100vw - 40px); background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid var(--border); padding: 18px; display: none; flex-direction: column; max-height: 65vh; }
+        .bookmark-modal { position: absolute; bottom: 75px; left: 0; width: 350px; max-width: calc(100vw - 40px); background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid var(--border); padding: 18px; display: none; flex-direction: column; max-height: 70vh; }
         .bookmark-modal.open { display: flex; }
         .bookmark-modal-content { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; margin-top: 10px; }
-        .bookmark-item { min-width: 96px; width: 96px; text-align: center; cursor: pointer; position: relative; flex-shrink: 0; display: flex; flex-direction: column; }
+        .bookmark-item { min-width: 106px; width: 106px; text-align: center; cursor: pointer; position: relative; flex-shrink: 0; display: flex; flex-direction: column; }
         .bookmark-item img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border: 1px solid var(--border); background-color: #f9fafb; }
-        .bookmark-item p { font-size: 11px; margin: 5px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; color: var(--text); }
+        .bookmark-item .bookmark-title { font-size: 11.5px; margin: 5px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; color: var(--text); }
+        .bookmark-item .bookmark-author { font-size: 10.5px; margin: 2px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #4b5563; font-weight: 500; }
+        .bookmark-item .bookmark-year { font-size: 10px; margin: 1px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--sec-text); font-weight: 500; }
         .bookmark-delete { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
         .bookmark-memo-preview {
-            margin-top: 4px; padding: 4px 6px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px;
+            margin-top: 5px; padding: 4px 6px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px;
             font-size: 10px; color: #92400e; text-align: left; line-height: 1.3;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;
         }
         .bookmark-memo-add {
-            margin-top: 4px; padding: 3px 6px; background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 6px;
+            margin-top: 5px; padding: 3px 6px; background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 6px;
             font-size: 10px; color: var(--sec-text); text-align: center;
         }
 
@@ -223,20 +252,40 @@
         .memo-btn-cancel { background: #f3f4f6; color: var(--sec-text); }
         .memo-btn-delete { background: #fee2e2; color: #b91c1c; margin-right: auto; }
         .memo-btn-save { background: var(--primary); color: #ffffff; }
-
-        .lib-minimal-btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 6px 10px; font-size: 12px; font-weight: 600; color: var(--sec-text); background-color: #f9fafb; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; transition: background-color 0.2s, color 0.2s; white-space: nowrap; }
-        .lib-minimal-btn:active { background-color: #e5e7eb; color: var(--text); }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <img src="AllBook_logo.svg" alt="AllBook Logo" class="main-logo">
+        <div class="brand-mark">
+            <div class="brand-emblem-wrap">
+                <img src="AllBook_logo.svg" alt="ALL BOOKS Logo" class="main-logo">
+            </div>
+            <div class="brand-wordmark"><span>ALL</span> BOOKS</div>
+        </div>
         <h1 class="main-headline">내 손안의 통합 도서 검색</h1>
         <p>원하는 책을 한 번에 여러 도서관과 서점에서 찾아보세요.</p>
     </div>
 
     <div class="search-container">
+        <div class="top-quick-links" aria-label="주요 도서관 및 서점 바로가기">
+            <a href="https://www.yslibrary.or.kr/dream/" target="_blank" rel="noopener" class="top-quick-btn">
+                <img src="yongsan_logo.svg" alt=""> 용산꿈나무도서관
+            </a>
+            <a href="https://mplib.mapo.go.kr/" target="_blank" rel="noopener" class="top-quick-btn">
+                <img src="mapo_logo.svg" alt=""> 마포아현분관
+            </a>
+            <a href="https://nslib.sen.go.kr/" target="_blank" rel="noopener" class="top-quick-btn">
+                <img src="SeoulEdu_logo.svg" alt=""> 남산도서관
+            </a>
+            <a href="https://www.aladin.co.kr/" target="_blank" rel="noopener" class="top-quick-btn">
+                <img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" alt=""> 알라딘
+            </a>
+            <a href="https://www.kyobobook.co.kr/" target="_blank" rel="noopener" class="top-quick-btn">
+                <img src="https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32" alt=""> 교보문고
+            </a>
+        </div>
+
         <div class="card" id="searchSection">
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="도서명, 저자명, 출판사 등을 자유롭게 입력해주세요." onkeypress="if(event.key==='Enter') executeSearch()">
@@ -354,7 +403,7 @@
                         <div class="link-grid">
                             <a href="#" class="link-pill color-store dynamic-link" data-template="https://play.google.com/store/search?q={kw}&c=books&hl=ko" target="_blank"><img src="https://www.google.com/s2/favicons?domain=play.google.com&sz=32" class="site-logo" alt="logo"> 구글 플레이북</a>
                             <a href="#" class="link-pill color-store dynamic-link" data-template="https://search.kyobobook.co.kr/search?keyword={kw}" target="_blank"><img src="https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32" class="site-logo" alt="logo"> 교보문고</a>
-                            <a href="#" class="link-pill color-used dynamic-link" data-template="https://www.aladin.co.kr/m/msearch.aspx?SearchTarget=Used&KeyWord={kw}" target="_blank"><img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" class="site-logo" alt="logo"> 알라딘 중고 (온라인)</a>
+                            <a href="#" class="link-pill color-store dynamic-link" data-template="https://www.aladin.co.kr/m/msearch.aspx?SearchWord={kw}&SearchTarget=All&start=h_keyword" target="_blank"><img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" class="site-logo" alt="logo"> 알라딘</a>
                         </div>
                     </div>
 
@@ -376,15 +425,6 @@
                 <div class="section-title"><i data-lucide="sparkles"></i> 관련 추천 도서</div>
                 <div id="recommendScroll" class="recommend-scroll">
                     <div class="loading-msg">추천 도서를 불러오는 중입니다...</div>
-                </div>
-            </div>
-
-            <div id="quickLinkBox" class="card hidden" style="background-color: #e0e7ff; border: 1px solid #c7d2fe; padding: 15px;">
-                <div class="section-title" style="color: #3730a3; margin-bottom: 10px; font-size: 14px;"><i data-lucide="external-link" size="16"></i> 실시간 대출 도서관 바로가기</div>
-                <div style="display: flex; gap: 4px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px;">
-                    <a href="#" class="lib-minimal-btn dynamic-link" style="background-color:#ffffff; border-color:#a5b4fc; color:#4f46e5; flex:1; min-width:0; padding: 6px 2px; font-size: 11px; letter-spacing: -0.5px;" data-template="https://mplib.mapo.go.kr/mcl/MENU1039/PGM3007/plusSearchResultList.do?searchType=SIMPLE&searchCategory=BOOK&searchKey=TITLE&searchKeyword={kw}&searchLibrary=ALL" target="_blank"><i data-lucide="building-2" size="12"></i> 마포</a>
-                    <a href="#" class="lib-minimal-btn dynamic-link" style="background-color:#ffffff; border-color:#a5b4fc; color:#4f46e5; flex:1; min-width:0; padding: 6px 2px; font-size: 11px; letter-spacing: -0.5px;" data-template="https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchResultList.do?searchType=SIMPLE&searchCategory=ALL&searchKey=ALL&searchKeyword={kw}&searchLibrary=ALL" target="_blank"><i data-lucide="landmark" size="12"></i> 용산</a>
-                    <a href="#" class="lib-minimal-btn dynamic-link" style="background-color:#ffffff; border-color:#a5b4fc; color:#4f46e5; flex:1; min-width:0; padding: 6px 2px; font-size: 11px; letter-spacing: -0.5px;" data-template="https://meta.seoul.go.kr/libseoul/index.php/result?text1={kw}" target="_blank"><i data-lucide="library" size="12"></i> 서울</a>
                 </div>
             </div>
 
@@ -433,6 +473,98 @@
         let currentBooksList = [];
         let currentSelectedBook = null;
         let activeMemoTarget = null;
+        let isEnrichingBookmarks = false;
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatAuthorText(author) {
+            const cleaned = String(author || '').replace(/^\s*(지은이|저자)\s*[:：]\s*/i, '').trim();
+            return cleaned || '저자 미상';
+        }
+
+        function formatPubYearText(pubYear) {
+            const cleaned = String(pubYear || '').trim();
+            if (!cleaned) return '출간일 미상';
+            return cleaned.endsWith('년') ? cleaned : `${cleaned}년`;
+        }
+
+        function getBookMetaCache() {
+            try {
+                return JSON.parse(localStorage.getItem('bookMetaCache')) || {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveBookMetaCache(isbn, author, pubYear) {
+            const key = String(isbn || '').trim();
+            if (!key) return;
+            const cache = getBookMetaCache();
+            cache[key] = {
+                author: author || (cache[key] && cache[key].author) || '',
+                pubYear: pubYear || (cache[key] && cache[key].pubYear) || ''
+            };
+            localStorage.setItem('bookMetaCache', JSON.stringify(cache));
+        }
+
+        function mergeBookmarksWithMeta(bookmarks) {
+            const cache = getBookMetaCache();
+            return (bookmarks || []).map(book => {
+                const isbn = String(book.isbn || '');
+                const cached = cache[isbn] || {};
+                const author = book.author || cached.author || '';
+                const pubYear = book.pubYear || book.publication_year || cached.pubYear || '';
+                if (isbn && (author || pubYear)) {
+                    cache[isbn] = { author, pubYear };
+                }
+                return { ...book, author, pubYear };
+            });
+        }
+
+        async function enrichMissingBookmarkMeta() {
+            if (isEnrichingBookmarks) return;
+            const bookmarks = mergeBookmarksWithMeta(JSON.parse(localStorage.getItem('myBookmarks')) || []);
+            const missing = bookmarks.filter(b => b.isbn && (!b.author || !b.pubYear));
+            if (missing.length === 0) return;
+
+            isEnrichingBookmarks = true;
+            let updated = false;
+            try {
+                await Promise.all(missing.map(async (b) => {
+                    const isbn = String(b.isbn);
+                    try {
+                        const url = `https://data4library.kr/api/srchDtlList?authKey=${apiKey}&isbn13=${encodeURIComponent(isbn)}&format=json`;
+                        const res = await fetch(url);
+                        const data = await res.json();
+                        const detailBook = data?.response?.detail?.[0]?.book;
+                        if (detailBook) {
+                            const author = detailBook.authors || b.author || '';
+                            const pubYear = detailBook.publication_year || b.pubYear || '';
+                            if (author || pubYear) {
+                                b.author = author;
+                                b.pubYear = pubYear;
+                                saveBookMetaCache(isbn, author, pubYear);
+                                updated = true;
+                            }
+                        }
+                    } catch (e) {}
+                }));
+
+                if (updated) {
+                    localStorage.setItem('myBookmarks', JSON.stringify(bookmarks));
+                    loadBookmarks(false);
+                }
+            } finally {
+                isEnrichingBookmarks = false;
+            }
+        }
 
         document.getElementById('searchInput').addEventListener('click', function(event) {
             event.stopPropagation(); 
@@ -482,7 +614,6 @@
             document.getElementById('aladinDirectBtnContainer').style.display = 'none'; 
             
             updateDynamicLinks(keyword);
-            document.getElementById('quickLinkBox').classList.remove('hidden');
 
             document.getElementById('mainBookResultCard').classList.add('hidden'); 
             document.getElementById('linksCard').classList.add('hidden'); 
@@ -568,7 +699,7 @@
                     }
                 }
 
-                const aladinUsedUrl = `https://www.aladin.co.kr/m/msearch.aspx?SearchTarget=Used&KeyWord=${encodeURIComponent(originalKw)}`;
+                const aladinSearchUrl = `https://www.aladin.co.kr/m/msearch.aspx?SearchWord=${encodeURIComponent(originalKw)}&SearchTarget=All&start=h_keyword`;
 
                 if(combinedDocs.length === 0) {
                     document.getElementById('aladinDirectBtnContainer').style.display = 'none'; 
@@ -577,7 +708,7 @@
                     document.getElementById('searchResultsList').innerHTML = `
                         <div class='loading-msg' style='display:flex; flex-direction:column; align-items:center; gap:15px; width: 100%;'>
                             <span>도서관 DB에 등록되지 않은 도서/작가입니다.</span>
-                            <a href="${aladinUsedUrl}" target="_blank" class="kyobo-mini-btn">
+                            <a href="${aladinSearchUrl}" target="_blank" class="kyobo-mini-btn">
                                 <i data-lucide="book-open" size="14"></i> 알라딘에서 검색
                             </a>
                         </div>
@@ -593,21 +724,28 @@
                 let listHtml = '';
                 currentBooksList.forEach((item, index) => {
                     const book = item.doc;
+                    const titleEsc = escapeHtml(book.bookname);
+                    const authorDisplay = formatAuthorText(book.authors);
+                    const authorEsc = escapeHtml(authorDisplay);
+                    const yearDisplay = formatPubYearText(book.publication_year);
+                    const yearEsc = escapeHtml(yearDisplay);
+
                     listHtml += `
                         <div class="search-result-item" id="book-item-${index}" onclick="selectBook(${index})">
-                            <img src="${book.bookImageURL}" onerror="this.src='https://via.placeholder.com/90x130?text=No+Image'">
-                            <p title="${book.bookname}">${book.bookname}</p>
+                            <img src="${escapeHtml(book.bookImageURL)}" onerror="this.src='https://via.placeholder.com/104x148?text=No+Image'">
+                            <p class="result-title" title="${titleEsc}">${titleEsc}</p>
+                            <p class="result-author" title="${authorEsc}">${authorEsc}</p>
+                            <p class="result-year" title="출간일: ${yearEsc}">${yearEsc}</p>
                         </div>
                     `;
                 });
                 
                 document.getElementById('searchResultsList').innerHTML = listHtml;
                 document.getElementById('aladinDirectBtnContainer').style.display = 'flex';
-                document.getElementById('aladinDirectBtn').href = aladinUsedUrl;
+                document.getElementById('aladinDirectBtn').href = aladinSearchUrl;
                 
                 updateDynamicLinks(originalKw);
                 document.getElementById('linksCard').classList.remove('hidden');
-                document.getElementById('quickLinkBox').classList.remove('hidden');
 
             } catch(e) {
                 console.error(e);
@@ -618,7 +756,6 @@
         function showEmptyBookState(keyword) {
             document.getElementById('mainBookResultCard').classList.remove('hidden');
             document.getElementById('linksCard').classList.remove('hidden');
-            document.getElementById('quickLinkBox').classList.remove('hidden');
             
             document.getElementById('mainBookTitle').innerText = `'${keyword}'`;
             document.getElementById('mainBookAuthor').innerText = "도서관 정보나루에 데이터가 없습니다.";
@@ -635,6 +772,9 @@
             const book = currentBooksList[index].doc;
             currentSelectedBook = book;
             const isbn = String(book.isbn13 || book.isbn || ''); 
+            if (isbn) {
+                saveBookMetaCache(isbn, book.authors || '', book.publication_year || '');
+            }
             
             document.querySelectorAll('.search-result-item').forEach(el => el.classList.remove('active'));
             document.getElementById(`book-item-${index}`).classList.add('active');
@@ -643,7 +783,6 @@
             document.getElementById('linksCard').classList.remove('hidden');
             document.getElementById('apiHashtagBox').classList.remove('hidden');
             document.getElementById('apiRecommendBox').classList.remove('hidden');
-            document.getElementById('quickLinkBox').classList.remove('hidden');
             document.getElementById('apiLibraryBox').classList.remove('hidden');
 
             document.getElementById('mainBookTitle').innerText = book.bookname;
@@ -697,6 +836,9 @@
         function toggleBookmarkModal() {
             const modal = document.getElementById('bookmarkModal');
             modal.classList.toggle('open');
+            if (modal.classList.contains('open')) {
+                enrichMissingBookmarkMeta();
+            }
         }
 
         async function syncBookmarksFromSheet() {
@@ -705,7 +847,8 @@
                 const res = await fetch(SHEET_API_URL);
                 const data = await res.json();
                 if (data.status === 'ok' && Array.isArray(data.bookmarks)) {
-                    localStorage.setItem('myBookmarks', JSON.stringify(data.bookmarks));
+                    const merged = mergeBookmarksWithMeta(data.bookmarks);
+                    localStorage.setItem('myBookmarks', JSON.stringify(merged));
                     loadBookmarks();
                     refreshCurrentBookBookmarkUI();
                 }
@@ -724,7 +867,8 @@
                 });
                 const data = await res.json();
                 if (data.status === 'ok' && Array.isArray(data.bookmarks)) {
-                    localStorage.setItem('myBookmarks', JSON.stringify(data.bookmarks));
+                    const merged = mergeBookmarksWithMeta(data.bookmarks);
+                    localStorage.setItem('myBookmarks', JSON.stringify(merged));
                     loadBookmarks();
                     refreshCurrentBookBookmarkUI();
                 }
@@ -754,6 +898,8 @@
             openMemoModal({
                 isbn: isbn,
                 title: currentSelectedBook.bookname,
+                author: currentSelectedBook.authors || (existing && existing.author) || '',
+                pubYear: currentSelectedBook.publication_year || (existing && existing.pubYear) || '',
                 cover: currentSelectedBook.bookImageURL,
                 keyword: document.getElementById('searchInput').value,
                 memo: existing ? (existing.memo || '') : '',
@@ -762,7 +908,7 @@
         }
 
         function openMemoModalForIsbn(isbn) {
-            const bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+            const bookmarks = mergeBookmarksWithMeta(JSON.parse(localStorage.getItem('myBookmarks')) || []);
             const existing = bookmarks.find(b => String(b.isbn) === String(isbn));
             if (!existing) return;
 
@@ -800,12 +946,20 @@
             if (!activeMemoTarget) return;
             const memo = document.getElementById('memoTextarea').value.trim();
             const targetIsbn = String(activeMemoTarget.isbn);
+            const author = activeMemoTarget.author || '';
+            const pubYear = activeMemoTarget.pubYear || '';
 
-            let bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+            if (author || pubYear) {
+                saveBookMetaCache(targetIsbn, author, pubYear);
+            }
+
+            let bookmarks = mergeBookmarksWithMeta(JSON.parse(localStorage.getItem('myBookmarks')) || []);
             const idx = bookmarks.findIndex(b => String(b.isbn) === targetIsbn);
 
             if (idx > -1) {
                 bookmarks[idx].memo = memo;
+                if (author) bookmarks[idx].author = author;
+                if (pubYear) bookmarks[idx].pubYear = pubYear;
                 localStorage.setItem('myBookmarks', JSON.stringify(bookmarks));
                 loadBookmarks();
                 refreshCurrentBookBookmarkUI();
@@ -816,6 +970,8 @@
                     isbn: targetIsbn,
                     cover: activeMemoTarget.cover,
                     keyword: activeMemoTarget.keyword,
+                    author: author,
+                    pubYear: pubYear,
                     memo: memo
                 };
                 bookmarks.push(newBook);
@@ -861,8 +1017,8 @@
             }
         }
 
-        function loadBookmarks() {
-            const bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+        function loadBookmarks(shouldEnrich = true) {
+            const bookmarks = mergeBookmarksWithMeta(JSON.parse(localStorage.getItem('myBookmarks')) || []);
             const container = document.getElementById('bookmarkModalContent');
             const badge = document.getElementById('bookmarkBadge');
             
@@ -881,7 +1037,7 @@
 
                 const img = document.createElement('img');
                 img.src = book.cover;
-                img.onerror = function() { this.src = 'https://via.placeholder.com/90x130?text=No+Image'; };
+                img.onerror = function() { this.src = 'https://via.placeholder.com/106x159?text=No+Image'; };
 
                 const delBtn = document.createElement('div');
                 delBtn.className = 'bookmark-delete';
@@ -892,8 +1048,21 @@
                 };
 
                 const titleEl = document.createElement('p');
+                titleEl.className = 'bookmark-title';
                 titleEl.title = book.title;
                 titleEl.innerText = book.title;
+
+                const authorText = formatAuthorText(book.author);
+                const authorEl = document.createElement('p');
+                authorEl.className = 'bookmark-author';
+                authorEl.title = authorText;
+                authorEl.innerText = authorText;
+
+                const yearText = formatPubYearText(book.pubYear);
+                const yearEl = document.createElement('p');
+                yearEl.className = 'bookmark-year';
+                yearEl.title = `출간일: ${yearText}`;
+                yearEl.innerText = yearText;
 
                 const memoEl = document.createElement('div');
                 if (book.memo && book.memo.trim() !== '') {
@@ -912,6 +1081,8 @@
                 item.appendChild(img);
                 item.appendChild(delBtn);
                 item.appendChild(titleEl);
+                item.appendChild(authorEl);
+                item.appendChild(yearEl);
                 item.appendChild(memoEl);
                 
                 item.onclick = () => {
@@ -922,6 +1093,10 @@
                 };
                 container.appendChild(item);
             });
+
+            if (shouldEnrich) {
+                enrichMissingBookmarkMeta();
+            }
         }
 
         function removeBookmark(isbn) {
@@ -929,7 +1104,7 @@
             let bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
             bookmarks = bookmarks.filter(b => String(b.isbn) !== targetIsbn);
             localStorage.setItem('myBookmarks', JSON.stringify(bookmarks));
-            loadBookmarks();
+            loadBookmarks(false);
             refreshCurrentBookBookmarkUI();
             sendBookmarkToSheet({ action: 'remove', isbn: targetIsbn });
         }
@@ -943,7 +1118,7 @@
                 
                 let html = '';
                 keywords.slice(0, 8).forEach(item => {
-                    html += `<span class="hashtag">#${item.item.word}</span>`;
+                    html += `<span class="hashtag">#${escapeHtml(item.item.word)}</span>`;
                 });
                 if(html === '') html = '<span class="hashtag">#등록된_키워드가_없습니다</span>';
                 
@@ -967,10 +1142,11 @@
                 let html = '';
                 books.slice(0, 10).forEach(item => {
                     const b = item.book;
+                    const safeTitle = b.bookname.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
                     html += `
-                        <div class="recommend-card" onclick="document.getElementById('searchInput').value='${b.bookname.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'; executeSearch();">
-                            <img src="${b.bookImageURL}" onerror="this.src='https://via.placeholder.com/90x130?text=Image'">
-                            <p title="${b.bookname}">${b.bookname}</p>
+                        <div class="recommend-card" onclick="document.getElementById('searchInput').value='${safeTitle}'; executeSearch();">
+                            <img src="${escapeHtml(b.bookImageURL)}" onerror="this.src='https://via.placeholder.com/90x130?text=Image'">
+                            <p title="${escapeHtml(b.bookname)}">${escapeHtml(b.bookname)}</p>
                         </div>
                     `;
                 });
@@ -1048,7 +1224,7 @@
                     .sort((a, b) => a.priority - b.priority);
 
                 if (targetLibs.length === 0) {
-                    container.innerHTML = `<li class="library-item" style="color:#b91c1c; font-weight:bold; line-height: 1.4;">현재 선택한 도서관(용산꿈나무·청파·남산·마포아현분관)에는 이 책('${bookName}')이 등록되어 있지 않습니다. 😭</li>`;
+                    container.innerHTML = `<li class="library-item" style="color:#b91c1c; font-weight:bold; line-height: 1.4;">현재 선택한 도서관(용산꿈나무·청파·남산·마포아현분관)에는 이 책('${escapeHtml(bookName)}')이 등록되어 있지 않습니다. 😭</li>`;
                     return;
                 }
 
@@ -1104,7 +1280,7 @@
                     html += `
                         <li class="${itemClass}" onclick="window.open('${targetUrl}', '_blank')">
                             <div class="fav-lib-wrap">
-                                <span class="${textClass}"><i data-lucide="${iconName}" size="14"></i> ${lib.name}</span>
+                                <span class="${textClass}"><i data-lucide="${iconName}" size="14"></i> ${escapeHtml(lib.name)}</span>
                                 ${subTextHtml}
                             </div>
                             ${badgeHtml}
@@ -1132,7 +1308,8 @@
             searches.forEach(keyword => {
                 const tag = document.createElement('div');
                 tag.className = 'recent-tag';
-                tag.innerHTML = `${keyword} <i data-lucide="x" size="14" onclick="event.stopPropagation(); deleteSearch('${keyword}')"></i>`;
+                const safeKw = keyword.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+                tag.innerHTML = `${escapeHtml(keyword)} <i data-lucide="x" size="14" onclick="event.stopPropagation(); deleteSearch('${safeKw}')"></i>`;
                 tag.onclick = () => executeSearch(keyword);
                 container.appendChild(tag);
             });

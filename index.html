@@ -856,7 +856,7 @@
       <textarea id="memoTextarea" class="memo-textarea" placeholder="메모를 남겨보세요. (선택 사항)"></textarea>
       <div class="memo-modal-actions">
         <button id="memoDeleteBtn" class="memo-btn memo-btn-delete hidden" onclick="deleteFromMemoModal()">북마크 삭제</button>
-        <button id="memoMoveToLibBtn" class="memo-btn hidden" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;" onclick="moveActiveBookmarkToLibrary()">📚 내 서재로</button>
+        <button id="memoMoveToLibBtn" class="memo-btn hidden" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;" onclick="moveActiveBookmarkToLibrary()">+보유 도서</button>
         <button class="memo-btn memo-btn-cancel" onclick="closeMemoModal()">취소</button>
         <button class="memo-btn memo-btn-save" onclick="saveFromMemoModal()">저장</button>
       </div>
@@ -3049,7 +3049,7 @@
         if (!ownedMatch) {
           const moveBtn = document.createElement('button');
           moveBtn.className = 'bookmark-move-btn';
-          moveBtn.innerText = '+ 내 서재로';
+          moveBtn.innerText = '+보유 도서';
           moveBtn.onclick = (e) => {
             e.stopPropagation();
             toggleBookmarkModal();

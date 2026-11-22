@@ -1,6 +1,6 @@
 {
-  "name": "ALL BOOK - 프리미엄 통합 도서 검색",
-  "short_name": "ALL BOOK",
+  "name": "ALL BOOKS - 프리미엄 통합 도서 검색",
+  "short_name": "ALL BOOKS",
   "description": "원하는 책을 한 번에 여러 도서관과 서점에서 찾아보세요.",
   "start_url": "./index.html",
   "display": "standalone",
@@ -11,13 +11,7 @@
       "src": "AllBook_logo3(512white).svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "AllBook_logo3(512transp).svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }

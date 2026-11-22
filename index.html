@@ -118,6 +118,16 @@
         .main-book-info .author { margin: 0; font-size: 13px; color: var(--sec-text); }
         .main-book-info .plot { margin: 5px 0 0 0; font-size: 13px; line-height: 1.5; color: #4b5563; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 
+        .saved-memo-box {
+            margin-top: 14px; padding: 10px 12px; background-color: #fffbeb; border: 1px solid #fde68a;
+            border-radius: 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+        }
+        .saved-memo-text { font-size: 13px; color: #92400e; line-height: 1.45; white-space: pre-wrap; word-break: break-word; flex: 1; }
+        .saved-memo-edit-btn {
+            background: #ffffff; border: 1px solid #fcd34d; color: #b45309; font-size: 11px; font-weight: 700;
+            padding: 4px 8px; border-radius: 6px; cursor: pointer; flex-shrink: 0;
+        }
+
         .hashtag-container { display: flex; flex-wrap: wrap; gap: 8px; }
         .hashtag { background-color: var(--tag-bg); color: var(--tag-text); padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; }
 
@@ -160,13 +170,46 @@
         .fab-btn:active { transform: scale(0.9); }
         .fab-badge { position: absolute; top: -2px; right: -2px; background-color: #ef4444; color: white; font-size: 11px; font-weight: bold; width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; border: 2px solid white; }
         
-        .bookmark-modal { position: absolute; bottom: 75px; left: 0; width: 330px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid var(--border); padding: 18px; display: none; flex-direction: column; max-height: 60vh; }
+        .bookmark-modal { position: absolute; bottom: 75px; left: 0; width: 340px; max-width: calc(100vw - 40px); background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid var(--border); padding: 18px; display: none; flex-direction: column; max-height: 65vh; }
         .bookmark-modal.open { display: flex; }
         .bookmark-modal-content { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; margin-top: 10px; }
-        .bookmark-item { min-width: 75px; width: 75px; text-align: center; cursor: pointer; position: relative; flex-shrink: 0; }
+        .bookmark-item { min-width: 96px; width: 96px; text-align: center; cursor: pointer; position: relative; flex-shrink: 0; display: flex; flex-direction: column; }
         .bookmark-item img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border: 1px solid var(--border); background-color: #f9fafb; }
         .bookmark-item p { font-size: 11px; margin: 5px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; color: var(--text); }
         .bookmark-delete { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .bookmark-memo-preview {
+            margin-top: 4px; padding: 4px 6px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px;
+            font-size: 10px; color: #92400e; text-align: left; line-height: 1.3;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;
+        }
+        .bookmark-memo-add {
+            margin-top: 4px; padding: 3px 6px; background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 6px;
+            font-size: 10px; color: var(--sec-text); text-align: center;
+        }
+
+        .memo-modal-overlay {
+            position: fixed; inset: 0; background: rgba(17, 24, 39, 0.5); backdrop-filter: blur(3px);
+            z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .memo-modal-overlay.open { display: flex; }
+        .memo-modal-box {
+            width: 100%; max-width: 380px; background: #ffffff; border-radius: 20px; padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid var(--border);
+        }
+        .memo-modal-title { font-size: 16px; font-weight: 800; color: var(--text); margin: 0 0 6px 0; display: flex; align-items: center; gap: 6px; }
+        .memo-modal-bookname { font-size: 13px; color: var(--sec-text); margin: 0 0 12px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .memo-textarea {
+            width: 100%; min-height: 95px; border: 1.5px solid #d1d5db; border-radius: 12px; padding: 12px;
+            font-family: inherit; font-size: 14px; color: var(--text); resize: vertical; outline: none;
+        }
+        .memo-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .memo-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+        .memo-btn {
+            padding: 9px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; font-family: inherit;
+        }
+        .memo-btn-cancel { background: #f3f4f6; color: var(--sec-text); }
+        .memo-btn-delete { background: #fee2e2; color: #b91c1c; margin-right: auto; }
+        .memo-btn-save { background: var(--primary); color: #ffffff; }
 
         .lib-minimal-btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 6px 10px; font-size: 12px; font-weight: 600; color: var(--sec-text); background-color: #f9fafb; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; transition: background-color 0.2s, color 0.2s; white-space: nowrap; }
         .lib-minimal-btn:active { background-color: #e5e7eb; color: var(--text); }
@@ -215,7 +258,7 @@
             <div id="mainBookResultCard" class="card hidden">
                 <div class="section-title" style="justify-content: space-between;">
                     <span style="display:flex; align-items:center; gap:8px;"><i data-lucide="info"></i> 선택 도서 정보</span>
-                    <button id="bookmarkBtn" onclick="toggleBookmark()" style="background:transparent; border:1px solid var(--border); padding:6px 12px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:bold; transition:all 0.2s; white-space: nowrap;">☆ 북마크 저장</button>
+                    <button id="bookmarkBtn" onclick="openBookmarkMemoModalForCurrent()" style="background:transparent; border:1px solid var(--border); padding:6px 12px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:bold; transition:all 0.2s; white-space: nowrap;">☆ 북마크 저장</button>
                 </div>
                 
                 <div class="main-book-profile">
@@ -225,6 +268,11 @@
                         <p class="author" id="mainBookAuthor">저자명</p>
                         <p class="plot" id="mainBookPlot">줄거리</p>
                     </div>
+                </div>
+
+                <div id="mainBookMemoBox" class="saved-memo-box hidden">
+                    <div class="saved-memo-text" id="mainBookMemoText"></div>
+                    <button class="saved-memo-edit-btn" onclick="openBookmarkMemoModalForCurrent()">메모 수정</button>
                 </div>
             </div>
 
@@ -293,8 +341,6 @@
                             <a href="#" class="link-pill color-store dynamic-link" data-template="https://play.google.com/store/search?q={kw}&c=books&hl=ko" target="_blank"><img src="https://www.google.com/s2/favicons?domain=play.google.com&sz=32" class="site-logo" alt="logo"> 구글 플레이북</a>
                             <a href="#" class="link-pill color-store dynamic-link" data-template="https://search.kyobobook.co.kr/search?keyword={kw}" target="_blank"><img src="https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32" class="site-logo" alt="logo"> 교보문고</a>
                             <a href="#" class="link-pill color-used dynamic-link" data-template="https://www.aladin.co.kr/m/msearch.aspx?SearchTarget=Used&KeyWord={kw}" target="_blank"><img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" class="site-logo" alt="logo"> 알라딘 중고 (온라인)</a>
-                            <a href="#" class="link-pill color-used dynamic-link" data-template="https://www.aladin.co.kr/m/msearch.aspx?SearchWord={kw}&SearchTarget=UsedStore" target="_blank"><img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" class="site-logo" alt="logo"> 알라딘 중고 (오프라인)</a>
-                            <a href="#" class="link-pill color-used dynamic-link" data-template="https://www.aladin.co.kr/m/c2b/c2b_search.aspx?KeyWord={kw}" target="_blank"><img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" class="site-logo" alt="logo"> 중고매입가 조회</a>
                         </div>
                     </div>
 
@@ -347,16 +393,33 @@
                 <h3 style="margin:0; font-size:15px; color:#f59e0b; display:flex; align-items:center; gap:5px;"><i data-lucide="bookmark" fill="#f59e0b" color="#f59e0b" size="16"></i> 내 북마크</h3>
                 <button onclick="toggleBookmarkModal()" style="background:none; border:none; cursor:pointer;"><i data-lucide="x" size="18" color="var(--sec-text)"></i></button>
             </div>
-            <p style="font-size:11px; color:var(--sec-text); margin: 8px 0 0 0;">* 저장한 도서를 터치하면 즉시 다시 검색합니다.</p>
+            <p style="font-size:11px; color:var(--sec-text); margin: 8px 0 0 0;">* 표지를 누르면 재검색, 아래 메모 칸을 누르면 메모를 수정합니다.</p>
             <div id="bookmarkModalContent" class="bookmark-modal-content"></div>
+        </div>
+    </div>
+
+    <div id="memoModalOverlay" class="memo-modal-overlay" onclick="if(event.target===this) closeMemoModal()">
+        <div class="memo-modal-box">
+            <h3 class="memo-modal-title" id="memoModalTitle">북마크 저장</h3>
+            <p class="memo-modal-bookname" id="memoModalBookName"></p>
+            <textarea id="memoTextarea" class="memo-textarea" placeholder="메모를 남겨보세요. (선택 사항 — 비워두고 저장해도 됩니다)"></textarea>
+            <div class="memo-modal-actions">
+                <button id="memoDeleteBtn" class="memo-btn memo-btn-delete hidden" onclick="deleteFromMemoModal()">북마크 삭제</button>
+                <button class="memo-btn memo-btn-cancel" onclick="closeMemoModal()">취소</button>
+                <button class="memo-btn memo-btn-save" onclick="saveFromMemoModal()">저장</button>
+            </div>
         </div>
     </div>
 
     <script>
         lucide.createIcons();
         const apiKey = "86bbf34832d0f70658c95d21f790afa9b7ee8956deed3ea4a440a101cafbca69";
+        // 구글 시트 자동 동기화용 웹 앱 URL (사용하지 않을 경우 그대로 두시면 localStorage로 작동합니다)
+        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx2Nfma38CUR4djvg9LaIJaLexkzitNcpJyC76DaglRUnhT_nob8gZMS3I1-0psMKnqmA/exec";
+
         let currentBooksList = [];
-        let currentSelectedBook = null; 
+        let currentSelectedBook = null;
+        let activeMemoTarget = null;
 
         document.getElementById('searchInput').addEventListener('click', function(event) {
             event.stopPropagation(); 
@@ -405,11 +468,9 @@
             document.getElementById('searchResultsCard').classList.remove('hidden');
             document.getElementById('aladinDirectBtnContainer').style.display = 'none'; 
             
-            // 새 검색 시, 책 표지를 클릭하지 않아도 실시간 대출 도서관 바로가기를 즉시 표시합니다.
             updateDynamicLinks(keyword);
             document.getElementById('quickLinkBox').classList.remove('hidden');
 
-            // 책 상세 관련 패널들은 선택 전까지 숨겨둡니다.
             document.getElementById('mainBookResultCard').classList.add('hidden'); 
             document.getElementById('linksCard').classList.add('hidden'); 
             document.getElementById('apiHashtagBox').classList.add('hidden');
@@ -531,7 +592,6 @@
                 document.getElementById('aladinDirectBtnContainer').style.display = 'flex';
                 document.getElementById('aladinDirectBtn').href = aladinUsedUrl;
                 
-                // 검색어 그대로 링크를 갱신하고 외부 링크 및 대출 도서관 바로가기를 바로 보여줍니다.
                 updateDynamicLinks(originalKw);
                 document.getElementById('linksCard').classList.remove('hidden');
                 document.getElementById('quickLinkBox').classList.remove('hidden');
@@ -555,13 +615,13 @@
             updateDynamicLinks(keyword);
             
             currentSelectedBook = null;
-            updateBookmarkBtnUI(false);
+            updateBookmarkBtnUI(false, '');
         }
 
         function selectBook(index) {
             const book = currentBooksList[index].doc;
             currentSelectedBook = book;
-            const isbn = book.isbn13 || book.isbn; 
+            const isbn = String(book.isbn13 || book.isbn || ''); 
             
             document.querySelectorAll('.search-result-item').forEach(el => el.classList.remove('active'));
             document.getElementById(`book-item-${index}`).classList.add('active');
@@ -590,12 +650,11 @@
             }
 
             let cleanTitle = book.bookname.split(' =')[0].split(':')[0].trim();
-            
-            // 책을 선택하면 링크들이 '책 제목'으로 다시 갱신됩니다.
             updateDynamicLinks(cleanTitle);
 
-            const isBookmarked = (JSON.parse(localStorage.getItem('myBookmarks')) || []).some(b => b.isbn === isbn);
-            updateBookmarkBtnUI(isBookmarked);
+            const bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+            const savedBook = bookmarks.find(b => String(b.isbn) === isbn);
+            updateBookmarkBtnUI(!!savedBook, savedBook ? (savedBook.memo || '') : '');
 
             document.getElementById('apiHashtags').innerHTML = "<div class='loading-msg'>키워드 분석 중...</div>";
             document.getElementById('recommendScroll').innerHTML = "<div class='loading-msg'>추천 도서 불러오는 중...</div>";
@@ -627,9 +686,6 @@
             modal.classList.toggle('open');
         }
 
-// 2단계에서 복사한 구글 Apps Script 웹 앱 URL을 큰따옴표 안에 넣어주세요.
-        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx2Nfma38CUR4djvg9LaIJaLexkzitNcpJyC76DaglRUnhT_nob8gZMS3I1-0psMKnqmA/exec";
-
         async function syncBookmarksFromSheet() {
             if (!SHEET_API_URL || SHEET_API_URL.includes("여기에_웹앱_URL")) return;
             try {
@@ -638,10 +694,7 @@
                 if (data.status === 'ok' && Array.isArray(data.bookmarks)) {
                     localStorage.setItem('myBookmarks', JSON.stringify(data.bookmarks));
                     loadBookmarks();
-                    if (currentSelectedBook) {
-                        const isbn = String(currentSelectedBook.isbn13 || currentSelectedBook.isbn);
-                        updateBookmarkBtnUI(data.bookmarks.some(b => String(b.isbn) === isbn));
-                    }
+                    refreshCurrentBookBookmarkUI();
                 }
             } catch (e) {
                 console.error("구글 시트 북마크 불러오기 실패:", e);
@@ -651,7 +704,6 @@
         async function sendBookmarkToSheet(payload) {
             if (!SHEET_API_URL || SHEET_API_URL.includes("여기에_웹앱_URL")) return;
             try {
-                // CORS 오류를 피하기 위해 text/plain으로 전송
                 const res = await fetch(SHEET_API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -661,45 +713,116 @@
                 if (data.status === 'ok' && Array.isArray(data.bookmarks)) {
                     localStorage.setItem('myBookmarks', JSON.stringify(data.bookmarks));
                     loadBookmarks();
+                    refreshCurrentBookBookmarkUI();
                 }
             } catch (e) {
                 console.error("구글 시트 북마크 저장 실패:", e);
             }
         }
 
-        function toggleBookmark() {
+        function refreshCurrentBookBookmarkUI() {
+            if (!currentSelectedBook) return;
+            const isbn = String(currentSelectedBook.isbn13 || currentSelectedBook.isbn || '');
+            const bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+            const savedBook = bookmarks.find(b => String(b.isbn) === isbn);
+            updateBookmarkBtnUI(!!savedBook, savedBook ? (savedBook.memo || '') : '');
+        }
+
+        function openBookmarkMemoModalForCurrent() {
             if (!currentSelectedBook) return;
             const isbn = String(currentSelectedBook.isbn13 || currentSelectedBook.isbn || '');
             if (!isbn) {
                 alert('이 도서는 도서관 고유 코드(ISBN) 정보가 없어 보관할 수 없습니다.');
                 return;
             }
-            
-            let bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
-            const index = bookmarks.findIndex(b => String(b.isbn) === isbn);
-            
-            if (index > -1) {
-                bookmarks.splice(index, 1);
-                updateBookmarkBtnUI(false);
-                localStorage.setItem('myBookmarks', JSON.stringify(bookmarks));
-                loadBookmarks();
-                sendBookmarkToSheet({ action: 'remove', isbn: isbn });
-            } else {
-                const newBook = {
-                    title: currentSelectedBook.bookname,
-                    isbn: isbn,
-                    cover: currentSelectedBook.bookImageURL,
-                    keyword: document.getElementById('searchInput').value
-                };
-                bookmarks.push(newBook);
-                updateBookmarkBtnUI(true);
-                localStorage.setItem('myBookmarks', JSON.stringify(bookmarks));
-                loadBookmarks();
-                sendBookmarkToSheet({ action: 'add', book: newBook });
-            }
+            const bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+            const existing = bookmarks.find(b => String(b.isbn) === isbn);
+
+            openMemoModal({
+                isbn: isbn,
+                title: currentSelectedBook.bookname,
+                cover: currentSelectedBook.bookImageURL,
+                keyword: document.getElementById('searchInput').value,
+                memo: existing ? (existing.memo || '') : '',
+                isExisting: !!existing
+            });
         }
 
-        function updateBookmarkBtnUI(isBookmarked) {
+        function openMemoModalForIsbn(isbn) {
+            const bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+            const existing = bookmarks.find(b => String(b.isbn) === String(isbn));
+            if (!existing) return;
+
+            openMemoModal({
+                ...existing,
+                isbn: String(existing.isbn),
+                memo: existing.memo || '',
+                isExisting: true
+            });
+        }
+
+        function openMemoModal(target) {
+            activeMemoTarget = target;
+            document.getElementById('memoModalTitle').innerText = target.isExisting ? '북마크 · 메모 수정' : '북마크 저장';
+            document.getElementById('memoModalBookName').innerText = target.title;
+            document.getElementById('memoTextarea').value = target.memo || '';
+
+            const deleteBtn = document.getElementById('memoDeleteBtn');
+            if (target.isExisting) {
+                deleteBtn.classList.remove('hidden');
+            } else {
+                deleteBtn.classList.add('hidden');
+            }
+
+            document.getElementById('memoModalOverlay').classList.add('open');
+            setTimeout(() => document.getElementById('memoTextarea').focus(), 50);
+        }
+
+        function closeMemoModal() {
+            document.getElementById('memoModalOverlay').classList.remove('open');
+            activeMemoTarget = null;
+        }
+
+        function saveFromMemoModal() {
+            if (!activeMemoTarget) return;
+            const memo = document.getElementById('memoTextarea').value.trim();
+            const targetIsbn = String(activeMemoTarget.isbn);
+
+            let bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+            const idx = bookmarks.findIndex(b => String(b.isbn) === targetIsbn);
+
+            if (idx > -1) {
+                bookmarks[idx].memo = memo;
+                localStorage.setItem('myBookmarks', JSON.stringify(bookmarks));
+                loadBookmarks();
+                refreshCurrentBookBookmarkUI();
+                sendBookmarkToSheet({ action: 'updateMemo', isbn: targetIsbn, memo: memo });
+            } else {
+                const newBook = {
+                    title: activeMemoTarget.title,
+                    isbn: targetIsbn,
+                    cover: activeMemoTarget.cover,
+                    keyword: activeMemoTarget.keyword,
+                    memo: memo
+                };
+                bookmarks.push(newBook);
+                localStorage.setItem('myBookmarks', JSON.stringify(bookmarks));
+                loadBookmarks();
+                refreshCurrentBookBookmarkUI();
+                sendBookmarkToSheet({ action: 'add', book: newBook });
+            }
+
+            closeMemoModal();
+        }
+
+        function deleteFromMemoModal() {
+            if (!activeMemoTarget) return;
+            const targetIsbn = String(activeMemoTarget.isbn);
+            closeMemoModal();
+            removeBookmark(targetIsbn);
+        }
+
+        function updateBookmarkBtnUI(isBookmarked, memo = '') {
             const btn = document.getElementById('bookmarkBtn');
             if (btn) {
                 if (isBookmarked) {
@@ -710,6 +833,17 @@
                     btn.innerHTML = '<span style="color:var(--sec-text); display:flex; align-items:center; gap:4px;">☆ 북마크 저장</span>';
                     btn.style.borderColor = 'var(--border)';
                     btn.style.backgroundColor = 'transparent';
+                }
+            }
+
+            const memoBox = document.getElementById('mainBookMemoBox');
+            const memoText = document.getElementById('mainBookMemoText');
+            if (memoBox && memoText) {
+                if (isBookmarked && memo && memo.trim() !== '') {
+                    memoText.innerText = `📝 ${memo}`;
+                    memoBox.classList.remove('hidden');
+                } else {
+                    memoBox.classList.add('hidden');
                 }
             }
         }
@@ -731,11 +865,41 @@
             bookmarks.forEach((book) => {
                 const item = document.createElement('div');
                 item.className = 'bookmark-item';
-                item.innerHTML = `
-                    <img src="${book.cover}" onerror="this.src='https://via.placeholder.com/90x130?text=No+Image'">
-                    <div class="bookmark-delete" onclick="event.stopPropagation(); removeBookmark('${book.isbn}')">✕</div>
-                    <p title="${book.title}">${book.title}</p>
-                `;
+
+                const img = document.createElement('img');
+                img.src = book.cover;
+                img.onerror = function() { this.src = 'https://via.placeholder.com/90x130?text=No+Image'; };
+
+                const delBtn = document.createElement('div');
+                delBtn.className = 'bookmark-delete';
+                delBtn.innerText = '✕';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    removeBookmark(book.isbn);
+                };
+
+                const titleEl = document.createElement('p');
+                titleEl.title = book.title;
+                titleEl.innerText = book.title;
+
+                const memoEl = document.createElement('div');
+                if (book.memo && book.memo.trim() !== '') {
+                    memoEl.className = 'bookmark-memo-preview';
+                    memoEl.title = book.memo;
+                    memoEl.innerText = book.memo;
+                } else {
+                    memoEl.className = 'bookmark-memo-add';
+                    memoEl.innerText = '+ 메모';
+                }
+                memoEl.onclick = (e) => {
+                    e.stopPropagation();
+                    openMemoModalForIsbn(book.isbn);
+                };
+
+                item.appendChild(img);
+                item.appendChild(delBtn);
+                item.appendChild(titleEl);
+                item.appendChild(memoEl);
                 
                 item.onclick = () => {
                     let cleanTitle = book.title.split(' =')[0].split(':')[0].trim();
@@ -753,13 +917,9 @@
             bookmarks = bookmarks.filter(b => String(b.isbn) !== targetIsbn);
             localStorage.setItem('myBookmarks', JSON.stringify(bookmarks));
             loadBookmarks();
-            
-            if (currentSelectedBook && String(currentSelectedBook.isbn13 || currentSelectedBook.isbn) === targetIsbn) {
-                updateBookmarkBtnUI(false);
-            }
+            refreshCurrentBookBookmarkUI();
             sendBookmarkToSheet({ action: 'remove', isbn: targetIsbn });
         }
-    }
 
         async function fetchHashtags(isbn) {
             try {
@@ -809,7 +969,6 @@
 
         function getTargetLibraryPriority(libName, regionType) {
             const cleanName = (libName || '').replace(/\s+/g, '');
-            // 우선순위: 1. 용산꿈나무도서관 > 2. 남산도서관 > 3. 마포아현분관
             if (regionType === 'yongsan' && cleanName.includes('꿈나무')) return 1;
             if (regionType === 'yongsan' && cleanName.includes('남산도서관')) return 2;
             if (regionType === 'mapo' && (cleanName.includes('아현분관') || (cleanName.includes('마포') && cleanName.includes('아현')))) return 3;
@@ -855,7 +1014,6 @@
                     }
                 }
 
-                // 중복 제거 후 우선순위(꿈나무 > 남산 > 아현)대로 정렬
                 const seenLibCodes = new Set();
                 targetLibs = targetLibs
                     .filter(item => {
@@ -941,8 +1099,8 @@
         }
 
         window.onload = function() {
-            loadBookmarks();        // 화면에 즉시 표시
-            syncBookmarksFromSheet(); // 백그라운드에서 구글 시트 최신 목록 동기화
+            loadBookmarks();
+            syncBookmarksFromSheet();
         }
 
         if ('serviceWorker' in navigator) {

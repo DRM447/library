@@ -629,9 +629,12 @@
  .mylib-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
  }
  .mylib-item {
- border: 1px solid var(--border); border-radius: 13px; padding: 11px 12px;
+ border: 1px solid var(--border); border-radius: 13px; padding: 12px 13px;
  background: #ffffff; display: flex; flex-direction: column; gap: 6px; min-width: 0;
+ cursor: pointer; transition: border-color 0.15s, background-color 0.15s, transform 0.1s;
  }
+ .mylib-item:hover { border-color: #6ee7b7; background: #f8fafc; }
+ .mylib-item:active { transform: scale(0.99); background: #f0fdf4; }
  .mylib-item.is-dup { border-color: #fcd34d; background: #fffbeb; }
  .mylib-item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
  .mylib-item-title { font-size: 14px; font-weight: 800; color: var(--text); margin: 0; line-height: 1.3; word-break: break-word; }
@@ -839,7 +842,7 @@
  <!-- 선택 도서 보유 여부 / 서재 추가 / 독서 상태·평점·완독일·한줄평 바 -->
  <div id="mainBookOwnedBar" class="owned-status-bar hidden"></div>
 
- <!-- 내가 보유한 이 저자의 다른 도서 -->
+ <!-- 내가 보유한 이 저자·옮긴이·감수·엮은이의 다른 도서 -->
  <div id="sameAuthorOwnedBox" class="same-author-box hidden"></div>
 
  <div id="mainBookMemoBox" class="saved-memo-box hidden">
@@ -1172,7 +1175,8 @@
  </div>
 
  <div class="memo-modal-actions">
- <button id="ownedDeleteBtn" class="memo-btn memo-btn-delete hidden" onclick="deleteOwnedBookFromModal()">서재에서 삭제</button>
+ <button id="ownedDeleteBtn" class="memo-btn memo-btn-delete hidden" onclick="deleteOwnedBookFromModal()">삭제</button>
+ <button id="ownedSearchFromModalBtn" class="memo-btn hidden" style="background:#eef2ff; color:#4338ca;" onclick="searchOwnedBookFromModal()">🔍 검색</button>
  <button class="memo-btn memo-btn-cancel" onclick="closeOwnedEditModal()">취소</button>
  <button id="ownedSaveBtn" class="memo-btn memo-btn-save green" onclick="saveOwnedBookFromModal()">시트에 저장</button>
  </div>
@@ -1322,6 +1326,15 @@
 
  function getOwnedMemo(b) {
  return String(b?.memo || '').trim();
+ }
+
+ function getTranslatorSupervisorInfo(b) {
+ const memo = getOwnedMemo(b);
+ if (!memo) return '';
+ if (/(옮긴이|옮김|역자|편역|공역|감수자|감수|엮은이|엮음)/.test(memo)) {
+ return memo;
+ }
+ return '';
  }
 
  function extractSeriesGroupName(seriesStr) {
@@ -1513,7 +1526,7 @@
  async function quickDeleteOwnedByIndex(idx) {
  const target = myOwnedBooks[idx];
  if (!target) return;
- if (!confirm(`'${formatOwnedTitle(target)}' (${target.row}행) 도서를 시트에서 바로 삭제할까요?`)) return;
+ if (!confirm(`'${formatOwnedTitle(target)}' 도서를 시트에서 바로 삭제할까요?`)) return;
  try {
  const res = await sendSheetPost({
  target: 'library',
@@ -2029,7 +2042,7 @@
  <p class="random-pick-meta">${escapeHtml(b.author || '저자 미상')}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${getOwnedSeries(b) ? ' · ' + escapeHtml(getOwnedSeries(b)) : ''}${getOwnedMemo(b) ? ' · ' + escapeHtml(getOwnedMemo(b)) : ''}</p>
  <div class="mylib-item-badges">${st === '읽을 예정' ? '<span class="mylib-badge status-planned">읽을 예정</span>' : ''}${tags}</div>
  <div class="random-pick-actions">
- <button class="owned-action-btn add" onclick="startReadingOwnedByIndex(${idx})">📖 읽는 중으로 시작</button>
+ <button class="owned-action-btn add" onclick="startReadingOwnedByIndex(${idx})">📖 읽기 시작</button>
  <button class="owned-chip-btn indigo" style="padding:7px 10px;" onclick="searchFromMyLibraryByIndex(${idx})">도서 정보 검색</button>
  </div>
  </div>
@@ -2193,7 +2206,7 @@
  const rolesFound = Array.from(new Set(others.map(o => o.role)));
  const hasNonAuthor = rolesFound.some(r => r !== '저자');
  const headingLabel = hasNonAuthor
- ? '내가 보유한 이 저자의 다른 도서'
+ ? '내가 보유한 저자·옮긴이·감수·엮은이의 다른 도서'
  : '내가 보유한 이 저자의 다른 도서';
 
  box.innerHTML = `
@@ -2544,11 +2557,9 @@
  else if (statusVal === '중단') statusCls = 'status-stop';
 
  const ratingShort = formatRatingShort(b.rating);
- const formatBadge = ebook
- ? '<span class="mylib-badge ebook">📱 전자책</span>'
- : '<span class="mylib-badge paper">📖 종이책</span>';
-
- const tagBadges = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && t !== '전자책').slice(0, 4)
+ const transSup = getTranslatorSupervisorInfo(b);
+ const subLine = `${escapeHtml(b.author || '저자 미상')}${transSup ? ' · ' + escapeHtml(transSup) : ''}`;
+ const tagBadges = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && t !== '전자책').slice(0, 2)
  .map(t => `<span class="mylib-badge">#${escapeHtml(t)}</span>`).join('');
 
  let groupHeaderHtml = '';
@@ -2561,7 +2572,7 @@
  groupHeaderHtml = `
  <div class="dup-group-header">
  <span>⚠️ 중복 의심 그룹 (${groupBooks.length}권)</span>
- <button class="owned-chip-btn skip" onclick="skipDuplicateGroup(decodeURIComponent('${safeKey}'))">중복 아님 · 스킵</button>
+ <button class="owned-chip-btn skip" onclick="skipDuplicateGroup(decodeURIComponent('${safeKey}'))">스킵</button>
  </div>
  `;
  }
@@ -2569,26 +2580,20 @@
 
  return `
  ${groupHeaderHtml}
- <div class="mylib-item ${myLibStatusFilter === 'duplicates' ? 'is-dup' : ''}">
+ <div class="mylib-item ${myLibStatusFilter === 'duplicates' ? 'is-dup' : ''}" onclick="openOwnedEditModalByIndex(${idx})">
  <div class="mylib-item-top">
  <div style="min-width:0; flex:1;">
- <p class="mylib-item-title">${escapeHtml(formatOwnedTitle(b))} ${myLibStatusFilter === 'duplicates' ? `<span style="font-size:10.5px; color:#b45309; font-weight:700;">(${b.row}행)</span>` : ''}</p>
- <p class="mylib-item-sub">${escapeHtml(b.author || '저자 미상')}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${b.isbn ? ' · ISBN ' + escapeHtml(b.isbn) : ''}</p>
+ <p class="mylib-item-title">${escapeHtml(formatOwnedTitle(b))}</p>
+ <p class="mylib-item-sub">${subLine}</p>
  </div>
- <div class="owned-mini-actions">
- <button class="owned-chip-btn" onclick="searchFromMyLibraryByIndex(${idx})">검색</button>
- <button class="owned-chip-btn primary" onclick="openOwnedEditModalByIndex(${idx})">기록</button>
- ${myLibStatusFilter === 'duplicates' ? `<button class="owned-chip-btn danger" onclick="quickDeleteOwnedByIndex(${idx})">삭제</button>` : ''}
- </div>
+ ${myLibStatusFilter === 'duplicates' ? `<div class="owned-mini-actions" onclick="event.stopPropagation()"><button class="owned-chip-btn danger" onclick="quickDeleteOwnedByIndex(${idx})">삭제</button></div>` : ''}
  </div>
  ${b.review ? `<div class="mylib-item-review">💬 ${escapeHtml(b.review)}</div>` : ''}
  <div class="mylib-item-badges">
- ${formatBadge}
  ${statusVal ? `<span class="mylib-badge ${statusCls}">${escapeHtml(statusVal)}</span>` : ''}
  ${ratingShort ? `<span class="mylib-badge rating">${ratingShort}</span>` : ''}
  ${b.finishDate ? `<span class="mylib-badge date">📅 ${escapeHtml(b.finishDate)}</span>` : ''}
  ${getOwnedSeries(b) ? `<span class="mylib-badge series">${escapeHtml(getOwnedSeries(b))}</span>` : ''}
- ${getOwnedMemo(b) ? `<span class="mylib-badge">📌 ${escapeHtml(getOwnedMemo(b))}</span>` : ''}
  ${tagBadges}
  </div>
  </div>
@@ -2713,8 +2718,14 @@
  selectOwnedRating(parseRating(b.rating));
 
  const deleteBtn = document.getElementById('ownedDeleteBtn');
- if (ctx.mode === 'edit') deleteBtn.classList.remove('hidden');
- else deleteBtn.classList.add('hidden');
+ const searchFromModalBtn = document.getElementById('ownedSearchFromModalBtn');
+ if (ctx.mode === 'edit') {
+ deleteBtn.classList.remove('hidden');
+ if (searchFromModalBtn) searchFromModalBtn.classList.remove('hidden');
+ } else {
+ deleteBtn.classList.add('hidden');
+ if (searchFromModalBtn) searchFromModalBtn.classList.add('hidden');
+ }
 
  document.getElementById('ownedEditModalOverlay').classList.add('open');
  }
@@ -2722,6 +2733,18 @@
  function closeOwnedEditModal() {
  document.getElementById('ownedEditModalOverlay').classList.remove('open');
  activeOwnedEditContext = null;
+ }
+
+ function searchOwnedBookFromModal() {
+ if (!activeOwnedEditContext || !activeOwnedEditContext.book) return;
+ const title = document.getElementById('ownedInputTitle').value.trim() || activeOwnedEditContext.book.title || '';
+ if (!title) return;
+ const cleanTitle = String(title).replace(/^\d{1,3}\s+(?=\D)/, '').replace(/\([^)]*\)/g, '').trim();
+ closeOwnedEditModal();
+ closeMyLibraryModal();
+ document.getElementById('liveOwnedDropdown').classList.add('hidden');
+ document.getElementById('searchInput').value = cleanTitle;
+ executeSearch(cleanTitle);
  }
 
  function selectOwnedStatus(val, allowToggle = true) {

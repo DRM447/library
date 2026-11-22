@@ -137,9 +137,14 @@
         .recommend-card p { font-size: 12px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600;}
 
         .links-container { display: flex; flex-direction: column; gap: 15px; }
-        .link-group-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+        .link-group-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+        .link-group-sub { font-size: 11px; font-weight: 500; color: var(--sec-text); }
         .link-grid { display: flex; flex-wrap: wrap; gap: 6px; }
         .link-pill { padding: 8px 12px; font-size: 13px; font-weight: 600; border-radius: 8px; background-color: var(--bg); color: var(--text); text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 6px; }
+        .link-pill.district-pill { padding: 7px 11px; gap: 7px; }
+        .pill-info { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; }
+        .pill-name { font-size: 13px; font-weight: 600; color: var(--text); }
+        .pill-count { font-size: 10px; font-weight: 500; color: var(--sec-text); margin-top: 2px; }
         .site-logo { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; }
         .link-pill:active { transform: scale(0.95); background-color: var(--border); }
         .link-pill.color-lib { border-left: 3px solid #10b981; } 
@@ -152,13 +157,21 @@
         details.hidden-districts summary::before { content: "▼"; font-size: 10px; }
         details[open].hidden-districts summary::before { content: "▲"; }
 
-        .library-list { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
-        .library-item { padding: 12px 10px; border-bottom: 1px solid var(--border); font-size: 13px; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.2s;}
+        .library-list { list-style: none; padding: 0; margin: 0; max-height: 320px; overflow-y: auto; }
+        .library-item { padding: 12px 10px; border-bottom: 1px solid var(--border); font-size: 13px; display: flex; justify-content: space-between; align-items: center; gap: 8px; transition: background-color 0.2s;}
         .library-item:active { background-color: #e2e8f0; }
-        .fav-item { background-color: #f8fafc; border: 1px solid #bae6fd; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
-        .fav-lib-text { font-weight: 800; color: #0369a1; display:flex; align-items:center; gap:5px; line-height: 1.2; word-break: keep-all; padding-right: 10px; cursor: pointer;} 
+        .fav-item { background-color: #f8fafc; border: 1px solid #bae6fd; border-radius: 10px; margin-bottom: 8px; cursor: pointer; }
+        .fav-lib-wrap { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding-right: 6px; }
+        .fav-lib-text { font-weight: 800; color: #0369a1; display:flex; align-items:center; gap:5px; line-height: 1.25; word-break: keep-all; cursor: pointer;} 
+
+        /* 청파도서관 상호대차 전용 강조 스타일 */
+        .interlibrary-item { background-color: #f5f3ff; border: 1px solid #c4b5fd; border-left: 4px solid #7c3aed; }
+        .interlibrary-item:active { background-color: #ede9fe; }
+        .interlibrary-text { color: #6d28d9; }
+        .interlibrary-sub { font-size: 11px; color: #7c3aed; font-weight: 600; padding-left: 19px; }
 
         .status-available { background-color: #d1fae5; color: #047857; padding: 5px 10px; border-radius: 20px; font-weight: 800; font-size: 12px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(16, 185, 129, 0.2);} 
+        .status-interlibrary { background-color: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; padding: 5px 10px; border-radius: 20px; font-weight: 800; font-size: 12px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(124, 58, 237, 0.18);}
         .status-unavailable { background-color: #fee2e2; color: #b91c1c; padding: 5px 10px; border-radius: 20px; font-weight: 800; font-size: 12px; flex-shrink: 0; } 
         .status-normal { background-color: #f3f4f6; color: #6b7280; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px; flex-shrink: 0;} 
 
@@ -291,36 +304,37 @@
                     </div>
 
                     <div class="link-group">
-                        <div class="link-group-title"><i data-lucide="map-pin" size="16" color="#10b981"></i> 2. 서울시 자치구 전자도서관</div>
+                        <div class="link-group-title">
+                            <i data-lucide="map-pin" size="16" color="#10b981"></i> 2. 서울시 자치구 전자도서관
+                            <span class="link-group-sub">(2026.11.22 기준 · 가입 우선/장서순)</span>
+                        </div>
                         <div class="link-grid">
-                            <a href="#" class="link-pill color-lib dynamic-link" data-template="https://ebook.mapo.go.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank"><img src="mapo_logo.svg" class="site-logo" alt="logo"> 마포구</a>
-                            <a href="#" class="link-pill color-lib dynamic-link" data-template="https://ebook.yslibrary.or.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank"><img src="yongsan_logo.svg" class="site-logo" alt="logo"> 용산구</a>
-                            <a href="#" class="link-pill color-lib dynamic-link" data-template="https://e-lib.gwanak.go.kr/search/?srch_order=total&src_key={kw}" target="_blank"><img src="Gwanak_logo.svg" class="site-logo" alt="logo"> 관악구</a>
-                            <a href="#" class="link-pill color-lib dynamic-link" data-template="https://eb.nowonlib.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="Nowon_logo.svg" class="site-logo" alt="logo"> 노원구</a>
-                            <a href="#" class="link-pill color-lib dynamic-link" data-template="https://e-book.l4d.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="dongdaemun_logo.svg" class="site-logo" alt="logo"> 동대문구</a>
-                            <a href="#" class="link-pill color-lib dynamic-link" data-template="https://elibrary.sblib.seoul.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="Seongbuk_logo.svg" class="site-logo" alt="logo"> 성북구</a>
-                            <a href="#" class="link-pill color-lib dynamic-link" data-template="https://ebook.jungnanglib.seoul.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="Jungnang_logo.svg" class="site-logo" alt="logo"> 중랑구</a>
+                            <!-- 회원가입한 자치구 (보유 장서 많은 순) -->
+                            <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ydplib.dkyobobook.co.kr/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="yeongdeungpo_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">영등포구</span><span class="pill-count">258,824권</span></span></a>
+                            <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://splib.dkyobobook.co.kr/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="Songpa_logo2.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">송파구(S)</span><span class="pill-count">199,300권</span></span></a>
+                            <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://gdlib.dkyobobook.co.kr/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank"><img src="gangdong_logo2.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">강동구(구독형)</span><span class="pill-count">188,678권</span></span></a>
+                            <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.jungnanglib.seoul.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="Jungnang_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">중랑구</span><span class="pill-count">16,499권</span></span></a>
+                            <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://e-book.l4d.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="dongdaemun_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">동대문구</span><span class="pill-count">15,900권</span></span></a>
+                            <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://elibrary.sblib.seoul.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="Seongbuk_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">성북구</span><span class="pill-count">10,082권</span></span></a>
+                            <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://e-lib.gwanak.go.kr/search/?srch_order=total&src_key={kw}" target="_blank"><img src="Gwanak_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">관악구</span><span class="pill-count">8,617권</span></span></a>
+                            <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.yslibrary.or.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank"><img src="yongsan_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">용산구</span><span class="pill-count">7,610권</span></span></a>
+                            <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.gdlibrary.or.kr/search/?srch_order=total&src_key={kw}" target="_blank"><img src="gangdong_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">강동구(소장형)</span><span class="pill-count">7,230권</span></span></a>
+                            <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://eb.nowonlib.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="Nowon_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">노원구</span><span class="pill-count">6,133권</span></span></a>
+                            <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.mapo.go.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank"><img src="mapo_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">마포구</span><span class="pill-count">5,996권</span></span></a>
+
+                            <!-- 미가입 자치구 숨김 처리 (보유 장서 많은 순) -->
                             <details class="hidden-districts">
-                                <summary>나머지 자치구 펼치기</summary>
+                                <summary>미가입 자치구 펼치기</summary>
                                 <div class="link-grid" style="margin-top: 8px;">
-                                    <a href="#" class="link-pill color-lib" onclick="var kw=document.getElementById('searchInput').value.trim(); var f=document.createElement('form'); f.action='https://ebook.gangnam.go.kr/mobile/mbook/bk_result.asp'; f.method='get'; f.target='_blank'; f.acceptCharset='euc-kr'; f.innerHTML='<input type=\'hidden\' name=\'search\' value=\'title\'><input type=\'hidden\' name=\'strSearch\' value=\''+kw+'\'>'; document.body.appendChild(f); f.submit(); document.body.removeChild(f); return false;"><img src="gangnam_logo.svg" class="site-logo" alt="logo"> 강남구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://e-book.seocholib.or.kr/search?keyword={kw}" target="_blank"><img src="seocho_logo.svg" class="site-logo" alt="logo"> 서초구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://ebook.dongjak.go.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="Dongjak_logo.svg" class="site-logo" alt="logo"> 동작구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://lib.sdm.or.kr/sdmlib/menu/10003/program/30001/searchResultList.do?searchType=SIMPLE&viewType=LIST&searchKeyword={kw}&searchPubFormCode=EB&currentPageNo=1&searchDisplay=20&searchArticle=SCORE&searchOrder=ASC" target="_blank"><img src="seodaemun_logo.svg" class="site-logo" alt="logo"> 서대문구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://ebook.splib.or.kr/search/?srch_order=total&src_key={kw}" target="_blank"><img src="Songpa_logo.svg" class="site-logo" alt="logo"> 송파구 C</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://splib.dkyobobook.co.kr/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="Songpa_logo2.svg" class="site-logo" alt="logo"> 송파구 S</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://ebook.guro.go.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="guro_logo.svg" class="site-logo" alt="logo"> 구로구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://ydplib.dkyobobook.co.kr/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="yeongdeungpo_logo.svg" class="site-logo" alt="logo"> 영등포구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://epbook.eplib.or.kr/ebookPlatform/home/search.do?k={kw}" target="_blank"><img src="Eunpyeong_logo.svg" class="site-logo" alt="logo"> 은평구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://elib.jongno.go.kr/search/?srch_order=total&src_key={kw}" target="_blank"><img src="jongno_logo.svg" class="site-logo" alt="logo"> 종로구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://ebook.junggulib.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="junggu_logo.svg" class="site-logo" alt="logo"> 중구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://ebook.gangseo.seoul.kr/search/?srch_order=total&src_key={kw}" target="_blank"><img src="gangseo_logo.svg" class="site-logo" alt="logo"> 강서구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://ebook.gblib.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="gangbuk_logo.svg" class="site-logo" alt="logo"> 강북구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://www.gdlibrary.or.kr/sn/menu/123/book/search/collection?searchType=normal&tabSearch=true&form_code=&media_code=&doc_type=EB_OWN&sortField=score&sortOrder=desc&display=10&searchInput={kw}&title=&author=&publisher=&isbn=&keyword=&pub_year_from=&pub_year_to=&manage_code=MH%2CMF%2CMA%2CMB%2CBR%2CMC%2CMD%2CME&smart_manage_code=&small_manage_code=" target="_blank"><img src="gangdong_logo.svg" class="site-logo" alt="logo"> 강동구 C</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://www.gdlibrary.or.kr/sn/menu/123/book/search/collection?searchType=normal&tabSearch=true&form_code=&media_code=&doc_type=EB_SUB&sortField=score&sortOrder=desc&display=10&searchInput={kw}&title=&author=&publisher=&isbn=&keyword=&pub_year_from=&pub_year_to=&manage_code=MH%2CMF%2CMA%2CMB%2CBR%2CMC%2CMD%2CME&smart_manage_code=&small_manage_code=" target="_blank"><img src="gangdong_logo2.svg" class="site-logo" alt="logo"> 강동구 S</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://lib.yangcheon.or.kr/main/site/search/bookSearch.do?detail=ok&cmd_name=bookandnonbooksearch&search_type=detail&use_facet=N&org_detail=&facet_manage_code=&facet_author=&facet_publisher=&facet_pub_year=&facet_subject_code=&facet_media_code=&search_title={kw}&search_isbn_issn=&search_author=&media_code=EB&search_publisher=&manage_code=MA%2CMB%2CMC%2CMD%2CME%2CMF%2CMG%2CSG%2CMH%2CSA%2CSB%2CSC%2CSD%2CSF%2CSH%2CSJ%2CSK%2CSM%2CUA%2CUB%2CUD%2CUE%2CFA&search_shelf=&search_shelf=&search_year_start=&search_year_end=&subject_code=&search_keyword=&sh_orderby=&search_bt2=%EA%B2%80%EC%83%89%ED%95%98%EA%B8%B0#detail" target="_blank"><img src="yangcheon_logo.svg" class="site-logo" alt="logo"> 양천구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://elib.geumcheonlib.seoul.kr/FxLibrary/m/product/search/?searchstr={kw}" target="_blank"><img src="Geumcheon_logo.svg" class="site-logo" alt="logo"> 금천구</a>
-                                    <a href="#" class="link-pill color-lib dynamic-link" data-template="https://www.unilib.dobong.kr/site/search/search08.do?cmd_name=nonbooksearch&search_type=detail&manage_code=MA%2CMB%2CMC%2CME%2CMG%2CMJ%2CMF%2CMH%2CSA%2CMD%2CSB%2CSL%2CSM%2CSN%2CSO%2CSP%2CSK%2CSQ%2CSR%2CSS%2CST%2CSU%2CSG%2CSC&search_item_add=&search_txt_add=&use_facet=Y&org_detail=&facet_manage_code=&facet_author=&facet_publisher=&facet_pub_year=&facet_subject_code=&facet_media_code=EB&search_item=search_title&sh_orderby=&search_txt={kw}" target="_blank"><img src="dobong_logo.svg" class="site-logo" alt="logo"> 도봉구</a>
+                                    <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://elib.dobong.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="dobong_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">도봉구</span><span class="pill-count">21,572권</span></span></a>
+                                    <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.gangseo.seoul.kr/search/?srch_order=total&src_key={kw}" target="_blank"><img src="gangseo_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">강서구</span><span class="pill-count">20,581권</span></span></a>
+                                    <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://elib.jongno.go.kr/search/?srch_order=total&src_key={kw}" target="_blank"><img src="jongno_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">종로구</span><span class="pill-count">20,456권</span></span></a>
+                                    <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.dongjak.go.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="Dongjak_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">동작구</span><span class="pill-count">11,609권</span></span></a>
+                                    <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://elib.geumcheonlib.seoul.kr/FxLibrary/m/product/search/?searchstr={kw}" target="_blank"><img src="Geumcheon_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">금천구</span><span class="pill-count">11,348권</span></span></a>
+                                    <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.guro.go.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="guro_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">구로구</span><span class="pill-count">10,718권</span></span></a>
+                                    <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.junggulib.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="junggu_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">중구</span><span class="pill-count">8,632권</span></span></a>
+                                    <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.yangcheon.or.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank"><img src="yangcheon_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">양천구</span><span class="pill-count">6,446권</span></span></a>
+                                    <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.gblib.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank"><img src="gangbuk_logo.svg" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">강북구</span><span class="pill-count">5,871권</span></span></a>
                                 </div>
                             </details>
                         </div>
@@ -378,7 +392,7 @@
                 <div class="section-title" style="color: var(--primary); align-items: flex-start; justify-content: space-between;">
                     <span style="display:flex; align-items:center; gap:8px; line-height: 1.3;"><i data-lucide="bell-ring" style="margin-top:2px;"></i> <span id="libBoxTitle">대출 가능 여부</span></span>
                 </div>
-                <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">*용산꿈나무 · 남산 · 마포아현분관의 실시간 대출 여부를 확인합니다.</p>
+                <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">*용산꿈나무 · 청파(상호대차) · 남산 · 마포아현분관의 실시간 대출 여부를 확인합니다.</p>
                 <div id="libraryList" class="library-list">
                 </div>
             </div>
@@ -414,7 +428,6 @@
     <script>
         lucide.createIcons();
         const apiKey = "86bbf34832d0f70658c95d21f790afa9b7ee8956deed3ea4a440a101cafbca69";
-        // 구글 시트 자동 동기화용 웹 앱 URL (사용하지 않을 경우 그대로 두시면 localStorage로 작동합니다)
         const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx2Nfma38CUR4djvg9LaIJaLexkzitNcpJyC76DaglRUnhT_nob8gZMS3I1-0psMKnqmA/exec";
 
         let currentBooksList = [];
@@ -663,13 +676,13 @@
                 fetchHashtags(isbn);
                 fetchRecommendations(isbn);
                 
-                const safeBookName = book.bookname.replace(/'/g, "\\'");
+                const safeBookName = book.bookname.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
                 document.getElementById('libraryList').innerHTML = `
                     <div style="text-align:center; padding: 15px 0;">
                         <button onclick="fetchRealTimeLibraryStatus('${isbn}', '${safeBookName}')" class="kyobo-mini-btn" style="padding: 12px 20px; font-size: 14px;">
                             <i data-lucide="search" size="16"></i> 대출 상태 실시간 조회하기
                         </button>
-                        <p style="font-size:11px; color:var(--sec-text); margin-top:10px; line-height:1.4;">*버튼 클릭 시 용산꿈나무·남산·마포아현분관의 현재 대출 가능 여부를 확인합니다.</p>
+                        <p style="font-size:11px; color:var(--sec-text); margin-top:10px; line-height:1.4;">*버튼 클릭 시 용산꿈나무·청파(상호대차)·남산·마포아현분관의 현재 대출 가능 여부를 확인합니다.</p>
                     </div>
                 `;
                 lucide.createIcons();
@@ -955,7 +968,7 @@
                 books.slice(0, 10).forEach(item => {
                     const b = item.book;
                     html += `
-                        <div class="recommend-card" onclick="document.getElementById('searchInput').value='${b.bookname.replace(/'/g, "\\'")}'; executeSearch();">
+                        <div class="recommend-card" onclick="document.getElementById('searchInput').value='${b.bookname.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'; executeSearch();">
                             <img src="${b.bookImageURL}" onerror="this.src='https://via.placeholder.com/90x130?text=Image'">
                             <p title="${b.bookname}">${b.bookname}</p>
                         </div>
@@ -967,12 +980,22 @@
             }
         }
 
-        function getTargetLibraryPriority(libName, regionType) {
+        function getTargetLibraryInfo(libName, regionType) {
             const cleanName = (libName || '').replace(/\s+/g, '');
-            if (regionType === 'yongsan' && cleanName.includes('꿈나무')) return 1;
-            if (regionType === 'yongsan' && cleanName.includes('남산도서관')) return 2;
-            if (regionType === 'mapo' && (cleanName.includes('아현분관') || (cleanName.includes('마포') && cleanName.includes('아현')))) return 3;
-            return 999;
+            // 우선순위: 1. 용산꿈나무 > 2. 청파(상호대차) > 3. 남산 > 4. 마포아현분관
+            if (regionType === 'yongsan' && cleanName.includes('꿈나무')) {
+                return { priority: 1, isInterlibrary: false };
+            }
+            if (regionType === 'yongsan' && cleanName.includes('청파')) {
+                return { priority: 2, isInterlibrary: true };
+            }
+            if (regionType === 'yongsan' && cleanName.includes('남산도서관')) {
+                return { priority: 3, isInterlibrary: false };
+            }
+            if (regionType === 'mapo' && (cleanName.includes('아현분관') || (cleanName.includes('마포') && cleanName.includes('아현')))) {
+                return { priority: 4, isInterlibrary: false };
+            }
+            return { priority: 999, isInterlibrary: false };
         }
 
         async function fetchRealTimeLibraryStatus(isbn, bookName) {
@@ -994,9 +1017,9 @@
                     const yongsanData = await yongsanRes.json();
                     if (yongsanData.response && yongsanData.response.libs) {
                         yongsanData.response.libs.forEach(item => {
-                            const priority = getTargetLibraryPriority(item.lib.libName, 'yongsan');
-                            if (priority < 999) {
-                                targetLibs.push({ ...item, priority });
+                            const info = getTargetLibraryInfo(item.lib.libName, 'yongsan');
+                            if (info.priority < 999) {
+                                targetLibs.push({ ...item, ...info });
                             }
                         });
                     }
@@ -1006,9 +1029,9 @@
                     const mapoData = await mapoRes.json();
                     if (mapoData.response && mapoData.response.libs) {
                         mapoData.response.libs.forEach(item => {
-                            const priority = getTargetLibraryPriority(item.lib.libName, 'mapo');
-                            if (priority < 999) {
-                                targetLibs.push({ ...item, priority });
+                            const info = getTargetLibraryInfo(item.lib.libName, 'mapo');
+                            if (info.priority < 999) {
+                                targetLibs.push({ ...item, ...info });
                             }
                         });
                     }
@@ -1025,9 +1048,13 @@
                     .sort((a, b) => a.priority - b.priority);
 
                 if (targetLibs.length === 0) {
-                    container.innerHTML = `<li class="library-item" style="color:#b91c1c; font-weight:bold; line-height: 1.4;">현재 선택한 도서관(용산꿈나무·남산·마포아현분관)에는 이 책('${bookName}')이 등록되어 있지 않습니다. 😭</li>`;
+                    container.innerHTML = `<li class="library-item" style="color:#b91c1c; font-weight:bold; line-height: 1.4;">현재 선택한 도서관(용산꿈나무·청파·남산·마포아현분관)에는 이 책('${bookName}')이 등록되어 있지 않습니다. 😭</li>`;
                     return;
                 }
+
+                const cleanTitle = (bookName || '').split(' =')[0].split(':')[0].trim();
+                const encodedTitle = encodeURIComponent(cleanTitle).replace(/'/g, '%27');
+                const yongsanSearchUrl = `https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchResultList.do?searchType=SIMPLE&searchCategory=ALL&searchKey=ALL&searchKeyword=${encodedTitle}&searchLibrary=ALL`;
 
                 const promises = targetLibs.map(async (item) => {
                     const libCode = item.lib.libCode;
@@ -1035,9 +1062,17 @@
                     try {
                         const existRes = await fetch(existUrl);
                         const existData = await existRes.json();
-                        return { name: item.lib.libName, loanAvailable: existData.response.result.loanAvailable };
+                        return {
+                            name: item.lib.libName,
+                            loanAvailable: existData.response.result.loanAvailable,
+                            isInterlibrary: item.isInterlibrary
+                        };
                     } catch(e) {
-                        return { name: item.lib.libName, loanAvailable: 'E' }; 
+                        return {
+                            name: item.lib.libName,
+                            loanAvailable: 'E',
+                            isInterlibrary: item.isInterlibrary
+                        }; 
                     }
                 });
 
@@ -1045,13 +1080,33 @@
                 let html = '';
                 results.forEach(lib => {
                     let badgeHtml = '';
-                    if(lib.loanAvailable === 'Y') badgeHtml = '<span class="status-available">대출 가능 🏃‍♂️</span>';
-                    else if(lib.loanAvailable === 'N') badgeHtml = '<span class="status-unavailable">대출 중 ⏳</span>';
-                    else badgeHtml = '<span class="status-normal">확인 불가</span>';
+                    if (lib.loanAvailable === 'Y') {
+                        badgeHtml = lib.isInterlibrary
+                            ? '<span class="status-interlibrary">상호대차 가능 🚚</span>'
+                            : '<span class="status-available">대출 가능 🏃‍♂️</span>';
+                    } else if (lib.loanAvailable === 'N') {
+                        badgeHtml = '<span class="status-unavailable">대출 중 ⏳</span>';
+                    } else {
+                        badgeHtml = '<span class="status-normal">확인 불가</span>';
+                    }
+
+                    const targetUrl = lib.isInterlibrary
+                        ? yongsanSearchUrl
+                        : `https://search.naver.com/search.naver?query=${encodeURIComponent(lib.name).replace(/'/g, '%27')}`;
+
+                    const itemClass = lib.isInterlibrary ? 'library-item fav-item interlibrary-item' : 'library-item fav-item';
+                    const textClass = lib.isInterlibrary ? 'fav-lib-text interlibrary-text' : 'fav-lib-text';
+                    const iconName = lib.isInterlibrary ? 'arrow-left-right' : 'map-pin';
+                    const subTextHtml = lib.isInterlibrary
+                        ? '<span class="interlibrary-sub">용산구립 상호대차 · 클릭 시 통합검색 이동</span>'
+                        : '';
 
                     html += `
-                        <li class="library-item fav-item" onclick="window.open('https://search.naver.com/search.naver?query=' + encodeURIComponent('${lib.name}'), '_blank')">
-                            <span class="fav-lib-text"><i data-lucide="map-pin" size="14"></i> ${lib.name}</span>
+                        <li class="${itemClass}" onclick="window.open('${targetUrl}', '_blank')">
+                            <div class="fav-lib-wrap">
+                                <span class="${textClass}"><i data-lucide="${iconName}" size="14"></i> ${lib.name}</span>
+                                ${subTextHtml}
+                            </div>
                             ${badgeHtml}
                         </li>
                     `;

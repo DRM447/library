@@ -6,8 +6,9 @@
     <title>ALL BOOKS - 프리미엄 통합 도서 검색</title>
     
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/svg+xml" href="AllBook_logo3(512white).svg">
-    <link rel="apple-touch-icon" href="AllBook_logo3(512white).svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <meta name="theme-color" content="#4f46e5"> 
 
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -42,9 +43,8 @@
         }
 
         .header { text-align: center; margin: 26px 0 20px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .brand-mark { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 4px; }
-        .brand-emblem-wrap { width: 112px; height: 64px; overflow: hidden; display: flex; justify-content: center; align-items: flex-start; }
-        .main-logo { width: 175px; height: auto; display: block; flex-shrink: 0; }
+        .brand-mark { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 4px; }
+        .main-logo { width: 105px; height: auto; display: block; }
         .brand-wordmark {
             font-size: 26px; font-weight: 900; color: #17356a; letter-spacing: 2px; line-height: 1;
             font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", sans-serif;
@@ -258,9 +258,7 @@
 
     <div class="header">
         <div class="brand-mark">
-            <div class="brand-emblem-wrap">
-                <img src="AllBook_logo.svg" alt="ALL BOOKS Logo" class="main-logo">
-            </div>
+            <img src="AllBooks_emblem.svg" alt="ALL BOOKS Logo" class="main-logo">
             <div class="brand-wordmark"><span>ALL</span> BOOKS</div>
         </div>
         <h1 class="main-headline">내 손안의 통합 도서 검색</h1>

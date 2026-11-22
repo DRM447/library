@@ -1,9 +1,12 @@
-const CACHE_NAME = 'allbooks-cache-v5';
+const CACHE_NAME = 'allbooks-cache-v6';
 const urlsToCache = [
   './index.html',
   './manifest.json',
-  './AllBook_logo.svg',
-  './AllBook_logo3(512white).svg',
+  './AllBooks_emblem.svg',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-maskable-512.png',
+  './apple-touch-icon.png',
   './ewha_font.ttf'
 ];
 

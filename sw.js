@@ -1,5 +1,5 @@
-const CACHE_NAME = 'allbooks-cache-v15';
-const urlsToCache = [
+const CACHE_NAME = 'allbooks-cache-v16';
+const CORE_URLS = [
   './index.html',
   './manifest.json',
   './AllBooks_emblem.svg',
@@ -10,30 +10,48 @@ const urlsToCache = [
   './ewha_font.ttf'
 ];
 
+const OPTIONAL_ASSETS = [
+  './yongsan_logo.svg',
+  './mapo_logo.svg',
+  './SeoulEdu_logo.svg',
+  './Ewha_logo.svg',
+  './SeoulLibrary_logo.svg'
+];
+
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then(async cache => {
+      await cache.addAll(CORE_URLS);
+      await Promise.allSettled(OPTIONAL_ASSETS.map(url => cache.add(url)));
+    })
   );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames =>
-      Promise.all(
-        cacheNames
-          .filter(name => name !== CACHE_NAME)
-          .map(name => caches.delete(name))
+    caches.keys()
+      .then(cacheNames =>
+        Promise.all(
+          cacheNames
+            .filter(name => name !== CACHE_NAME)
+            .map(name => caches.delete(name))
+        )
       )
-    ).then(() => self.clients.claim())
+      .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+
   const requestUrl = new URL(event.request.url);
   const isSameOrigin = requestUrl.origin === self.location.origin;
-  const isDynamicCore = isSameOrigin && (
+
+  // 외부 API(정보나루, Google Apps Script, CDN 등)는 브라우저 기본 네트워크 요청 사용
+  if (!isSameOrigin) return;
+
+  const isDynamicCore = (
     requestUrl.pathname.endsWith('/index.html') ||
     requestUrl.pathname.endsWith('/manifest.json') ||
     requestUrl.pathname.endsWith('/')
@@ -43,8 +61,10 @@ self.addEventListener('fetch', event => {
     event.respondWith(
       fetch(event.request)
         .then(response => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          if (response && response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
           return response;
         })
         .catch(() => caches.match(event.request))
@@ -53,7 +73,15 @@ self.addEventListener('fetch', event => {
   }
 
   event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
+    caches.match(event.request).then(cached => {
+      if (cached) return cached;
+      return fetch(event.request).then(response => {
+        if (response && response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      });
+    })
   );
 });

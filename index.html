@@ -865,6 +865,7 @@
  <a href="#" class="link-pill color-lib dynamic-link" data-template="https://lib.ewha.ac.kr/searchA/ebz?st=KWRD&si=TOTAL&q={kw}" target="_blank" rel="noopener"><img src="Ewha_logo.svg" class="site-logo" alt="logo"> 이화여대 전자도서관</a>
  <a href="#" class="link-pill color-lib dynamic-link" data-template="https://elib.seoul.go.kr/contents/search/content?t=EB&k={kw}" target="_blank" rel="noopener"><img src="SeoulLibrary_logo.svg" class="site-logo" alt="logo"> 서울시 전자도서관</a>
  <a href="#" class="link-pill color-lib dynamic-link" data-template="https://e-lib.sen.go.kr/contents/search?type=&searchOpt=0&searchKeyword={kw}" target="_blank" rel="noopener"><img src="SeoulEdu_logo.svg" class="site-logo" alt="logo"> 서울교육청 도서관</a>
+ <a href="#" class="link-pill color-used dynamic-link" data-template="https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Used&KeyWord={kw}&OutStock=0&ViewType=Detail&KeyFullWord={kw}&KeyLastWord={kw}&CategorySearch=&chkKeyTitle=&chkKeyAuthor=&chkKeyPublisher=&chkKeyISBN=&chkKeyTag=&chkKeyTOC=&chkKeySubject=" target="_blank" rel="noopener"><img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" class="site-logo" alt="logo"> 알라딘 중고</a>
  </div>
  </div>
 
@@ -1196,6 +1197,7 @@
 
  let currentBooksList = [];
  let currentSameAuthorBooks = [];
+ let sameAuthorPager = { authorName: '', pageNo: 1, numFound: 0, seenTitles: new Set(), currentIsbn: '' };
  let currentRecommendBooks = [];
  let currentSelectedBook = null;
  let activeMemoTarget = null;
@@ -3722,12 +3724,34 @@
  html += `
  <div class="recommend-card" onclick="${clickHandlerName}(${idx})">
  ${badgeHtml}
- <img src="${escapeHtml(normalizeCoverUrl(b.bookImageURL))}" onerror="this.src='https://via.placeholder.com/90x130?text=Image'">
+ <img loading="lazy" src="${escapeHtml(normalizeCoverUrl(b.bookImageURL))}" onerror="this.src='https://via.placeholder.com/90x130?text=Image'">
  <p title="${escapeHtml(displayTitle)}">${escapeHtml(displayTitle)}</p>
  </div>
  `;
  });
  return html;
+ }
+
+ function renderSameAuthorStrip() {
+ const container = document.getElementById('sameAuthorScroll');
+ const titleEl = document.getElementById('sameAuthorApiTitle');
+ const { authorName, pageNo, numFound } = sameAuthorPager;
+
+ if (titleEl) {
+ titleEl.innerText = `${authorName} 저자의 다른 도서 (${currentSameAuthorBooks.length}권)`;
+ }
+
+ if (currentSameAuthorBooks.length === 0) {
+ container.innerHTML = `<div class="loading-msg">'${escapeHtml(authorName)}' 저자의 다른 등록 도서가 없습니다.</div>`;
+ return;
+ }
+
+ const hasMore = pageNo * 100 < numFound;
+ const moreCardHtml = hasMore
+ ? `<div class="recommend-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; border:1.5px dashed #c7d2fe; border-radius:8px; height:130px; background:#eef2ff; color:#4338ca; font-weight:800; font-size:12px; padding:8px;" onclick="loadMoreSameAuthorBooks()"><span>+ 더 보기</span><span style="font-size:10px; font-weight:600; margin-top:4px; color:#6366f1;">추가 조회</span></div>`
+ : '';
+
+ container.innerHTML = renderBookStripCards(currentSameAuthorBooks, 'searchSameAuthorBook') + moreCardHtml;
  }
 
  async function fetchSameAuthorBooks(selectedBook) {
@@ -3744,20 +3768,34 @@
  }
 
  const authorName = primary.name;
- if (titleEl) titleEl.innerText = `${authorName} 저자의 다른 도서`;
-
- try {
- const url = `https://data4library.kr/api/srchBooks?authKey=${apiKey}&author=${encodeURIComponent(authorName)}&pageNo=1&pageSize=25&format=json`;
- const res = await fetch(url);
- const data = await res.json();
- const docs = data?.response?.docs || [];
-
  const currentIsbn = normalizeIsbn(selectedBook?.isbn13 || selectedBook?.isbn);
  const currentNormTitle = normalizeBookTitle(selectedBook?.bookname || '');
  const seenTitles = new Set();
  if (currentNormTitle) seenTitles.add(currentNormTitle);
 
- const filtered = [];
+ currentSameAuthorBooks = [];
+ sameAuthorPager = { authorName, pageNo: 0, numFound: 0, seenTitles, currentIsbn };
+ if (titleEl) titleEl.innerText = `${authorName} 저자의 다른 도서`;
+ container.innerHTML = '<div class="loading-msg">동일 저자의 모든 도서를 불러오는 중입니다...</div>';
+
+ await loadMoreSameAuthorBooks();
+ }
+
+ async function loadMoreSameAuthorBooks() {
+ const { authorName, seenTitles, currentIsbn } = sameAuthorPager;
+ if (!authorName) return;
+ const nextPage = sameAuthorPager.pageNo + 1;
+
+ try {
+ const url = `https://data4library.kr/api/srchBooks?authKey=${apiKey}&author=${encodeURIComponent(authorName)}&pageNo=${nextPage}&pageSize=100&format=json`;
+ const res = await fetch(url);
+ const data = await res.json();
+ const docs = data?.response?.docs || [];
+ const numFound = Number(data?.response?.numFound) || 0;
+
+ sameAuthorPager.pageNo = nextPage;
+ sameAuthorPager.numFound = numFound;
+
  for (const item of docs) {
  const b = item.doc;
  if (!b || !b.bookname) continue;
@@ -3766,20 +3804,16 @@
  const normT = normalizeBookTitle(b.bookname);
  if (normT && seenTitles.has(normT)) continue;
  if (normT) seenTitles.add(normT);
- filtered.push(b);
- if (filtered.length >= 12) break;
+ currentSameAuthorBooks.push(b);
  }
 
- if (filtered.length === 0) {
- currentSameAuthorBooks = [];
- container.innerHTML = `<div class="loading-msg">'${escapeHtml(authorName)}' 저자의 다른 등록 도서가 없습니다.</div>`;
- return;
- }
-
- currentSameAuthorBooks = filtered;
- container.innerHTML = renderBookStripCards(currentSameAuthorBooks, 'searchSameAuthorBook');
+ renderSameAuthorStrip();
  } catch (e) {
- container.innerHTML = '<div class="loading-msg">동일 저자의 도서를 불러오지 못했습니다.</div>';
+ if (currentSameAuthorBooks.length === 0) {
+ document.getElementById('sameAuthorScroll').innerHTML = '<div class="loading-msg">동일 저자의 도서를 불러오지 못했습니다.</div>';
+ } else {
+ showToast('추가 도서를 불러오지 못했습니다.', 'error');
+ }
  }
  }
 

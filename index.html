@@ -58,8 +58,7 @@
  .brand-mark { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 4px; cursor: pointer; }
  .main-logo { width: 96px; height: auto; display: block; }
  .brand-wordmark {
- font-size: 26px; font-weight: 900; color: #123524; letter-spacing: 0.8px; line-height: 1;
- font-family: "Helvetica Neue", "Inter", "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+ font-size: 16px; font-weight: 800; color: #123524; letter-spacing: -0.2px; line-height: 1.2;
  }
  .brand-wordmark span { font-weight: 900; }
  .main-headline { font-size: 26px; font-weight: 800; color: #3730a3; margin: 4px 0 3px 0; word-break: keep-all; letter-spacing: -0.5px; }
@@ -261,6 +260,9 @@
  background: #ffffff; border: 1px solid #d1fae5; border-radius: 12px; padding: 10px 12px;
  display: flex; justify-content: space-between; align-items: center; gap: 10px;
  }
+ .owned-mini-row.clickable { cursor: pointer; transition: border-color 0.15s, background-color 0.15s, transform 0.1s; }
+ .owned-mini-row.clickable:hover { border-color: #6ee7b7; background: #f0fdf4; }
+ .owned-mini-row.clickable:active { transform: scale(0.99); }
  .owned-mini-info { min-width: 0; flex: 1; }
  .owned-mini-title { font-size: 13.5px; font-weight: 800; color: var(--text); margin: 0; word-break: break-word; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
  .owned-mini-meta { font-size: 11.5px; color: var(--sec-text); margin: 3px 0 0 0; line-height: 1.4; }
@@ -348,8 +350,10 @@
  margin-top: 14px; padding: 11px 13px; border-radius: 12px;
  display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
  }
- .owned-status-bar.is-owned { background-color: var(--owned-bg); border: 1px solid var(--owned-border); }
- .owned-status-bar.is-ebook { background-color: var(--ebook-bg); border: 1px solid var(--ebook-border); }
+ .owned-status-bar.is-owned { background-color: var(--owned-bg); border: 1px solid var(--owned-border); cursor: pointer; transition: filter 0.15s, transform 0.1s; }
+ .owned-status-bar.is-ebook { background-color: var(--ebook-bg); border: 1px solid var(--ebook-border); cursor: pointer; transition: filter 0.15s, transform 0.1s; }
+ .owned-status-bar.is-owned:hover, .owned-status-bar.is-ebook:hover { filter: brightness(0.97); }
+ .owned-status-bar.is-owned:active, .owned-status-bar.is-ebook:active { transform: scale(0.99); }
  .owned-status-bar.not-owned { background-color: #f9fafb; border: 1px dashed #d1d5db; }
  .owned-status-left { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
  .owned-status-heading { font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -720,10 +724,9 @@
  <div class="header">
  <div class="brand-mark" onclick="resetToHomeDashboard()" title="홈 대시보드로 돌아가기">
  <img src="AllBooks_emblem.svg" alt="All BOOKs Logo" class="main-logo">
- <div class="brand-wordmark"><span>All</span> BOOKs</div>
+ <div class="brand-wordmark">세상의 모든 책</div>
  </div>
- <h1 class="main-headline">내 손안의 통합 도서 검색</h1>
- <p>원하는 책을 한 번에 여러 도서관과 서점에서 찾아보세요.</p>
+ <h1 class="main-headline">All BOOKs</h1>
  </div>
 
  <div class="search-container">
@@ -928,14 +931,14 @@
  <span>자동 조회</span>
  </label>
  </div>
- <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">*용산꿈나무 · 청파(상호대차) · 남산 · 마포아현분관 대출 여부를 확인합니다(10분 캐시 · 클릭 시 도서관 검색 이동).</p>
+ <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">*용산꿈나무 · 청파 · 남산 · 마포아현분관 대출 여부를 확인합니다.</p>
  <div id="libraryList" class="library-list"></div>
  </div>
 
- <div id="apiHashtagBox" class="card hidden">
- <div class="section-title"><i data-lucide="hash"></i> 독자들이 꼽은 핵심 키워드</div>
- <div id="apiHashtags" class="hashtag-container">
- <div class="loading-msg">키워드 분석 중...</div>
+ <div id="apiSameAuthorBox" class="card hidden">
+ <div class="section-title"><i data-lucide="user-round-search"></i> <span id="sameAuthorApiTitle">동일 저자의 다른 도서</span></div>
+ <div id="sameAuthorScroll" class="recommend-scroll">
+ <div class="loading-msg">동일 저자의 다른 도서를 불러오는 중입니다...</div>
  </div>
  </div>
 
@@ -1042,8 +1045,8 @@
  <input type="text" id="myLibSearchInput" class="mylib-search-input" placeholder="내 보유 도서 검색 (제목·저자·태그·출판사·시리즈·한줄평)" oninput="renderMyLibraryList(true)">
  <div class="mylib-select-group">
  <select id="myLibSortSelect" class="mylib-series-select" onchange="renderMyLibraryList(true)" aria-label="정렬 기준">
+ <option value="recent" selected>최근 추가순</option>
  <option value="default">시트순</option>
- <option value="recent">최근 추가순</option>
  <option value="finishDate">완독일 최신순</option>
  <option value="rating">평점 높은 순</option>
  <option value="title">제목순</option>
@@ -1192,6 +1195,7 @@
  const libraryStatusCache = new Map();
 
  let currentBooksList = [];
+ let currentSameAuthorBooks = [];
  let currentRecommendBooks = [];
  let currentSelectedBook = null;
  let activeMemoTarget = null;
@@ -1880,7 +1884,7 @@
  document.getElementById('mainBookResultCard').classList.add('hidden');
  document.getElementById('linksCard').classList.add('hidden');
  document.getElementById('apiLibraryBox').classList.add('hidden');
- document.getElementById('apiHashtagBox').classList.add('hidden');
+ document.getElementById('apiSameAuthorBox').classList.add('hidden');
  document.getElementById('apiRecommendBox').classList.add('hidden');
  renderHomeReadingDashboard();
  }
@@ -1986,14 +1990,10 @@
  const idx = myOwnedBooks.indexOf(b);
  const ebook = isOwnedEbook(b);
  return `
- <div class="owned-mini-row">
+ <div class="owned-mini-row clickable" onclick="openOwnedEditModalByIndex(${idx})">
  <div class="owned-mini-info">
  <p class="owned-mini-title">${ebook ? '📱 ' : '📖 '}${escapeHtml(formatOwnedTitle(b))}</p>
  <p class="owned-mini-meta">${escapeHtml(b.author || '저자 미상')}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}</p>
- </div>
- <div class="owned-mini-actions">
- <button class="owned-chip-btn" onclick="searchFromMyLibraryByIndex(${idx})">검색</button>
- <button class="owned-chip-btn primary" onclick="openOwnedEditModalByIndex(${idx})">상태·평점</button>
  </div>
  </div>
  `;
@@ -2203,11 +2203,7 @@
  `;
  }).join('') + (others.length > 20 ? `<div style="text-align:center; font-size:11px; color:#475569; padding:3px;">외 ${others.length - 20}권 더 보유 중</div>` : '');
 
- const rolesFound = Array.from(new Set(others.map(o => o.role)));
- const hasNonAuthor = rolesFound.some(r => r !== '저자');
- const headingLabel = hasNonAuthor
- ? '내가 보유한 저자·옮긴이·감수·엮은이의 다른 도서'
- : '내가 보유한 이 저자의 다른 도서';
+ const headingLabel = '내가 보유한 동일 저자의 다른 도서';
 
  box.innerHTML = `
  <details ${openAttr}>
@@ -2227,6 +2223,8 @@
  bar.classList.remove('hidden');
  if (myOwnedBooks.length === 0) {
  bar.className = 'owned-status-bar not-owned';
+ bar.onclick = null;
+ bar.title = '';
  bar.innerHTML = `
  <div class="owned-status-left">
  <div class="owned-status-heading">⏳ 내 서재 데이터를 불러오지 못했습니다</div>
@@ -2243,14 +2241,15 @@
  const ebook = isOwnedEbook(owned);
  const ownedIdx = myOwnedBooks.indexOf(owned);
  const st = normalizeReadingStatus(owned.status);
- const statusText = st ? `독서 상태: ${escapeHtml(st)}` : '독서 상태 미기록';
+ const statusText = st ? `상태: ${escapeHtml(st)}` : '상태 미기록';
  const ratingShort = formatRatingShort(owned.rating);
  const ratingText = ratingShort ? ` · ${ratingShort}` : '';
  const dateText = owned.finishDate ? ` · 완독일 ${escapeHtml(owned.finishDate)}` : '';
  const seriesVal = getOwnedSeries(owned); const memoVal = getOwnedMemo(owned); const noteText = (seriesVal ? ` · ${escapeHtml(seriesVal)}` : '') + (memoVal ? ` · ${escapeHtml(memoVal)}` : '');
- const tagText = owned.tags ? `태그: ${escapeHtml(owned.tags)}` : '';
 
  bar.className = `owned-status-bar ${ebook ? 'is-ebook' : 'is-owned'}`;
+ bar.onclick = () => openOwnedEditModalByIndex(ownedIdx);
+ bar.title = '클릭하여 기록 수정';
  bar.innerHTML = `
  <div class="owned-status-left">
  <div class="owned-status-heading">
@@ -2258,13 +2257,13 @@
  ${matched.matchType === 'title' ? '<span style="font-size:10.5px; font-weight:600; opacity:0.85;">(다른 판본 가능)</span>' : ''}
  </div>
  <div class="owned-status-sub">${statusText}${ratingText}${dateText}${noteText}</div>
- ${tagText ? `<div class="owned-status-sub" style="opacity:0.85;">${tagText}</div>` : ''}
  ${owned.review ? `<div class="owned-review-quote">💬 ${escapeHtml(owned.review)}</div>` : ''}
  </div>
- <button class="owned-action-btn edit" onclick="openOwnedEditModalByIndex(${ownedIdx})">기록하기</button>
  `;
  } else {
  bar.className = 'owned-status-bar not-owned';
+ bar.onclick = null;
+ bar.title = '';
  bar.innerHTML = `
  <div class="owned-status-left">
  <div class="owned-status-heading">내 서재 미보유 도서</div>
@@ -2457,7 +2456,7 @@
  const q = (document.getElementById('myLibSearchInput')?.value || '').trim().toLowerCase();
  const qCompact = q.replace(/\s+/g, '');
  const seriesFilter = document.getElementById('myLibSeriesSelect')?.value || '';
- const sortMode = document.getElementById('myLibSortSelect')?.value || 'default';
+ const sortMode = document.getElementById('myLibSortSelect')?.value || 'recent';
  const dupSet = myLibStatusFilter === 'duplicates' ? getDuplicateOwnedBookSet() : null;
 
  let result = myOwnedBooks.filter(b => {
@@ -2499,7 +2498,14 @@
  result = result.slice();
 
  if (sortMode === 'recent') {
- result.sort((a, b) => (Number(b.row) || 0) - (Number(a.row) || 0));
+ result.sort((a, b) => {
+ if (myLibStatusFilter === '읽을 예정') {
+ const aExp = normalizeReadingStatus(a.status) === '읽을 예정' ? 0 : 1;
+ const bExp = normalizeReadingStatus(b.status) === '읽을 예정' ? 0 : 1;
+ if (aExp !== bExp) return aExp - bExp;
+ }
+ return (Number(b.row) || 0) - (Number(a.row) || 0);
+ });
  } else if (sortMode === 'finishDate') {
  result.sort((a, b) => String(b.finishDate || '').localeCompare(String(a.finishDate || '')) || parseRating(b.rating) - parseRating(a.rating));
  } else if (sortMode === 'rating') {
@@ -3176,7 +3182,7 @@
 
  document.getElementById('mainBookResultCard').classList.add('hidden');
  document.getElementById('linksCard').classList.add('hidden');
- document.getElementById('apiHashtagBox').classList.add('hidden');
+ document.getElementById('apiSameAuthorBox').classList.add('hidden');
  document.getElementById('apiRecommendBox').classList.add('hidden');
  document.getElementById('apiLibraryBox').classList.add('hidden');
 
@@ -3348,7 +3354,7 @@
  document.getElementById('mainBookResultCard').classList.remove('hidden');
  document.getElementById('linksCard').classList.remove('hidden');
  document.getElementById('apiLibraryBox').classList.remove('hidden');
- document.getElementById('apiHashtagBox').classList.remove('hidden');
+ document.getElementById('apiSameAuthorBox').classList.remove('hidden');
  document.getElementById('apiRecommendBox').classList.remove('hidden');
 
  const matchedOwned = findOwnedMatch(book);
@@ -3383,11 +3389,12 @@
  const savedBook = bookmarks.find(b => String(b.isbn) === isbn);
  updateBookmarkBtnUI(!!savedBook, savedBook ? (savedBook.memo || '') : '');
 
- document.getElementById('apiHashtags').innerHTML = "<div class='loading-msg'>키워드 분석 중...</div>";
- document.getElementById('recommendScroll').innerHTML = "<div class='loading-msg'>추천 도서 불러오는 중...</div>";
+ document.getElementById('sameAuthorScroll').innerHTML = "<div class='loading-msg'>동일 저자의 다른 도서 불러오는 중...</div>";
+ document.getElementById('recommendScroll').innerHTML = "<div class='loading-msg'>추천 도서를 불러오는 중...</div>";
+
+ fetchSameAuthorBooks(book);
 
  if (isbn) {
- fetchHashtags(isbn);
  fetchRecommendations(isbn);
 
  const cached = libraryStatusCache.get(isbn);
@@ -3407,8 +3414,8 @@
  lucide.createIcons();
  }
  } else {
- document.getElementById('apiHashtags').innerHTML = "<div class='loading-msg'>ISBN 정보가 없어 키워드를 불러올 수 없습니다.</div>";
  document.getElementById('recommendScroll').innerHTML = "<div class='loading-msg'>ISBN 정보가 없어 추천 도서를 불러올 수 없습니다.</div>";
+
  document.getElementById('libraryList').innerHTML = `<li class="library-item" style="color:#b91c1c; font-weight:bold;">ISBN 코드가 없어 대출 여부를 확인할 수 없습니다.</li>`;
  }
  }
@@ -3700,40 +3707,9 @@
  showToast('북마크에서 삭제되었습니다.');
  }
 
- async function fetchHashtags(isbn) {
- try {
- const url = `https://data4library.kr/api/keywordList?authKey=${apiKey}&isbn13=${isbn}&format=json`;
- const res = await fetch(url);
- const data = await res.json();
- const keywords = data.response.items || [];
-
+ function renderBookStripCards(books, clickHandlerName) {
  let html = '';
- keywords.slice(0, 8).forEach(item => {
- html += `<span class="hashtag">#${escapeHtml(item.item.word)}</span>`;
- });
- if (html === '') html = '<span class="hashtag">#등록된_키워드가_없습니다</span>';
-
- document.getElementById('apiHashtags').innerHTML = html;
- } catch (e) {}
- }
-
- async function fetchRecommendations(isbn) {
- const container = document.getElementById('recommendScroll');
- try {
- const url = `https://data4library.kr/api/recommandList?authKey=${apiKey}&isbn13=${isbn}&format=json`;
- const res = await fetch(url);
- const data = await res.json();
- const books = data.response.docs || [];
-
- if (books.length === 0) {
- currentRecommendBooks = [];
- container.innerHTML = '<div class="loading-msg">추천 도서가 없습니다.</div>';
- return;
- }
-
- currentRecommendBooks = books.slice(0, 10).map(item => item.book);
- let html = '';
- currentRecommendBooks.forEach((b, idx) => {
+ books.forEach((b, idx) => {
  const ownedMatch = findOwnedMatch(b);
  let badgeHtml = '';
  let displayTitle = b.bookname;
@@ -3744,17 +3720,95 @@
  }
 
  html += `
- <div class="recommend-card" onclick="searchRecommendedBook(${idx})">
+ <div class="recommend-card" onclick="${clickHandlerName}(${idx})">
  ${badgeHtml}
  <img src="${escapeHtml(normalizeCoverUrl(b.bookImageURL))}" onerror="this.src='https://via.placeholder.com/90x130?text=Image'">
  <p title="${escapeHtml(displayTitle)}">${escapeHtml(displayTitle)}</p>
  </div>
  `;
  });
- container.innerHTML = html;
+ return html;
+ }
+
+ async function fetchSameAuthorBooks(selectedBook) {
+ const container = document.getElementById('sameAuthorScroll');
+ const titleEl = document.getElementById('sameAuthorApiTitle');
+ const people = extractPersonRoleEntries(selectedBook?.authors || '', '저자');
+ const primary = people.find(p => p.role === '저자') || people[0];
+
+ if (!primary || !primary.name) {
+ currentSameAuthorBooks = [];
+ if (titleEl) titleEl.innerText = '동일 저자의 다른 도서';
+ container.innerHTML = '<div class="loading-msg">저자 정보가 없어 다른 도서를 조회할 수 없습니다.</div>';
+ return;
+ }
+
+ const authorName = primary.name;
+ if (titleEl) titleEl.innerText = `${authorName} 저자의 다른 도서`;
+
+ try {
+ const url = `https://data4library.kr/api/srchBooks?authKey=${apiKey}&author=${encodeURIComponent(authorName)}&pageNo=1&pageSize=25&format=json`;
+ const res = await fetch(url);
+ const data = await res.json();
+ const docs = data?.response?.docs || [];
+
+ const currentIsbn = normalizeIsbn(selectedBook?.isbn13 || selectedBook?.isbn);
+ const currentNormTitle = normalizeBookTitle(selectedBook?.bookname || '');
+ const seenTitles = new Set();
+ if (currentNormTitle) seenTitles.add(currentNormTitle);
+
+ const filtered = [];
+ for (const item of docs) {
+ const b = item.doc;
+ if (!b || !b.bookname) continue;
+ const bIsbn = normalizeIsbn(b.isbn13 || b.isbn);
+ if (currentIsbn && bIsbn && bIsbn === currentIsbn) continue;
+ const normT = normalizeBookTitle(b.bookname);
+ if (normT && seenTitles.has(normT)) continue;
+ if (normT) seenTitles.add(normT);
+ filtered.push(b);
+ if (filtered.length >= 12) break;
+ }
+
+ if (filtered.length === 0) {
+ currentSameAuthorBooks = [];
+ container.innerHTML = `<div class="loading-msg">'${escapeHtml(authorName)}' 저자의 다른 등록 도서가 없습니다.</div>`;
+ return;
+ }
+
+ currentSameAuthorBooks = filtered;
+ container.innerHTML = renderBookStripCards(currentSameAuthorBooks, 'searchSameAuthorBook');
+ } catch (e) {
+ container.innerHTML = '<div class="loading-msg">동일 저자의 도서를 불러오지 못했습니다.</div>';
+ }
+ }
+
+ async function fetchRecommendations(isbn) {
+ const container = document.getElementById('recommendScroll');
+ try {
+ const url = `https://data4library.kr/api/recommandList?authKey=${apiKey}&isbn13=${isbn}&format=json`;
+ const res = await fetch(url);
+ const data = await res.json();
+ const books = data?.response?.docs || [];
+
+ if (books.length === 0) {
+ currentRecommendBooks = [];
+ container.innerHTML = '<div class="loading-msg">추천 도서가 없습니다.</div>';
+ return;
+ }
+
+ currentRecommendBooks = books.slice(0, 10).map(item => item.book);
+ container.innerHTML = renderBookStripCards(currentRecommendBooks, 'searchRecommendedBook');
  } catch (e) {
  container.innerHTML = '<div class="loading-msg">추천 데이터를 불러오지 못했습니다.</div>';
  }
+ }
+
+ function searchSameAuthorBook(idx) {
+ const b = currentSameAuthorBooks[idx];
+ if (!b || !b.bookname) return;
+ document.getElementById('searchInput').value = b.bookname;
+ executeSearch(b.bookname);
  }
 
  function searchRecommendedBook(idx) {
@@ -3880,7 +3934,7 @@
  }
 
  if (results.length === 0) {
- container.innerHTML = `<li class="library-item" style="color:#b91c1c; font-weight:bold; line-height: 1.4;">현재 선택한 도서관에는 이 책이 등록되어 있지 않습니다. 😭</li>`;
+ container.innerHTML = `<li class="library-item" style="color:var(--sec-text); font-weight:700; justify-content:center;">검색 결과가 없습니다.</li>`;
  return;
  }
 

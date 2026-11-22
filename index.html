@@ -69,15 +69,21 @@
 
     /* 검색창 상단 주요 사이트 바로가기 */
     .top-quick-links {
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
       margin-bottom: 12px;
     }
+    .top-quick-break {
+      display: none; flex-basis: 100%; height: 0;
+    }
+    @media (max-width: 560px) {
+      .top-quick-break { display: block; }
+    }
     .top-quick-btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 8px 13px; border-radius: 999px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 7px 11px; border-radius: 999px;
       background-color: #ffffff; color: var(--text);
       border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      font-size: 13px; font-weight: 700; text-decoration: none;
+      font-size: 12.5px; font-weight: 700; text-decoration: none;
       transition: transform 0.12s, border-color 0.2s, background-color 0.2s;
       white-space: nowrap;
     }
@@ -611,14 +617,15 @@
   <div class="search-container">
     <div class="top-quick-links" aria-label="주요 도서관 및 서점 바로가기">
       <a href="https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchSimple.do" target="_blank" rel="noopener" class="top-quick-btn">
-        <img src="yongsan_logo.svg" alt=""> 꿈나무도서관
+        <img src="yongsan_logo.svg" alt=""> 꿈나무
       </a>
       <a href="https://ahyon.sen.go.kr/ahyon/intro/search/index.do?menu_idx=4" target="_blank" rel="noopener" class="top-quick-btn">
         <img src="mapo_logo.svg" alt=""> 아현분관
       </a>
       <a href="https://nslib.sen.go.kr/nslib/intro/search/index.do?menu_idx=4" target="_blank" rel="noopener" class="top-quick-btn">
-        <img src="SeoulEdu_logo.svg" alt=""> 남산도서관
+        <img src="SeoulEdu_logo.svg" alt=""> 남산
       </a>
+      <span class="top-quick-break" aria-hidden="true"></span>
       <a href="https://www.aladin.co.kr/account/wmaininfo.aspx?pType=MyAccount" target="_blank" rel="noopener" class="top-quick-btn">
         <img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" alt=""> 알라딘
       </a>
@@ -1007,7 +1014,7 @@
     const apiKey = "86bbf34832d0f70658c95d21f790afa9b7ee8956deed3ea4a440a101cafbca69";
 
     // 전체_도서_리스트(1) 통합 웹 앱 URL (북마크 + 보유 도서 단일 엔드포인트)
-    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx2Nfma38CUR4djvg9LaIJaLexkzitNcpJyC76DaglRUnhT_nob8gZMS3I1-0psMKnqmA/exec";
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzHqNHCuv0lBtDdvyR6v2IZhqAFEvejja29Es-YRldKEArp3tteVjn3Zz28UMB0t82H/exec";
 
     let currentBooksList = [];
     let currentSelectedBook = null;
@@ -1028,6 +1035,10 @@
 
     function getUnifiedApiUrl() {
       const custom = (localStorage.getItem('unifiedSheetApiUrl') || '').trim();
+      if (custom === "https://script.google.com/macros/s/AKfycbx2Nfma38CUR4djvg9LaIJaLexkzitNcpJyC76DaglRUnhT_nob8gZMS3I1-0psMKnqmA/exec") {
+        localStorage.removeItem('unifiedSheetApiUrl');
+        return SHEET_API_URL;
+      }
       return custom || SHEET_API_URL;
     }
 

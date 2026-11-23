@@ -824,7 +824,12 @@
  .owned-status-bar.is-borrowed { background-color: #f0f9ff; border: 1px solid #bae6fd; cursor: pointer; transition: filter 0.15s, transform 0.1s; }
  .owned-status-bar.is-borrowed:hover { filter: brightness(0.97); }
  .owned-status-bar.is-borrowed .owned-status-heading { color: #0369a1; }
+ .mini-pill-toggle.is-sold-on {
+ background: #d97706; border-color: #d97706; color: #ffffff;
+ box-shadow: 0 2px 6px rgba(217, 119, 6, 0.28);
+ }
  .mylib-badge.borrowed { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+ .mylib-badge.sold { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
  .mylib-badge.due-soon { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
  .mylib-badge.due-normal { background: #e0f2fe; color: #0369a1; }
  .due-date-row {
@@ -1219,6 +1224,7 @@
  <button class="mylib-filter-chip active" data-filter-reset="all" onclick="setMyLibStatusFilter('all')">전체</button>
  <button class="mylib-filter-chip" data-ownership="소장" onclick="toggleMyLibOwnershipFilter('소장')">소장</button>
  <button class="mylib-filter-chip" data-ownership="대여" onclick="toggleMyLibOwnershipFilter('대여')">대여</button>
+ <button class="mylib-filter-chip" data-ownership="판매" onclick="toggleMyLibOwnershipFilter('판매')">판매</button>
  <button class="mylib-filter-chip" data-ebook="true" onclick="toggleMyLibEbookFilter()">e-book</button>
  <span class="mylib-filter-sep" aria-hidden="true"></span>
  <button class="mylib-filter-chip" data-status="읽을 예정" onclick="toggleMyLibReadingStatusFilter('읽을 예정')">읽을 예정</button>
@@ -1285,6 +1291,7 @@
  <span>책 제목 *</span>
  <span class="title-toggle-group">
  <button type="button" id="ownedBorrowToggleBtn" class="mini-pill-toggle" role="switch" aria-checked="false" title="도서관 대여 여부" onclick="toggleOwnedBorrowSwitch()">대여</button>
+ <button type="button" id="ownedSoldToggleBtn" class="mini-pill-toggle" role="switch" aria-checked="false" title="판매 여부" onclick="toggleOwnedSoldSwitch()">판매</button>
  <button type="button" id="ownedEbookToggleBtn" class="mini-pill-toggle" role="switch" aria-checked="false" title="e-book 여부" onclick="toggleOwnedEbookSwitch()">e-book</button>
  </span>
  </label>
@@ -1606,6 +1613,7 @@
  let selectedOwnedRating = 0;
  let selectedOwnedIsEbook = false;
  let selectedOwnedIsBorrowed = false;
+ let selectedOwnedIsSold = false;
  let currentModalCoverUrl = '';
  let currentModalPubYear = '';
  let currentModalDescription = '';
@@ -1942,6 +1950,13 @@
  if (typeof flags[key] === 'boolean') return flags[key];
  }
  return false;
+ }
+
+ function isOwnedSold(ownedBook) {
+ if (!ownedBook) return false;
+ if (typeof ownedBook.isSold === 'boolean') return ownedBook.isSold;
+ const raw = String(ownedBook.isSold || ownedBook.borrowSource || '').trim().toLowerCase();
+ return raw === '판매' || raw === 'sold' || raw === 'true';
  }
 
  function getDueDateBadgeHtml(book) {
@@ -2721,7 +2736,7 @@
 
  function pickRandomUnreadBook() {
  const unread = myOwnedBooks.filter(b => {
- if (isOwnedBorrowed(b)) return false;
+ if (isOwnedBorrowed(b) || isOwnedSold(b)) return false;
  const st = normalizeReadingStatus(b.status);
  return st === '' || st === '읽을 예정';
  });
@@ -3317,7 +3332,7 @@
  myLibStatusFilter = 'all';
  myLibOwnershipFilter = 'all';
  myLibEbookOnly = true;
- } else if (status === '소장' || status === '대여') {
+ } else if (status === '소장' || status === '대여' || status === '판매') {
  myLibStatusFilter = 'all';
  myLibOwnershipFilter = status;
  myLibEbookOnly = false;
@@ -3369,8 +3384,9 @@
  if (myLibStatusFilter === 'duplicates') {
  if (!dupSet.has(b)) return false;
  } else {
- if (myLibOwnershipFilter === '소장' && isOwnedBorrowed(b)) return false;
+ if (myLibOwnershipFilter === '소장' && (isOwnedBorrowed(b) || isOwnedSold(b))) return false;
  if (myLibOwnershipFilter === '대여' && !isOwnedBorrowed(b)) return false;
+ if (myLibOwnershipFilter === '판매' && !isOwnedSold(b)) return false;
  if (myLibEbookOnly && !isOwnedEbook(b)) return false;
 
  if (myLibStatusFilter === '읽을 예정') {
@@ -3392,7 +3408,7 @@
  }
 
  if (q) {
- const hay = `${b.title || ''} ${b.author || ''} ${b.translator || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${b.vol || ''} ${getOwnedMemo(b)} ${b.isbn || ''} ${b.review || ''} ${b.borrowSource || ''}`.toLowerCase();
+ const hay = `${b.title || ''} ${b.author || ''} ${b.translator || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${b.vol || ''} ${getOwnedMemo(b)} ${b.isbn || ''} ${b.review || ''} ${b.borrowSource || ''} ${isOwnedSold(b) ? '판매' : ''}`.toLowerCase();
  if (!hay.includes(q) && !(qCompact.length >= 2 && hay.replace(/\s+/g, '').includes(qCompact))) {
  return false;
  }
@@ -3540,7 +3556,7 @@
  const pubText = (myLibStatusFilter === 'duplicates' && b.publisher) ? ` · ${escapeHtml(b.publisher)}` : '';
  const subLine = `${escapeHtml(b.author || '저자 미상')}${pubText}${transSup ? ' · ' + escapeHtml(transSup) : ''}`;
  const rawTags = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && !isEbookTagToken(t));
- const borrowedBadgeHtml = isOwnedBorrowed(b) ? `<span class="mylib-badge borrowed">🏛️ ${escapeHtml(b.borrowSource || '대여')}</span>` : '';
+ const borrowedBadgeHtml = isOwnedSold(b) ? '<span class="mylib-badge sold">판매</span>' : (isOwnedBorrowed(b) ? `<span class="mylib-badge borrowed">🏛️ ${escapeHtml(b.borrowSource || '대여')}</span>` : '');
  const dueBadgeHtml = getDueDateBadgeHtml(b);
  const ebookBadgeHtml = ebook ? '<span class="mylib-badge ebook">📱 e-book</span>' : '';
  const tagBadges = borrowedBadgeHtml + dueBadgeHtml + ebookBadgeHtml + rawTags.slice(0, 3)
@@ -3704,6 +3720,7 @@
  selectOwnedRating(parseRating(b.rating), false);
  document.getElementById('ownedInputDueDate').value = b.dueDate || '';
  setOwnedBorrowToggle(isOwnedBorrowed(b));
+ setOwnedSoldToggle(isOwnedSold(b));
  setOwnedEbookToggle(isOwnedEbook(b));
  currentModalPubYear = String(b.pubYear || '').trim();
  currentModalDescription = String(b.description || '').trim();
@@ -3800,7 +3817,25 @@
  }
 
  function toggleOwnedBorrowSwitch() {
- setOwnedBorrowToggle(!selectedOwnedIsBorrowed);
+ const next = !selectedOwnedIsBorrowed;
+ setOwnedBorrowToggle(next);
+ if (next && selectedOwnedIsSold) setOwnedSoldToggle(false);
+ }
+
+ function setOwnedSoldToggle(isOn) {
+ selectedOwnedIsSold = !!isOn;
+ const btn = document.getElementById('ownedSoldToggleBtn');
+ if (btn) {
+ btn.classList.toggle('is-sold-on', selectedOwnedIsSold);
+ btn.setAttribute('aria-checked', selectedOwnedIsSold ? 'true' : 'false');
+ btn.title = selectedOwnedIsSold ? '판매 (ON)' : '판매 (OFF)';
+ }
+ }
+
+ function toggleOwnedSoldSwitch() {
+ const next = !selectedOwnedIsSold;
+ setOwnedSoldToggle(next);
+ if (next && selectedOwnedIsBorrowed) setOwnedBorrowToggle(false);
  }
 
  function appendOwnedTag(tag) {
@@ -4286,8 +4321,9 @@
  publisher: document.getElementById('ownedInputPublisher').value.trim(),
  tags: cleanTags.join(', '),
  isEbook: selectedOwnedIsEbook,
- isBorrowed: selectedOwnedIsBorrowed,
- borrowSource: selectedOwnedIsBorrowed ? String(activeOwnedEditContext?.book?.borrowSource || '').trim() : '',
+ isSold: selectedOwnedIsSold,
+ isBorrowed: selectedOwnedIsBorrowed && !selectedOwnedIsSold,
+ borrowSource: (selectedOwnedIsBorrowed && !selectedOwnedIsSold) ? String(activeOwnedEditContext?.book?.borrowSource || '').trim() : '',
  dueDate: (selectedOwnedIsBorrowed && !selectedOwnedIsEbook) ? document.getElementById('ownedInputDueDate').value.trim() : '',
  cover: currentModalCoverUrl || '',
  pubYear: currentModalPubYear || '',

@@ -3392,7 +3392,7 @@
  }
 
  if (q) {
- const hay = `${b.title || ''} ${b.author || ''} ${b.translator || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${b.vol || ''} ${getOwnedMemo(b)} ${b.isbn || ''} ${b.review || ''}`.toLowerCase();
+ const hay = `${b.title || ''} ${b.author || ''} ${b.translator || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${b.vol || ''} ${getOwnedMemo(b)} ${b.isbn || ''} ${b.review || ''} ${b.borrowSource || ''}`.toLowerCase();
  if (!hay.includes(q) && !(qCompact.length >= 2 && hay.replace(/\s+/g, '').includes(qCompact))) {
  return false;
  }
@@ -3540,7 +3540,7 @@
  const pubText = (myLibStatusFilter === 'duplicates' && b.publisher) ? ` · ${escapeHtml(b.publisher)}` : '';
  const subLine = `${escapeHtml(b.author || '저자 미상')}${pubText}${transSup ? ' · ' + escapeHtml(transSup) : ''}`;
  const rawTags = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && !isEbookTagToken(t));
- const borrowedBadgeHtml = isOwnedBorrowed(b) ? '<span class="mylib-badge borrowed">🏛️ 대여</span>' : '';
+ const borrowedBadgeHtml = isOwnedBorrowed(b) ? `<span class="mylib-badge borrowed">🏛️ ${escapeHtml(b.borrowSource || '대여')}</span>` : '';
  const dueBadgeHtml = getDueDateBadgeHtml(b);
  const ebookBadgeHtml = ebook ? '<span class="mylib-badge ebook">📱 e-book</span>' : '';
  const tagBadges = borrowedBadgeHtml + dueBadgeHtml + ebookBadgeHtml + rawTags.slice(0, 3)
@@ -4287,6 +4287,7 @@
  tags: cleanTags.join(', '),
  isEbook: selectedOwnedIsEbook,
  isBorrowed: selectedOwnedIsBorrowed,
+ borrowSource: selectedOwnedIsBorrowed ? String(activeOwnedEditContext?.book?.borrowSource || '').trim() : '',
  dueDate: (selectedOwnedIsBorrowed && !selectedOwnedIsEbook) ? document.getElementById('ownedInputDueDate').value.trim() : '',
  cover: currentModalCoverUrl || '',
  pubYear: currentModalPubYear || '',

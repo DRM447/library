@@ -780,11 +780,14 @@
  margin-bottom: 11px; padding: 10px 12px; border-radius: 11px;
  background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12.5px; color: #374151;
  }
- .owned-meta-plot-summary {
+ .owned-meta-plot-header {
  display: flex; align-items: center; justify-content: space-between; gap: 8px;
- cursor: pointer; list-style: none; font-weight: 800; color: #334155; outline: none;
+ font-weight: 800; color: #334155;
  }
- .owned-meta-plot-summary::-webkit-details-marker { display: none; }
+ .form-input::placeholder { color: #9ca3af; font-weight: 400; }
+ .mylib-filter-sep {
+ width: 1px; height: 18px; background: #d1d5db; margin: 0 2px; align-self: center; flex-shrink: 0;
+ }
  .owned-meta-plot-meta {
  display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px;
  }
@@ -1197,7 +1200,7 @@
 
  <div class="mylib-controls">
  <div class="mylib-search-row">
- <input type="text" id="myLibSearchInput" class="mylib-search-input" placeholder="내 보유 도서 검색 (제목·저자·태그·출판사·시리즈·한줄평)" oninput="renderMyLibraryList(true)">
+ <input type="text" id="myLibSearchInput" class="mylib-search-input" placeholder="내 보유 도서 검색 (제목·저자·역자·태그·출판사·시리즈·한줄평)" oninput="renderMyLibraryList(true)">
  <div class="mylib-select-group">
  <select id="myLibSortSelect" class="mylib-series-select" onchange="renderMyLibraryList(true)" aria-label="정렬 기준">
  <option value="recent" selected>최근 추가순</option>
@@ -1213,13 +1216,15 @@
  </div>
 
  <div class="mylib-filter-row" id="myLibStatusFilters">
- <button class="mylib-filter-chip active" data-status="all" onclick="setMyLibStatusFilter('all')">전체</button>
- <button class="mylib-filter-chip" data-status="소장" onclick="setMyLibStatusFilter('소장')">소장</button>
- <button class="mylib-filter-chip" data-status="대여" onclick="setMyLibStatusFilter('대여')">🏛️ 대여</button>
- <button class="mylib-filter-chip" data-status="읽을 예정" onclick="setMyLibStatusFilter('읽을 예정')">읽을 예정</button>
- <button class="mylib-filter-chip" data-status="읽는 중" onclick="setMyLibStatusFilter('읽는 중')">읽는 중</button>
- <button class="mylib-filter-chip" data-status="완독" onclick="setMyLibStatusFilter('완독')">완독</button>
- <button class="mylib-filter-chip" data-status="e-book" onclick="setMyLibStatusFilter('e-book')">📱 e-book</button>
+ <button class="mylib-filter-chip active" data-filter-reset="all" onclick="setMyLibStatusFilter('all')">전체</button>
+ <button class="mylib-filter-chip" data-ownership="소장" onclick="toggleMyLibOwnershipFilter('소장')">소장</button>
+ <button class="mylib-filter-chip" data-ownership="대여" onclick="toggleMyLibOwnershipFilter('대여')">대여</button>
+ <button class="mylib-filter-chip" data-ebook="true" onclick="toggleMyLibEbookFilter()">e-book</button>
+ <span class="mylib-filter-sep" aria-hidden="true"></span>
+ <button class="mylib-filter-chip" data-status="읽을 예정" onclick="toggleMyLibReadingStatusFilter('읽을 예정')">읽을 예정</button>
+ <button class="mylib-filter-chip" data-status="읽는 중" onclick="toggleMyLibReadingStatusFilter('읽는 중')">읽는 중</button>
+ <button class="mylib-filter-chip" data-status="완독" onclick="toggleMyLibReadingStatusFilter('완독')">완독</button>
+ <button class="mylib-filter-chip" data-status="중단" onclick="toggleMyLibReadingStatusFilter('중단')">중단</button>
  <button class="mylib-filter-chip dup-chip" id="myLibDupFilterBtn" data-status="duplicates" onclick="setMyLibStatusFilter('duplicates')">⚠️ 중복 확인</button>
  </div>
 
@@ -1300,14 +1305,11 @@
  </div>
 
  <div id="ownedMetaPlotBox" class="owned-meta-plot-box hidden">
- <details id="ownedMetaPlotDetails" open>
- <summary class="owned-meta-plot-summary">
+ <div class="owned-meta-plot-header">
  <span id="ownedMetaPlotHeading">📖 도서 상세 정보</span>
- <span style="font-size:11px; color:#6366f1; font-weight:700;">펼치기 / 접기</span>
- </summary>
+ </div>
  <div id="ownedMetaPlotMeta" class="owned-meta-plot-meta"></div>
  <div id="ownedMetaPlotBody" class="owned-meta-plot-body"></div>
- </details>
  </div>
 
  <div id="ownedDueDateField" class="due-date-row hidden">
@@ -1378,19 +1380,29 @@
  </div>
  </div>
 
- <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+ <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px;">
  <div class="form-field">
  <label class="form-label" for="ownedInputSeries">시리즈명</label>
- <input type="text" id="ownedInputSeries" class="form-input" placeholder="">
+ <input type="text" id="ownedInputSeries" class="form-input" placeholder="예: 사이언스 클래식, 펭귄클래식 시리즈">
  </div>
  <div class="form-field">
- <label class="form-label" for="ownedInputMemo">메모</label>
- <input type="text" id="ownedInputMemo" class="form-input" placeholder="">
+ <label class="form-label" for="ownedInputVol">권수</label>
+ <input type="text" id="ownedInputVol" class="form-input" placeholder="예: 1">
  </div>
+ </div>
+ <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+ <div class="form-field">
+ <label class="form-label" for="ownedInputTranslator">역자/편집</label>
+ <input type="text" id="ownedInputTranslator" class="form-input" placeholder="옮긴이·감수·엮은이">
  </div>
  <div class="form-field">
  <label class="form-label" for="ownedInputIsbn">ISBN</label>
  <input type="text" id="ownedInputIsbn" class="form-input" placeholder="" onblur="triggerAutoFillOwnedMeta()">
+ </div>
+ </div>
+ <div class="form-field">
+ <label class="form-label" for="ownedInputMemo">메모</label>
+ <input type="text" id="ownedInputMemo" class="form-input" placeholder="구매처, 선물받은 기록 등 개인 메모를 남겨보세요.">
  </div>
 
  <div class="memo-modal-actions">
@@ -1585,6 +1597,8 @@
  let myOwnedBooks = [];
  let myOwnedBooksIndex = { byIsbn: new Map(), byBaseTitle: new Map() };
  let myLibStatusFilter = 'all';
+ let myLibOwnershipFilter = 'all';
+ let myLibEbookOnly = false;
  let myLibTagFilter = '';
  let myLibVisibleLimit = 40;
  let activeOwnedEditContext = null;
@@ -1836,12 +1850,23 @@
  }
 
  function getTranslatorSupervisorInfo(b) {
+ const tr = String(b?.translator || '').trim();
+ if (tr) return tr;
  const memo = getOwnedMemo(b);
  if (!memo) return '';
  if (/(옮긴이|옮김|역자|편역|공역|감수자|감수|엮은이|엮음)/.test(memo)) {
  return memo;
  }
  return '';
+ }
+
+ function formatSeriesBadgeText(b) {
+ const s = getOwnedSeries(b);
+ if (!s) return '';
+ const v = String(b?.vol || '').trim();
+ if (!v) return s;
+ if (s.endsWith(v) || s.endsWith(v + '권')) return s;
+ return `${s} ${/권$|호$/.test(v) ? v : v + '권'}`;
  }
 
  function extractSeriesGroupName(seriesStr) {
@@ -3050,15 +3075,15 @@
  if (!bar) return;
  const stats = computeLibraryStats();
  bar.innerHTML = `
- <div class="mylib-stat-pill ${myLibStatusFilter === 'all' ? 'active-pill' : ''}" onclick="setMyLibStatusFilter('all')" title="전체 보유 도서 보기">
+ <div class="mylib-stat-pill ${(myLibStatusFilter === 'all' && myLibOwnershipFilter === 'all' && !myLibEbookOnly) ? 'active-pill' : ''}" onclick="setMyLibStatusFilter('all')" title="전체 보유 도서 보기">
  <span class="mylib-stat-val">${stats.total}권</span>
  <span class="mylib-stat-lbl">전체 보유</span>
  </div>
- <div class="mylib-stat-pill ${myLibStatusFilter === 'e-book' ? 'active-pill' : ''}" onclick="setMyLibStatusFilter('e-book')" title="e-book만 보기">
+ <div class="mylib-stat-pill ${(myLibEbookOnly && myLibStatusFilter !== 'duplicates') ? 'active-pill' : ''}" onclick="toggleMyLibEbookFilter()" title="e-book 필터 켜기/끄기">
  <span class="mylib-stat-val">${stats.paper} / ${stats.ebooks}</span>
  <span class="mylib-stat-lbl">종이 / e-book</span>
  </div>
- <div class="mylib-stat-pill ${myLibStatusFilter === '완독' ? 'active-pill' : ''}" onclick="setMyLibStatusFilter('완독')" title="완독한 책 보기">
+ <div class="mylib-stat-pill ${myLibStatusFilter === '완독' ? 'active-pill' : ''}" onclick="toggleMyLibReadingStatusFilter('완독')" title="완독한 책 보기">
  <span class="mylib-stat-val">${stats.done}권(${stats.donePct}%)</span>
  <span class="mylib-stat-lbl">완독률</span>
  </div>
@@ -3256,18 +3281,75 @@
  }).join('');
  }
 
- function setMyLibStatusFilter(status) {
- myLibStatusFilter = status;
- if (status !== 'duplicates') {
+ function updateMyLibFilterChipsUI() {
+ const isDup = myLibStatusFilter === 'duplicates';
+ const isAllDefault = !isDup && myLibStatusFilter === 'all' && myLibOwnershipFilter === 'all' && !myLibEbookOnly;
+ document.querySelectorAll('#myLibStatusFilters .mylib-filter-chip').forEach(btn => {
+ if (btn.hasAttribute('data-filter-reset')) {
+ btn.classList.toggle('active', isAllDefault);
+ } else if (btn.hasAttribute('data-ownership')) {
+ btn.classList.toggle('active', !isDup && myLibOwnershipFilter === btn.getAttribute('data-ownership'));
+ } else if (btn.hasAttribute('data-ebook')) {
+ btn.classList.toggle('active', !isDup && myLibEbookOnly);
+ } else if (btn.hasAttribute('data-status')) {
+ btn.classList.toggle('active', myLibStatusFilter === btn.getAttribute('data-status'));
+ }
+ });
+ }
+
+ function applyMyLibFilters() {
+ if (myLibStatusFilter !== 'duplicates') {
  isViewingSkippedDuplicates = false;
  lastSkippedDupUndo = null;
  }
- document.querySelectorAll('#myLibStatusFilters .mylib-filter-chip').forEach(btn => {
- btn.classList.toggle('active', btn.getAttribute('data-status') === status);
- });
+ updateMyLibFilterChipsUI();
  renderMyLibStatsBar();
  populateMyLibFilters();
  renderMyLibraryList(true);
+ }
+
+ function setMyLibStatusFilter(status) {
+ if (status === 'all') {
+ myLibStatusFilter = 'all';
+ myLibOwnershipFilter = 'all';
+ myLibEbookOnly = false;
+ } else if (status === 'e-book') {
+ myLibStatusFilter = 'all';
+ myLibOwnershipFilter = 'all';
+ myLibEbookOnly = true;
+ } else if (status === '소장' || status === '대여') {
+ myLibStatusFilter = 'all';
+ myLibOwnershipFilter = status;
+ myLibEbookOnly = false;
+ } else if (status === 'duplicates') {
+ myLibStatusFilter = (myLibStatusFilter === 'duplicates') ? 'all' : 'duplicates';
+ } else {
+ myLibStatusFilter = status;
+ myLibOwnershipFilter = 'all';
+ myLibEbookOnly = false;
+ }
+ applyMyLibFilters();
+ }
+
+ function toggleMyLibOwnershipFilter(val) {
+ if (myLibStatusFilter === 'duplicates') myLibStatusFilter = 'all';
+ myLibOwnershipFilter = (myLibOwnershipFilter === val) ? 'all' : val;
+ applyMyLibFilters();
+ }
+
+ function toggleMyLibEbookFilter() {
+ if (myLibStatusFilter === 'duplicates') myLibStatusFilter = 'all';
+ myLibEbookOnly = !myLibEbookOnly;
+ applyMyLibFilters();
+ }
+
+ function toggleMyLibReadingStatusFilter(st) {
+ if (myLibStatusFilter === 'duplicates') {
+ myLibStatusFilter = st;
+ } else {
+ myLibStatusFilter = (myLibStatusFilter === st) ? 'all' : st;
+ }
+ applyMyLibFilters();
  }
 
  function setMyLibTagFilter(tag) {
@@ -3286,18 +3368,18 @@
  let result = myOwnedBooks.filter(b => {
  if (myLibStatusFilter === 'duplicates') {
  if (!dupSet.has(b)) return false;
- } else if (myLibStatusFilter === '소장') {
- if (isOwnedBorrowed(b)) return false;
- } else if (myLibStatusFilter === '대여') {
- if (!isOwnedBorrowed(b)) return false;
- } else if (myLibStatusFilter === 'e-book') {
- if (!isOwnedEbook(b)) return false;
- } else if (myLibStatusFilter === '읽을 예정') {
+ } else {
+ if (myLibOwnershipFilter === '소장' && isOwnedBorrowed(b)) return false;
+ if (myLibOwnershipFilter === '대여' && !isOwnedBorrowed(b)) return false;
+ if (myLibEbookOnly && !isOwnedEbook(b)) return false;
+
+ if (myLibStatusFilter === '읽을 예정') {
  const st = normalizeReadingStatus(b.status);
  if (st !== '읽을 예정' && st !== '') return false;
  } else if (myLibStatusFilter !== 'all') {
  const st = normalizeReadingStatus(b.status);
  if (st !== myLibStatusFilter) return false;
+ }
  }
 
  if (myLibTagFilter) {
@@ -3310,7 +3392,7 @@
  }
 
  if (q) {
- const hay = `${b.title || ''} ${b.author || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${getOwnedMemo(b)} ${b.isbn || ''} ${b.review || ''}`.toLowerCase();
+ const hay = `${b.title || ''} ${b.author || ''} ${b.translator || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${b.vol || ''} ${getOwnedMemo(b)} ${b.isbn || ''} ${b.review || ''}`.toLowerCase();
  if (!hay.includes(q) && !(qCompact.length >= 2 && hay.replace(/\s+/g, '').includes(qCompact))) {
  return false;
  }
@@ -3409,7 +3491,7 @@
  </div>
  <div class="mylib-item-badges">
  ${ebook ? '<span class="mylib-badge ebook">📱 e-book</span>' : ''}
- ${getOwnedSeries(b) ? `<span class="mylib-badge series">${escapeHtml(getOwnedSeries(b))}</span>` : ''}
+ ${formatSeriesBadgeText(b) ? `<span class="mylib-badge series">${escapeHtml(formatSeriesBadgeText(b))}</span>` : ''}
  ${b.isbn ? `<span class="mylib-badge">ISBN ${escapeHtml(b.isbn)}</span>` : ''}
  </div>
  </div>
@@ -3455,7 +3537,8 @@
 
  const ratingShort = formatRatingShort(b.rating);
  const transSup = getTranslatorSupervisorInfo(b);
- const subLine = `${escapeHtml(b.author || '저자 미상')}${transSup ? ' · ' + escapeHtml(transSup) : ''}`;
+ const pubText = (myLibStatusFilter === 'duplicates' && b.publisher) ? ` · ${escapeHtml(b.publisher)}` : '';
+ const subLine = `${escapeHtml(b.author || '저자 미상')}${pubText}${transSup ? ' · ' + escapeHtml(transSup) : ''}`;
  const rawTags = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && !isEbookTagToken(t));
  const borrowedBadgeHtml = isOwnedBorrowed(b) ? '<span class="mylib-badge borrowed">🏛️ 대여</span>' : '';
  const dueBadgeHtml = getDueDateBadgeHtml(b);
@@ -3495,7 +3578,7 @@
  ${statusVal ? `<span class="mylib-badge ${statusCls}">${escapeHtml(statusVal)}</span>` : ''}
  ${ratingShort ? `<span class="mylib-badge rating">${ratingShort}</span>` : ''}
  ${formatReadingPeriod(b.startDate, b.finishDate) ? `<span class="mylib-badge date">📅 ${escapeHtml(formatReadingPeriod(b.startDate, b.finishDate))}</span>` : ''}
- ${getOwnedSeries(b) ? `<span class="mylib-badge series">${escapeHtml(getOwnedSeries(b))}</span>` : ''}
+ ${formatSeriesBadgeText(b) ? `<span class="mylib-badge series">${escapeHtml(formatSeriesBadgeText(b))}</span>` : ''}
  ${tagBadges}
  </div>
  </div>
@@ -3608,6 +3691,8 @@
  document.getElementById('ownedInputPublisher').value = b.publisher || '';
  setOwnedEditTagsFromString(b.tags || '');
  document.getElementById('ownedInputSeries').value = getOwnedSeries(b);
+ document.getElementById('ownedInputVol').value = String(b.vol || '').trim();
+ document.getElementById('ownedInputTranslator').value = String(b.translator || '').trim();
  document.getElementById('ownedInputMemo').value = getOwnedMemo(b);
  document.getElementById('ownedInputIsbn').value = b.isbn || '';
  document.getElementById('ownedInputStartDate').value = b.startDate || '';
@@ -3940,7 +4025,7 @@
  if (fetchedPubYear) currentModalPubYear = fetchedPubYear;
  if (fetchedDesc) currentModalDescription = fetchedDesc;
  if (fetchedKdc) currentModalKdc = fetchedKdc;
- if (fetchedVol) currentModalVol = fetchedVol;
+ if (fetchedVol) { currentModalVol = fetchedVol; const volEl = document.getElementById('ownedInputVol'); if (volEl && !volEl.value.trim()) volEl.value = fetchedVol; }
  if (fetchedLoanStats) currentModalLoanStats = fetchedLoanStats;
  renderOwnedMetaPlotBox();
  }
@@ -4160,6 +4245,8 @@
  }
  if (doc.vol && !currentModalVol) {
  currentModalVol = String(doc.vol).trim();
+ const volEl = document.getElementById('ownedInputVol');
+ if (volEl && !volEl.value.trim()) volEl.value = currentModalVol;
  filledAny = true;
  }
  const loanStatsStr = summarizeLoanInfoFromDtlResponse(dtlData, doc);
@@ -4205,9 +4292,10 @@
  pubYear: currentModalPubYear || '',
  description: currentModalDescription || '',
  kdc: currentModalKdc || '',
- vol: currentModalVol || '',
+ vol: (document.getElementById('ownedInputVol')?.value.trim() || currentModalVol || ''),
  loanStats: currentModalLoanStats || '',
  series: document.getElementById('ownedInputSeries').value.trim(),
+ translator: document.getElementById('ownedInputTranslator')?.value.trim() || '',
  memo: document.getElementById('ownedInputMemo').value.trim(),
  status: selectedOwnedStatus,
  rating: selectedOwnedRating > 0 ? formatStarRating(selectedOwnedRating) : '',

@@ -779,30 +779,17 @@
  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
  font-size: 10.5px; font-weight: 700; padding: 4px; text-align: center; pointer-events: none;
  }
- .ebook-toggle-row {
- display: flex; align-items: center; justify-content: space-between; gap: 10px;
- padding: 9px 12px; border-radius: 10px;
- background: #f9fafb; border: 1.5px solid var(--border);
- transition: background-color 0.2s, border-color 0.2s;
+ .ebook-icon-toggle {
+ width: 34px; height: 34px; border-radius: 10px;
+ border: 1.5px solid var(--border); background: #f3f4f6; color: #9ca3af;
+ display: inline-flex; align-items: center; justify-content: center;
+ cursor: pointer; flex-shrink: 0; transition: all 0.18s ease;
  }
- .ebook-toggle-row.is-on { background: var(--ebook-bg); border-color: var(--ebook-border); }
- .ebook-toggle-label { font-size: 12.5px; font-weight: 700; color: #374151; display: flex; align-items: center; gap: 6px; }
- .ebook-toggle-row.is-on .ebook-toggle-label { color: var(--ebook); }
- .ebook-switch-btn {
- position: relative; display: inline-flex; align-items: center; justify-content: space-between;
- width: 64px; height: 28px; padding: 0 7px; border-radius: 999px;
- border: none; background: #d1d5db; color: #ffffff; cursor: pointer;
- font-family: inherit; font-size: 10.5px; font-weight: 800; transition: background-color 0.2s;
+ .ebook-icon-toggle:active { transform: scale(0.93); }
+ .ebook-icon-toggle.is-on {
+ background: var(--ebook); border-color: var(--ebook); color: #ffffff;
+ box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.22), 0 3px 10px rgba(124, 58, 237, 0.35);
  }
- .ebook-switch-btn.is-on { background: var(--ebook); }
- .ebook-switch-knob {
- position: absolute; top: 3px; left: 3px; width: 22px; height: 22px;
- border-radius: 50%; background: #ffffff; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
- transition: transform 0.2s;
- }
- .ebook-switch-btn.is-on .ebook-switch-knob { transform: translateX(36px); }
- .ebook-switch-text { width: 100%; text-align: right; padding-right: 2px; pointer-events: none; }
- .ebook-switch-btn.is-on .ebook-switch-text { text-align: left; padding-left: 3px; padding-right: 0; }
  .tag-chip-editor {
  display: flex; flex-wrap: wrap; align-items: center; gap: 5px;
  width: 100%; min-height: 40px; border: 1.5px solid #d1d5db; border-radius: 10px;
@@ -918,7 +905,7 @@
  <div class="home-grid">
  <div class="card">
  <div class="section-title" style="justify-content: space-between; margin-bottom: 10px;">
- <span style="display:flex; align-items:center; gap:7px;"><i data-lucide="book-open-check" size="18" color="#2563eb"></i> 읽는 중인 책</span>
+ <span style="display:flex; align-items:center; gap:7px;"><i data-lucide="book-open-check" size="18" color="#2563eb"></i> 읽는 중</span>
  <button class="owned-chip-btn primary" onclick="openMyLibraryModal(false, '읽는 중')">전체 보기</button>
  </div>
  <div id="homeReadingNowList" class="reading-now-list"></div>
@@ -926,7 +913,7 @@
  <div class="card">
  <div class="section-title" style="justify-content: space-between; margin-bottom: 10px;">
  <span style="display:flex; align-items:center; gap:7px;"><i data-lucide="dices" size="18" color="#059669"></i> 오늘 뭐 읽지?</span>
- <button class="owned-chip-btn indigo" onclick="pickRandomUnreadBook()">🎲 다시 뽑기</button>
+ <button class="owned-chip-btn indigo icon-trash-btn" onclick="pickRandomUnreadBook()" title="다시 뽑기" aria-label="다시 뽑기"><i data-lucide="dices" size="15"></i></button>
  </div>
  <div id="homeRandomPickContainer"></div>
  </div>
@@ -1175,7 +1162,6 @@
  <div class="mylib-select-group">
  <select id="myLibSortSelect" class="mylib-series-select" onchange="renderMyLibraryList(true)" aria-label="정렬 기준">
  <option value="recent" selected>최근 추가순</option>
- <option value="default">시트순</option>
  <option value="finishDate">완독일 최신순</option>
  <option value="rating">평점 높은 순</option>
  <option value="title">제목순</option>
@@ -1213,7 +1199,9 @@
  <div class="memo-modal-box">
  <div class="owned-edit-top-bar" style="align-items:center;">
  <h3 class="memo-modal-title" id="ownedEditModalTitle" style="margin:0;">내 서재에 책 추가</h3>
- <button id="ownedAladinInfoBtn" class="owned-chip-btn indigo hidden" style="padding:7px 11px; font-size:12px; flex-shrink:0;" onclick="openAladinFromModal()">도서 정보</button>
+ <button type="button" id="ownedEbookToggleBtn" class="ebook-icon-toggle" role="switch" aria-checked="false" title="전자책 여부 (ON/OFF)" aria-label="전자책 여부" onclick="toggleOwnedEbookSwitch()">
+ <i data-lucide="smartphone" size="17"></i>
+ </button>
  </div>
 
  <label id="removeBookmarkCheckRow" class="checkbox-row hidden">
@@ -1249,7 +1237,7 @@
  </div>
 
  <div id="ownedMetaPlotBox" class="owned-meta-plot-box hidden">
- <details id="ownedMetaPlotDetails">
+ <details id="ownedMetaPlotDetails" open>
  <summary class="owned-meta-plot-summary">
  <span id="ownedMetaPlotHeading">📖 도서 상세 정보</span>
  <span style="font-size:11px; color:#6366f1; font-weight:700;">펼치기 / 접기</span>
@@ -1257,16 +1245,6 @@
  <div id="ownedMetaPlotMeta" class="owned-meta-plot-meta"></div>
  <div id="ownedMetaPlotBody" class="owned-meta-plot-body"></div>
  </details>
- </div>
-
- <div class="form-field">
- <div id="ownedEbookToggleRow" class="ebook-toggle-row">
- <span class="ebook-toggle-label">📱 전자책 여부</span>
- <button type="button" id="ownedEbookToggleBtn" class="ebook-switch-btn" role="switch" aria-checked="false" onclick="toggleOwnedEbookSwitch()">
- <span class="ebook-switch-text" id="ownedEbookToggleText">OFF</span>
- <span class="ebook-switch-knob"></span>
- </button>
- </div>
  </div>
 
  <div class="form-field">
@@ -1313,9 +1291,12 @@
  </div>
 
  <div class="form-field">
- <label class="form-label" for="ownedTagInput">태그</label>
+ <label class="form-label" for="ownedTagInput">
+ <span>태그</span>
+ <span style="font-size:11px; font-weight:500; color:var(--sec-text);">스페이스바로 구분</span>
+ </label>
  <div id="ownedTagChipBox" class="tag-chip-editor" onclick="document.getElementById('ownedTagInput').focus()">
- <input type="text" id="ownedTagInput" class="tag-chip-input" placeholder="태그 입력 후 스페이스바" onkeydown="handleOwnedTagKeydown(event)" oninput="handleOwnedTagInput(this)" onblur="commitPendingOwnedTag()">
+ <input type="text" id="ownedTagInput" class="tag-chip-input" placeholder="" onkeydown="handleOwnedTagKeydown(event)" oninput="handleOwnedTagInput(this)" onblur="commitPendingOwnedTag()">
  </div>
  <div class="quick-tag-picks">
  <button type="button" class="quick-tag-pick" onclick="appendOwnedTag('과학')">+ 과학</button>
@@ -2543,7 +2524,7 @@
  <span class="home-kpi-value">${stats.reading}권</span>
  <span class="home-kpi-sub">${stats.topReadingTag ? `최다 분야 #${escapeHtml(stats.topReadingTag)}` : '현재 독서 중인 도서'}</span>
  </div>
- <div class="home-kpi-card" onclick="toggleBookmarkModal()">
+ <div class="home-kpi-card" onclick="event.stopPropagation(); toggleBookmarkModal();">
  <span class="home-kpi-label">⭐ 내 북마크</span>
  <span class="home-kpi-value">${stats.bookmarkCount}권</span>
  <span class="home-kpi-sub">읽고 싶은 책 리스트</span>
@@ -2616,7 +2597,6 @@
  const ebook = isOwnedEbook(b);
  const st = normalizeReadingStatus(b.status);
  const authorDisplay = String(b.author || '').trim() || '저자 미상';
- const aladinUrl = getAladinBookUrl(b.title, b.isbn);
  const tags = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && !isEbookTagToken(t)).slice(0, 4)
  .map(t => `<span class="mylib-badge">#${escapeHtml(t)}</span>`).join('');
 
@@ -2628,7 +2608,6 @@
  <div class="mylib-item-badges">${ebook ? '<span class="mylib-badge ebook">📱 전자책</span>' : ''}${st === '읽을 예정' ? '<span class="mylib-badge status-planned">읽을 예정</span>' : ''}${tags}</div>
  <div class="random-pick-actions" onclick="event.stopPropagation()">
  <button class="owned-action-btn add" onclick="startReadingOwnedByIndex(${idx})">📖 읽기</button>
- <a href="${aladinUrl}" target="_blank" rel="noopener" class="owned-chip-btn indigo" style="padding:7px 11px; text-decoration:none; display:inline-flex; align-items:center;">도서 정보</a>
  </div>
  </div>
  `;
@@ -3419,16 +3398,10 @@
  loadOwnedEditCover(b);
 
  const deleteBtn = document.getElementById('ownedDeleteBtn');
- const aladinBtn = document.getElementById('ownedAladinInfoBtn');
  if (ctx.mode === 'edit') {
  deleteBtn.classList.remove('hidden');
- if (aladinBtn) aladinBtn.classList.remove('hidden');
  } else {
  deleteBtn.classList.add('hidden');
- if (aladinBtn) {
- if (b.title || b.isbn) aladinBtn.classList.remove('hidden');
- else aladinBtn.classList.add('hidden');
- }
  }
 
  document.getElementById('ownedEditModalOverlay').classList.add('open');
@@ -3475,15 +3448,12 @@
 
  function setOwnedEbookToggle(isOn) {
  selectedOwnedIsEbook = !!isOn;
- const row = document.getElementById('ownedEbookToggleRow');
  const btn = document.getElementById('ownedEbookToggleBtn');
- const txt = document.getElementById('ownedEbookToggleText');
- if (row) row.classList.toggle('is-on', selectedOwnedIsEbook);
  if (btn) {
  btn.classList.toggle('is-on', selectedOwnedIsEbook);
  btn.setAttribute('aria-checked', selectedOwnedIsEbook ? 'true' : 'false');
+ btn.title = selectedOwnedIsEbook ? '전자책 (ON)' : '전자책 (OFF)';
  }
- if (txt) txt.innerText = selectedOwnedIsEbook ? 'ON' : 'OFF';
  }
 
  function toggleOwnedEbookSwitch() {
@@ -3494,15 +3464,7 @@
  addOwnedTagValue(tag);
  }
 
- function openAladinFromModal() {
- const title = document.getElementById('ownedInputTitle').value.trim();
- const isbn = document.getElementById('ownedInputIsbn').value.trim();
- if (!title && !isbn) {
- showToast('책 제목이나 ISBN을 먼저 입력해 주세요.', 'error');
- return;
- }
- window.open(getAladinBookUrl(title, isbn), '_blank', 'noopener');
- }
+
 
  function stripHtmlText(raw) {
  if (!raw) return '';
@@ -3674,24 +3636,34 @@
 
  const targetRow = book.row;
  if (!currentModalCoverUrl) setOwnedCoverDisplay('', '조회 중...');
+ const plotBox = document.getElementById('ownedMetaPlotBox');
+ const plotHeading = document.getElementById('ownedMetaPlotHeading');
+ const plotBody = document.getElementById('ownedMetaPlotBody');
+ if (plotBox && plotBox.classList.contains('hidden')) {
+ plotBox.classList.remove('hidden');
+ if (plotHeading) plotHeading.innerText = '📖 도서 상세 정보 불러오는 중...';
+ if (plotBody) plotBody.innerText = '정보나루에서 표지·줄거리·분류·대출 통계를 조회하고 있습니다.';
+ }
 
  try {
  let doc = null;
  let dtlData = null;
 
- // 1) ISBN이 있으면 srchDtlList(loaninfoYN=Y) 1회로 표지·줄거리·출간연도·KDC·권수·대출통계 모두 조회
- if (isbn.length >= 10) {
- dtlData = await data4LibFetchJson(`https://data4library.kr/api/srchDtlList?authKey=${apiKey}&isbn13=${encodeURIComponent(isbn)}&loaninfoYN=Y&format=json`);
+ // 1) 13자리 ISBN이 있으면 srchDtlList(loaninfoYN=Y) 1회로 전체 상세 조회
+ if (isbn.length === 13) {
+ dtlData = await data4LibFetchJson(`https://data4library.kr/api/srchDtlList?authKey=${apiKey}&isbn13=${encodeURIComponent(isbn)}&loaninfoYN=Y&format=json`).catch(() => null);
  doc = dtlData?.response?.detail?.[0]?.book || null;
- } else if (title) {
- // 2) ISBN이 없을 때만 제목으로 srchBooks 검색 후, 찾은 ISBN으로 srchDtlList 상세 조회
+ }
+
+ // 2) ISBN이 없거나 전자책/구판 ISBN으로 조회 결과가 비었을 때 제목으로 보조 조회
+ if (!doc && title) {
  const cleanT = title.replace(/^\d{1,3}\s+(?=\D)/, '').replace(/\([^)]*\)/g, '').trim();
- const data = await data4LibFetchJson(`https://data4library.kr/api/srchBooks?authKey=${apiKey}&keyword=${encodeURIComponent(cleanT)}&pageNo=1&pageSize=5&format=json`);
+ const data = await data4LibFetchJson(`https://data4library.kr/api/srchBooks?authKey=${apiKey}&keyword=${encodeURIComponent(cleanT)}&pageNo=1&pageSize=5&format=json`).catch(() => null);
  const docs = data?.response?.docs || [];
  const best = (book.author ? docs.find(d => hasAuthorOverlap(d.doc.authors, book.author)) : null) || docs[0];
  doc = best ? best.doc : null;
  const foundIsbn = normalizeIsbn(doc?.isbn13 || doc?.isbn);
- if (foundIsbn.length >= 10 && (!doc?.description || !doc?.class_nm)) {
+ if (foundIsbn.length === 13 && (!doc?.description || !doc?.class_nm)) {
  dtlData = await data4LibFetchJson(`https://data4library.kr/api/srchDtlList?authKey=${apiKey}&isbn13=${encodeURIComponent(foundIsbn)}&loaninfoYN=Y&format=json`).catch(() => null);
  const dtlBook = dtlData?.response?.detail?.[0]?.book;
  if (dtlBook) doc = { ...doc, ...dtlBook };
@@ -3740,8 +3712,9 @@
  }).catch(() => {});
  }
  } catch (e) {
- if (activeOwnedEditContext && activeOwnedEditContext.book.row === targetRow && !currentModalCoverUrl) {
- setOwnedCoverDisplay('', '표지 없음');
+ if (activeOwnedEditContext && activeOwnedEditContext.book.row === targetRow) {
+ if (!currentModalCoverUrl) setOwnedCoverDisplay('', '표지 없음');
+ renderOwnedMetaPlotBox();
  }
  }
  }

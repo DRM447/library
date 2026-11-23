@@ -67,23 +67,28 @@
 
  .search-container { max-width: 1200px; margin: 0 auto 18px auto; min-width: 0; position: relative; }
 
- /* 검색창 상단 주요 사이트 바로가기 (1줄 슬림 독) */
+ /* 검색창 하단 주요 사이트 바로가기 (얇은 알약 칩 1줄) */
  .top-quick-links {
- display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px;
- max-width: 440px; margin: 0 auto 10px auto;
+ display: flex; align-items: center; justify-content: flex-start; gap: 7px;
+ margin: 10px auto 0 auto; padding: 2px 2px 4px 2px;
+ overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;
+ }
+ .top-quick-links::-webkit-scrollbar { display: none; }
+ @media (min-width: 620px) {
+ .top-quick-links { justify-content: center; flex-wrap: wrap; overflow-x: visible; }
  }
  .top-quick-btn {
- display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
- padding: 6px 4px; border-radius: 12px;
+ display: inline-flex; flex-direction: row; align-items: center; justify-content: center; gap: 5px;
+ padding: 6px 11px; border-radius: 999px;
  background-color: #ffffff; color: var(--text);
- border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
- font-size: 10.5px; font-weight: 700; text-decoration: none;
+ border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+ font-size: 11.5px; font-weight: 700; text-decoration: none;
  transition: transform 0.12s, border-color 0.2s, background-color 0.2s;
- white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+ white-space: nowrap; flex-shrink: 0;
  }
  .top-quick-btn:hover { border-color: #c7d2fe; background-color: #eef2ff; }
  .top-quick-btn:active { transform: scale(0.95); background-color: #e0e7ff; }
- .top-quick-btn img { width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0; object-fit: contain; }
+ .top-quick-btn img { width: 15px; height: 15px; border-radius: 3px; flex-shrink: 0; object-fit: contain; }
 
  /* 상단 좌측 API 사용량 배지 · 상단 우측 바코드 아이콘 버튼 (스크롤 간섭 방지) */
  .api-usage-corner {
@@ -127,13 +132,13 @@
  .bm-memo-plus-overlay:hover { background: rgba(255, 255, 255, 0.78); }
  .bm-memo-plus-circle {
  width: 28px; height: 28px; border-radius: 50%;
- background: #4f46e5; color: #ffffff;
+ background: #1f2937; color: #ffffff;
  display: inline-flex; align-items: center; justify-content: center;
  font-size: 17px; font-weight: 800; line-height: 1;
- box-shadow: 0 2px 6px rgba(79, 70, 229, 0.28);
+ box-shadow: 0 2px 6px rgba(17, 24, 39, 0.22);
  transition: transform 0.14s, background-color 0.14s;
  }
- .bm-memo-plus-overlay:hover .bm-memo-plus-circle { background: #4338ca; }
+ .bm-memo-plus-overlay:hover .bm-memo-plus-circle { background: #111827; }
  .bm-memo-plus-overlay:active .bm-memo-plus-circle { transform: scale(0.92); }
  .bm-memo-obi {
  position: absolute; left: 0; right: 0; bottom: 0; height: 52px;
@@ -169,9 +174,9 @@
  body { padding: 12px 12px calc(96px + env(safe-area-inset-bottom)) 12px; }
  .main-logo { width: 84px; }
  .main-headline { font-size: 11.5px; letter-spacing: 1.4px; }
- .top-quick-links { gap: 5px; }
- .top-quick-btn { padding: 5px 2px; font-size: 9.5px; letter-spacing: -0.4px; }
- .top-quick-btn img { width: 17px; height: 17px; }
+ .top-quick-links { gap: 6px; }
+ .top-quick-btn { padding: 5px 10px; font-size: 11px; }
+ .top-quick-btn img { width: 14px; height: 14px; }
  }
 
  /* 메인 레이아웃: 접힘(1열) / 폴드 7 펼침(>=660px, 좌우 2열 분할) */
@@ -196,36 +201,36 @@
 
  .left-panel, .right-panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 
- #searchSection { position: relative; overflow: visible; padding: 16px; }
+ #searchSection { position: relative; overflow: visible; padding: 12px 14px; }
  @media (min-width: 660px) {
- #searchSection { padding: 20px; }
+ #searchSection { padding: 14px 16px; }
  }
- .search-box { display: flex; gap: 8px; align-items: stretch; position: relative; z-index: 101; }
+ .search-box { display: flex; gap: 7px; align-items: stretch; position: relative; z-index: 101; }
  .search-box input {
- flex: 1; border: 2px solid #6366f1; border-radius: 15px; padding: 14px 16px;
- font-size: 16.5px; font-weight: 600; outline: none; background: #ffffff;
+ flex: 1; border: 2px solid #6366f1; border-radius: 13px; padding: 11px 14px;
+ font-size: 15.5px; font-weight: 600; outline: none; background: #ffffff;
  min-width: 0; color: var(--text); transition: border-color 0.2s, box-shadow 0.2s;
  font-family: inherit;
  }
  @media (min-width: 660px) {
- .search-box input { padding: 16px 20px; font-size: 18px; }
+ .search-box input { padding: 12px 16px; font-size: 16.5px; }
  }
  .search-box input:focus { border-color: #4f46e5; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
- .search-box input::placeholder { font-weight: 400; font-size: 14.5px; color: #9ca3af; }
+ .search-box input::placeholder { font-weight: 400; font-size: 14px; color: #9ca3af; }
  .barcode-btn {
- background-color: #eef2ff; color: #4338ca; border: 1.5px solid #c7d2fe; border-radius: 15px;
- width: 52px; display: flex; align-items: center; justify-content: center;
+ background-color: #eef2ff; color: #4338ca; border: 1.5px solid #c7d2fe; border-radius: 13px;
+ width: 44px; display: flex; align-items: center; justify-content: center;
  cursor: pointer; flex-shrink: 0; transition: background-color 0.2s, transform 0.1s;
  }
  .barcode-btn:active { transform: scale(0.95); background-color: #e0e7ff; }
  .search-btn {
- background-color: #4f46e5; color: white; border: none; border-radius: 15px;
- width: 56px; display: flex; align-items: center; justify-content: center;
+ background-color: #4f46e5; color: white; border: none; border-radius: 13px;
+ width: 44px; display: flex; align-items: center; justify-content: center;
  cursor: pointer; flex-shrink: 0; transition: background-color 0.2s, transform 0.1s;
  }
  @media (min-width: 660px) {
- .barcode-btn { width: 58px; }
- .search-btn { width: 64px; }
+ .barcode-btn { width: 48px; }
+ .search-btn { width: 48px; }
  }
  .search-btn:active { transform: scale(0.95); background-color: var(--primary-hover); }
 
@@ -1151,28 +1156,10 @@
  </div>
 
  <div class="search-container">
- <div class="top-quick-links" aria-label="주요 도서관 및 서점 바로가기">
- <a href="https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchSimple.do" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="yongsan_logo.svg" alt=""><span>꿈나무도서관</span>
- </a>
- <a href="https://ahyon.sen.go.kr/ahyon/intro/search/index.do?menu_idx=4" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="mapo_logo.svg" alt=""><span>아현분관</span>
- </a>
- <a href="https://nslib.sen.go.kr/nslib/intro/search/index.do?menu_idx=4" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="SeoulEdu_logo.svg" alt=""><span>남산도서관</span>
- </a>
- <a href="https://www.aladin.co.kr/account/wmaininfo.aspx?pType=MyAccount" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" alt=""><span>알라딘</span>
- </a>
- <a href="https://www.kyobobook.co.kr/" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32" alt=""><span>교보문고</span>
- </a>
- </div>
-
  <div class="card" id="searchSection">
  <div class="search-box">
  <input type="text" id="searchInput" autocomplete="off" placeholder="도서명, 저자명, 출판사, ISBN을 입력해주세요." onkeypress="if(event.key==='Enter') executeSearch()">
- <button class="search-btn" onclick="executeSearch()" aria-label="도서 검색"><i data-lucide="search" size="24"></i></button>
+ <button class="search-btn" onclick="executeSearch()" aria-label="도서 검색"><i data-lucide="search" size="19"></i></button>
  </div>
 
 
@@ -1197,6 +1184,24 @@
  <button class="live-ac-search-btn" onclick="executeSearch()">통합 검색 →</button>
  </div>
  </div>
+ </div>
+
+ <div class="top-quick-links" aria-label="주요 도서관 및 서점 바로가기">
+ <a href="https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchSimple.do" target="_blank" rel="noopener" class="top-quick-btn">
+ <img src="yongsan_logo.svg" alt=""><span>꿈나무도서관</span>
+ </a>
+ <a href="https://ahyon.sen.go.kr/ahyon/intro/search/index.do?menu_idx=4" target="_blank" rel="noopener" class="top-quick-btn">
+ <img src="mapo_logo.svg" alt=""><span>아현분관</span>
+ </a>
+ <a href="https://nslib.sen.go.kr/nslib/intro/search/index.do?menu_idx=4" target="_blank" rel="noopener" class="top-quick-btn">
+ <img src="SeoulEdu_logo.svg" alt=""><span>남산도서관</span>
+ </a>
+ <a href="https://www.aladin.co.kr/account/wmaininfo.aspx?pType=MyAccount" target="_blank" rel="noopener" class="top-quick-btn">
+ <img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" alt=""><span>알라딘</span>
+ </a>
+ <a href="https://www.kyobobook.co.kr/" target="_blank" rel="noopener" class="top-quick-btn">
+ <img src="https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32" alt=""><span>교보문고</span>
+ </a>
  </div>
  </div>
 
@@ -1595,8 +1600,8 @@
  <input type="text" id="ownedInputAuthor" class="form-input" placeholder="저자명">
  </div>
  <div class="form-field">
- <label class="form-label" for="ownedInputTranslator">역자/편집</label>
- <input type="text" id="ownedInputTranslator" class="form-input" placeholder="옮긴이·감수·엮은이">
+ <label class="form-label" for="ownedInputTranslator">번역 · 감수</label>
+ <input type="text" id="ownedInputTranslator" class="form-input" placeholder="옮긴이·감수·엮은이·해설">
  </div>
  </div>
 
@@ -2487,6 +2492,7 @@
 
  function detectRoleFromSegment(seg) {
  const s = String(seg || '');
+ if (/(해설자|해설)/.test(s)) return '해설';
  if (/(감수자|감수)/.test(s)) return '감수';
  if (/(옮긴이|옮김|편역|공역|역자|\b역\b|역\s*$)/.test(s)) return '옮긴이';
  if (/(엮은이|엮음|편저|편집|엮어)/.test(s)) return '엮은이';
@@ -2510,7 +2516,7 @@
  parts.forEach(part => {
  const partRole = detectRoleFromSegment(part) || segRole;
  const cleanedDisplay = part
- .replace(/(지은이|저자|글·그림|글그림|원작|엮은이|엮음|편저|편집|감수자|감수|옮긴이|옮김|편역|공역|역자|지음|공저|그림|글|역)\s*[:：]?/gi, ' ')
+ .replace(/(지은이|저자|글·그림|글그림|원작|엮은이|엮음|편저|편집|해설자|해설|감수자|감수|옮긴이|옮김|편역|공역|역자|지음|공저|그림|글|역)\s*[:：]?/gi, ' ')
  .replace(/\([^)]*\)|\[[^\]]*\]|【[^】]*】|〈[^〉]*〉|《[^》]*》/g, ' ')
  .replace(/\s+/g, ' ')
  .replace(/\s*외$/g, '')
@@ -2525,6 +2531,37 @@
  });
 
  return entries;
+ }
+
+ function splitAuthorAndTranslator(authorsRaw) {
+ const entries = extractPersonRoleEntries(authorsRaw, '저자');
+ if (entries.length === 0) {
+ return { author: formatAuthorText(authorsRaw), translator: '' };
+ }
+ const authorNames = [];
+ const roleGroups = new Map();
+ const roleSuffix = { '옮긴이': '옮김', '감수': '감수', '엮은이': '엮음', '해설': '해설' };
+
+ entries.forEach(e => {
+ if (e.role === '저자') {
+ if (!authorNames.includes(e.name)) authorNames.push(e.name);
+ } else {
+ if (!roleGroups.has(e.role)) roleGroups.set(e.role, []);
+ const arr = roleGroups.get(e.role);
+ if (!arr.includes(e.name)) arr.push(e.name);
+ }
+ });
+
+ const translatorParts = [];
+ roleGroups.forEach((names, role) => {
+ const suffix = roleSuffix[role] || role;
+ translatorParts.push(`${names.join(', ')} ${suffix}`);
+ });
+
+ return {
+ author: authorNames.length > 0 ? authorNames.join(', ') : formatAuthorText(authorsRaw),
+ translator: translatorParts.join(' · ')
+ };
  }
 
  function personKeysMatch(a, b) {
@@ -4226,11 +4263,13 @@
  return;
  }
 
+ const parsedPeople = splitAuthorAndTranslator(currentSelectedBook.authors || '');
  openOwnedEditModal({
  mode: 'add',
  book: {
  title: currentSelectedBook.bookname || '',
- author: formatAuthorText(currentSelectedBook.authors || ''),
+ author: parsedPeople.author,
+ translator: parsedPeople.translator,
  publisher: currentSelectedBook.publisher || '',
  tags: '', series: '', memo: '', status: '읽을 예정', rating: '',
  isbn: String(currentSelectedBook.isbn13 || currentSelectedBook.isbn || ''),
@@ -4626,6 +4665,7 @@
  const hasSheetPubYear = !!String(book.pubYear || '').trim();
  const hasSheetKdc = !!String(book.kdc || '').trim();
  const hasSheetLoanStats = !!String(book.loanStats || '').trim();
+ const hasSheetTranslator = !!String(book.translator || '').trim();
 
  // 이미 구글 시트에 표지·줄거리·KDC 중 하나라도 저장돼 있으면 모달 열기 시 자동 API 재호출 스킵 (수동 ✨ 버튼으로 언제든 보강 가능)
  if (hasSheetCover || hasSheetDesc || hasSheetKdc) return;
@@ -4683,6 +4723,7 @@
  const fetchedKdc = formatKdcFromDoc(doc) || String(book.kdc || '').trim();
  const fetchedVol = String(doc?.vol || book.vol || '').trim();
  const fetchedLoanStats = summarizeLoanInfoFromDtlResponse(dtlData, doc) || String(book.loanStats || '').trim();
+ const fetchedTranslator = (doc?.authors ? splitAuthorAndTranslator(doc.authors).translator : '') || String(book.translator || '').trim();
 
  if (fetchedCover) saveBookCoverCache(fetchKey, fetchedCover);
 
@@ -4694,6 +4735,7 @@
  if (fetchedDesc) currentModalDescription = fetchedDesc;
  if (fetchedKdc) currentModalKdc = fetchedKdc;
  if (fetchedVol) { currentModalVol = fetchedVol; const volEl = document.getElementById('ownedInputVol'); if (volEl && !volEl.value.trim()) volEl.value = fetchedVol; }
+ if (fetchedTranslator) { const trEl = document.getElementById('ownedInputTranslator'); if (trEl && !trEl.value.trim()) trEl.value = fetchedTranslator; }
  if (fetchedLoanStats) currentModalLoanStats = fetchedLoanStats;
  renderOwnedMetaPlotBox();
  }
@@ -4704,9 +4746,10 @@
  if (fetchedDesc && !book.description) book.description = fetchedDesc;
  if (fetchedKdc && !book.kdc) book.kdc = fetchedKdc;
  if (fetchedVol && !book.vol) book.vol = fetchedVol;
+ if (fetchedTranslator && !book.translator) book.translator = fetchedTranslator;
  if (fetchedLoanStats && !book.loanStats) book.loanStats = fetchedLoanStats;
 
- const needSheetSave = (fetchedCover && !hasSheetCover) || (fetchedPubYear && !hasSheetPubYear) || (fetchedDesc && !hasSheetDesc) || (fetchedKdc && !hasSheetKdc) || (fetchedLoanStats && !hasSheetLoanStats);
+ const needSheetSave = (fetchedCover && !hasSheetCover) || (fetchedPubYear && !hasSheetPubYear) || (fetchedDesc && !hasSheetDesc) || (fetchedKdc && !hasSheetKdc) || (fetchedLoanStats && !hasSheetLoanStats) || (fetchedTranslator && !hasSheetTranslator);
  if (needSheetSave) {
  sendSheetPost({
  target: 'library',
@@ -4719,6 +4762,7 @@
  description: fetchedDesc,
  kdc: fetchedKdc,
  vol: fetchedVol,
+ translator: fetchedTranslator,
  loanStats: fetchedLoanStats
  }).catch(() => {});
  }
@@ -4920,9 +4964,17 @@
  document.getElementById('ownedInputTitle').value = doc.bookname;
  filledLabels.push('제목');
  }
- if (doc.authors && !document.getElementById('ownedInputAuthor').value.trim()) {
- document.getElementById('ownedInputAuthor').value = formatAuthorText(doc.authors);
+ if (doc.authors) {
+ const parsedPeople = splitAuthorAndTranslator(doc.authors);
+ if (parsedPeople.author && !document.getElementById('ownedInputAuthor').value.trim()) {
+ document.getElementById('ownedInputAuthor').value = parsedPeople.author;
  filledLabels.push('저자');
+ }
+ const trEl = document.getElementById('ownedInputTranslator');
+ if (parsedPeople.translator && trEl && !trEl.value.trim()) {
+ trEl.value = parsedPeople.translator;
+ filledLabels.push('옮긴이');
+ }
  }
  if (doc.publisher && !document.getElementById('ownedInputPublisher').value.trim()) {
  document.getElementById('ownedInputPublisher').value = doc.publisher;

@@ -11,7 +11,7 @@
  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
  <meta name="theme-color" content="#4f46e5">
 
- <script src="https://unpkg.com/lucide@latest"></script>
+ <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
 
  <style>
  @font-face {
@@ -63,7 +63,7 @@
  }
  .brand-wordmark span { font-weight: 900; }
  .main-headline { font-size: 12.5px; font-weight: 500; color: var(--sec-text); margin: 2px 0 0 0; word-break: keep-all; letter-spacing: 1.8px; }
- .header p { font-size: 14.5px; color: var(--sec-text); margin: 0; word-break: keep-all; font-weight: 500; }
+
 
  .search-container { max-width: 1200px; margin: 0 auto 18px auto; min-width: 0; position: relative; }
 
@@ -206,30 +206,34 @@
  #searchSection { padding: 14px 16px; }
  }
  .search-box { display: flex; gap: 7px; align-items: stretch; position: relative; z-index: 101; }
+ .search-input-wrap { position: relative; flex: 1; display: flex; align-items: center; min-width: 0; }
  .search-box input {
- flex: 1; border: 2px solid #6366f1; border-radius: 13px; padding: 11px 14px;
+ width: 100%; border: 2px solid #6366f1; border-radius: 13px; padding: 11px 36px 11px 14px;
  font-size: 15.5px; font-weight: 600; outline: none; background: #ffffff;
  min-width: 0; color: var(--text); transition: border-color 0.2s, box-shadow 0.2s;
  font-family: inherit;
  }
  @media (min-width: 660px) {
- .search-box input { padding: 12px 16px; font-size: 16.5px; }
+ .search-box input { padding: 12px 38px 12px 16px; font-size: 16.5px; }
  }
  .search-box input:focus { border-color: #4f46e5; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
  .search-box input::placeholder { font-weight: 400; font-size: 14px; color: #9ca3af; }
- .barcode-btn {
- background-color: #eef2ff; color: #4338ca; border: 1.5px solid #c7d2fe; border-radius: 13px;
- width: 44px; display: flex; align-items: center; justify-content: center;
- cursor: pointer; flex-shrink: 0; transition: background-color 0.2s, transform 0.1s;
+ .search-clear-btn {
+ position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+ width: 24px; height: 24px; border-radius: 50%; border: none;
+ background: #e5e7eb; color: #4b5563; cursor: pointer;
+ display: inline-flex; align-items: center; justify-content: center;
+ padding: 0; font-size: 13px; font-weight: 800; line-height: 1;
+ transition: background-color 0.15s, color 0.15s;
  }
- .barcode-btn:active { transform: scale(0.95); background-color: #e0e7ff; }
+ .search-clear-btn:hover { background: #d1d5db; color: #111827; }
+ .search-clear-btn:active { transform: translateY(-50%) scale(0.92); }
  .search-btn {
  background-color: #4f46e5; color: white; border: none; border-radius: 13px;
  width: 44px; display: flex; align-items: center; justify-content: center;
  cursor: pointer; flex-shrink: 0; transition: background-color 0.2s, transform 0.1s;
  }
  @media (min-width: 660px) {
- .barcode-btn { width: 48px; }
  .search-btn { width: 48px; }
  }
  .search-btn:active { transform: scale(0.95); background-color: var(--primary-hover); }
@@ -298,7 +302,7 @@
  .home-kpi-card:active { transform: scale(0.97); }
  .home-kpi-label { font-size: 11.5px; font-weight: 700; color: var(--sec-text); }
  .home-kpi-value { font-size: 20px; font-weight: 900; color: #065f46; line-height: 1.2; }
- .home-kpi-sub { font-size: 11px; color: var(--sec-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 
  .home-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
  @media (min-width: 660px) {
@@ -346,8 +350,11 @@
  }
  .owned-search-toggle {
  font-size: 11px; font-weight: 700; color: #047857; background: #ffffff;
- border: 1px solid #a7f3d0; padding: 4px 9px; border-radius: 999px; flex-shrink: 0;
+ border: 1px solid #a7f3d0; padding: 4px 10px; border-radius: 999px; flex-shrink: 0;
+ white-space: nowrap;
  }
+ .owned-search-toggle::after { content: '펼치기'; }
+ details[open] > summary .owned-search-toggle::after { content: '접기'; }
  .owned-search-list {
  display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 12px; max-height: 260px; overflow-y: auto;
  }
@@ -406,14 +413,7 @@
  }
  .cover-badge.owned { background-color: #059669; }
  .cover-badge.ebook { background-color: #7c3aed; }
- .loan-mini-badge {
- position: absolute; bottom: 5px; right: 5px; z-index: 2;
- padding: 2px 6px; border-radius: 6px; font-size: 9.5px; font-weight: 800;
- box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25); pointer-events: none;
- }
- .loan-mini-badge.avail { background-color: #10b981; color: #ffffff; }
- .loan-mini-badge.inter { background-color: #7c3aed; color: #ffffff; }
- .loan-mini-badge.busy { background-color: rgba(185, 28, 28, 0.9); color: #ffffff; }
+
 
  .search-results-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; margin-top: 10px; }
  .search-result-item { min-width: 104px; width: 104px; text-align: center; cursor: pointer; transition: all 0.2s; opacity: 0.75; position: relative; flex-shrink: 0; }
@@ -482,8 +482,7 @@
  padding: 4px 8px; border-radius: 6px; cursor: pointer; flex-shrink: 0; font-family: inherit;
  }
 
- .hashtag-container { display: flex; flex-wrap: wrap; gap: 8px; }
- .hashtag { background-color: var(--tag-bg); color: var(--tag-text); padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; }
+
 
  .recommend-scroll { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 10px; }
  .recommend-card { min-width: 90px; width: 90px; text-align: center; cursor: pointer; position: relative; flex-shrink: 0; }
@@ -599,16 +598,7 @@
  .bookmark-item .bookmark-author { font-size: 10.5px; margin: 2px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #4b5563; font-weight: 500; }
  .bookmark-item .bookmark-year { font-size: 10px; margin: 1px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--sec-text); font-weight: 500; }
  .bookmark-delete { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.62); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; z-index: 3; }
- /* 북마크 메모 3줄 표시 */
- .bookmark-memo-preview {
- margin-top: 5px; padding: 5px 6px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px;
- font-size: 10.5px; color: #92400e; text-align: left; line-height: 1.38;
- display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;
- }
- .bookmark-memo-add {
- margin-top: 5px; padding: 4px 6px; background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 6px;
- font-size: 10px; color: var(--sec-text); text-align: center;
- }
+
  .bookmark-move-btn {
  margin-top: 5px; padding: 4px 6px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px;
  font-size: 10px; font-weight: 700; color: #047857; cursor: pointer; font-family: inherit;
@@ -698,16 +688,7 @@
  .icon-square-btn.green { background: #ecfdf5; border-color: #a7f3d0; color: #047857; }
  .icon-square-btn:active { transform: scale(0.95); }
 
- /* 서재 통계 요약 바 — 폴드 7 접힌 화면에서도 한 줄(4열) 고정 */
- .mylib-stats-bar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin-top: 8px; }
- .mylib-stat-pill {
- background: #f8fafc; border: 1px solid var(--border); border-radius: 9px;
- padding: 6px 3px; text-align: center; min-width: 0;
- cursor: pointer; transition: border-color 0.15s, background-color 0.15s, transform 0.1s;
- }
- .mylib-stat-pill:hover { border-color: #a7f3d0; background: #ecfdf5; }
- .mylib-stat-pill:active { transform: scale(0.96); }
- .mylib-stat-pill.active-pill { border-color: #059669; background: #ecfdf5; }
+
  .rating-dist-list { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 12px 0; }
  .rating-dist-row {
  display: grid; grid-template-columns: 54px 1fr 44px; align-items: center; gap: 8px;
@@ -723,14 +704,7 @@
  .rating-books-scroll {
  display: flex; flex-direction: column; gap: 7px; max-height: 44dvh; overflow-y: auto; padding-right: 2px;
  }
- .mylib-stat-val { font-size: 11.5px; font-weight: 800; color: #065f46; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
- .mylib-stat-lbl { font-size: 9.5px; color: var(--sec-text); font-weight: 600; display: block; white-space: nowrap; }
- @media (min-width: 520px) {
- .mylib-stats-bar { gap: 6px; margin-top: 10px; }
- .mylib-stat-pill { padding: 7px 8px; border-radius: 10px; }
- .mylib-stat-val { font-size: 13.5px; }
- .mylib-stat-lbl { font-size: 10px; }
- }
+
 
  .mylib-setup-box {
  margin-top: 10px; padding: 12px; border-radius: 12px;
@@ -744,17 +718,13 @@
  }
 
  .mylib-controls { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
- .mylib-search-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
  .mylib-search-input {
  flex: 1 1 180px; min-width: 0; border: 1.5px solid #d1d5db; border-radius: 12px;
  padding: 9px 12px; font-size: 13.5px; font-family: inherit; outline: none;
  }
  .mylib-search-input:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12); }
- .mylib-select-group { display: flex; gap: 6px; flex-shrink: 0; }
- .mylib-series-select {
- max-width: 140px; border: 1.5px solid #d1d5db; border-radius: 12px;
- padding: 8px; font-size: 12px; font-family: inherit; background: #ffffff; color: var(--text); outline: none;
- }
+
 
  .mylib-filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
  .mylib-filter-chip {
@@ -871,10 +841,6 @@
  }
 
  /* 오늘 API 사용량 배지 */
- .api-usage-bar {
- display: flex; justify-content: center; align-items: center; gap: 8px;
- margin-top: 8px; font-size: 11.5px; color: var(--sec-text);
- }
  .api-usage-pill {
  display: inline-flex; align-items: center; gap: 5px;
  padding: 4px 10px; border-radius: 999px;
@@ -1057,12 +1023,7 @@
  margin-top: 8px; line-height: 1.5; color: #4b5563; word-break: break-word;
  max-height: 150px; overflow-y: auto; white-space: pre-wrap;
  }
- .cover-auto-placeholder {
- position: absolute; inset: 0; width: 100%; height: 100%;
- background: #f3f4f6; color: #9ca3af;
- display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
- font-size: 10.5px; font-weight: 700; padding: 4px; text-align: center; pointer-events: none;
- }
+
  .title-toggle-group {
  display: inline-flex; align-items: center; gap: 5px; margin-left: auto; flex-shrink: 0;
  }
@@ -1171,7 +1132,10 @@
  <div class="search-container">
  <div class="card" id="searchSection">
  <div class="search-box">
- <input type="text" id="searchInput" autocomplete="off" placeholder="도서명, 저자명, 출판사, ISBN을 입력해주세요." onkeypress="if(event.key==='Enter') executeSearch()">
+ <div class="search-input-wrap">
+ <input type="text" id="searchInput" autocomplete="off" placeholder="도서명, 저자명, 출판사, ISBN을 입력해주세요." onkeydown="if(event.key==='Enter') executeSearch()">
+ <button type="button" id="searchClearBtn" class="search-clear-btn hidden" onclick="clearSearchInput()" title="검색어 지우기" aria-label="검색어 지우기">✕</button>
+ </div>
  <button class="search-btn" onclick="executeSearch()" aria-label="도서 검색"><i data-lucide="search" size="19"></i></button>
  </div>
 
@@ -1243,7 +1207,7 @@
  <details id="ownedSearchDetails" open>
  <summary class="owned-search-summary">
  <span class="owned-search-title" id="ownedSearchTitle">📚 내 서재 보유 도서</span>
- <span class="owned-search-toggle">접기 / 펼치기</span>
+ <span class="owned-search-toggle"></span>
  </summary>
  <div id="ownedSearchList" class="owned-search-list"></div>
  </details>
@@ -1438,15 +1402,14 @@
  <div id="memoModalOverlay" class="memo-modal-overlay" style="z-index: 2150;" data-close-fn="closeMemoModal">
  <div class="memo-modal-box">
  <div class="owned-edit-top-bar" style="align-items:center; margin-bottom:4px;">
- <h3 class="memo-modal-title" id="memoModalTitle" style="margin:0;">북마크 저장</h3>
+ <h3 class="memo-modal-title" id="memoModalTitle" style="margin:0;">메모 추가</h3>
  <button class="memo-btn memo-btn-save" style="padding:7px 14px;" onclick="saveFromMemoModal()">저장</button>
  </div>
  <p class="memo-modal-bookname" id="memoModalBookName"></p>
  <textarea id="memoTextarea" class="memo-textarea" placeholder="메모를 남겨보세요. (선택 사항)"></textarea>
- <div class="memo-modal-actions">
+ <div id="memoModalActions" class="memo-modal-actions hidden">
  <button id="memoDeleteBtn" class="memo-btn memo-btn-delete hidden" onclick="deleteFromMemoModal()" title="북마크 삭제" aria-label="북마크 삭제"><i data-lucide="trash-2" size="17"></i></button>
  <button id="memoMoveToLibBtn" class="memo-btn hidden" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;" onclick="moveActiveBookmarkToLibrary()">+보유 도서</button>
- <button class="memo-btn memo-btn-cancel" onclick="closeMemoModal()">취소</button>
  </div>
  </div>
  </div>
@@ -1722,7 +1685,28 @@
  </div>
 
  <script>
+ const TRASH_ICON_SVG_14 = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>';
+ const TRASH_ICON_SVG_11 = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>';
+ const CLOSE_ICON_SVG_14 = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+
+ function safeReadJson(key, fallback) {
+ try {
+ const raw = localStorage.getItem(key);
+ if (raw === null || raw === '') return fallback;
+ const parsed = JSON.parse(raw);
+ return parsed !== null && parsed !== undefined ? parsed : fallback;
+ } catch (e) {
+ return fallback;
+ }
+ }
+
+ function refreshIcons(rootEl = document) {
+ if (!window.lucide || !rootEl) return;
+ if (rootEl.querySelector && !rootEl.querySelector('[data-lucide]')) return;
  lucide.createIcons();
+ }
+
+ refreshIcons();
  const apiKey = "86bbf34832d0f70658c95d21f790afa9b7ee8956deed3ea4a440a101cafbca69";
  const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzHqNHCuv0lBtDdvyR6v2IZhqAFEvejja29Es-YRldKEArp3tteVjn3Zz28UMB0t82H/exec";
 
@@ -1746,7 +1730,7 @@
  action: 'saveSyncState',
  syncState: {
  ignoredDuplicates: Array.from(getIgnoredDuplicateKeys()),
- recentBooks: JSON.parse(localStorage.getItem('recentBooks') || '[]'),
+ recentBooks: safeReadJson('recentBooks', []),
  apiUsage: getApiUsageRecord(),
  fixedTargetLibCodes: getFixedTargetLibCodes()
  }
@@ -1974,20 +1958,35 @@
  let isHandlingPopState = false;
  let ignoreNextPopCount = 0;
 
- function pushModalHistory(modalId) {
+ function pushModalHistory(modalId, replaceExisting = false) {
  if (!modalId || openModalStack.includes(modalId)) return;
  openModalStack.push(modalId);
- try { history.pushState({ allbooksModal: modalId }, ''); } catch (e) {}
+ try {
+ if (replaceExisting) history.replaceState({ allbooksModal: modalId }, '');
+ else history.pushState({ allbooksModal: modalId }, '');
+ } catch (e) {}
  }
 
- function popModalHistory(modalId) {
+ function popModalHistory(modalId, skipBack = false) {
  const idx = openModalStack.lastIndexOf(modalId);
  if (idx === -1) return;
  openModalStack.splice(idx, 1);
- if (!isHandlingPopState && history.state && history.state.allbooksModal === modalId) {
+ if (!skipBack && !isHandlingPopState && history.state && history.state.allbooksModal === modalId) {
  ignoreNextPopCount++;
  try { history.back(); } catch (e) { ignoreNextPopCount = Math.max(0, ignoreNextPopCount - 1); }
  }
+ }
+
+ function closeTopModal() {
+ if (openModalStack.length === 0) return false;
+ const topModal = openModalStack[openModalStack.length - 1];
+ if (topModal === 'barcode') closeBarcodeScanner();
+ else if (topModal === 'ownedEdit') closeOwnedEditModal();
+ else if (topModal === 'ratingBreakdown') closeRatingBreakdownModal();
+ else if (topModal === 'memo') closeMemoModal();
+ else if (topModal === 'myLib') closeMyLibraryModal();
+ else if (topModal === 'bookmark') closeBookmarkModal();
+ return true;
  }
 
  window.addEventListener('popstate', () => {
@@ -1996,18 +1995,22 @@
  return;
  }
  if (openModalStack.length === 0) return;
- const topModal = openModalStack[openModalStack.length - 1];
  isHandlingPopState = true;
  try {
- if (topModal === 'barcode') closeBarcodeScanner();
- else if (topModal === 'ownedEdit') closeOwnedEditModal();
- else if (topModal === 'ratingBreakdown') closeRatingBreakdownModal();
- else if (topModal === 'memo') closeMemoModal();
- else if (topModal === 'myLib') closeMyLibraryModal();
- else if (topModal === 'bookmark') closeBookmarkModal();
+ closeTopModal();
  } finally {
  isHandlingPopState = false;
  }
+ });
+
+ window.addEventListener('keydown', (e) => {
+ if (e.key !== 'Escape') return;
+ if (closeTopModal()) {
+ e.preventDefault();
+ return;
+ }
+ document.getElementById('recentSearchArea')?.classList.add('hidden');
+ document.getElementById('liveOwnedDropdown')?.classList.add('hidden');
  });
 
  function showToast(message, type = '', action = null) {
@@ -2141,14 +2144,7 @@
  return '';
  }
 
- function getAladinBookUrl(title, isbn) {
- const cleanIsbn = normalizeIsbn(isbn);
- if (cleanIsbn.length >= 10) {
- return `https://www.aladin.co.kr/m/msearch.aspx?SearchWord=${encodeURIComponent(cleanIsbn)}&SearchTarget=All`;
- }
- const cleanTitle = String(title || '').replace(/^\d{1,3}\s+(?=\D)/, '').replace(/\([^)]*\)/g, '').trim();
- return `https://www.aladin.co.kr/m/msearch.aspx?SearchWord=${encodeURIComponent(cleanTitle || '')}&SearchTarget=All`;
- }
+
 
  function inferSeriesNameFromDoc(doc) {
  if (!doc) return '';
@@ -2927,7 +2923,7 @@
  document.getElementById('manualIsbnInput').value = '';
  const statusEl = document.getElementById('barcodeStatusText');
  statusEl.innerText = '카메라를 연결하는 중입니다...';
- lucide.createIcons();
+ refreshIcons();
 
  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
  statusEl.innerText = '이 브라우저에서는 카메라를 열 수 없습니다. 아래에 ISBN 숫자를 직접 입력해 주세요.';
@@ -2951,9 +2947,12 @@
  const detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'code_128'] });
  statusEl.innerText = '책 뒷면 ISBN 바코드를 비춰주세요...';
  barcodeScanLoopActive = true;
+ let lastDetectTs = 0;
 
- const scanFrame = async () => {
+ const scanFrame = async (now) => {
  if (!barcodeScanLoopActive) return;
+ if (now - lastDetectTs >= 180) {
+ lastDetectTs = now;
  try {
  if (video.readyState >= 2) {
  const barcodes = await detector.detect(video);
@@ -2967,6 +2966,7 @@
  }
  }
  } catch (e) {}
+ }
  if (barcodeScanLoopActive) {
  requestAnimationFrame(scanFrame);
  }
@@ -3116,6 +3116,7 @@
  function resetToHomeDashboard() {
  isSearchActive = false;
  document.getElementById('searchInput').value = '';
+ updateSearchClearBtn();
  document.getElementById('liveOwnedDropdown').classList.add('hidden');
  document.getElementById('recentSearchArea').classList.add('hidden');
  document.getElementById('ownedSearchCard').classList.add('hidden');
@@ -3131,6 +3132,7 @@
  function computeLibraryStats() {
  const total = myOwnedBooks.length;
  let borrowedCount = 0;
+ let soldCount = 0;
  let ebooks = 0;
  let done = 0;
  let doneThisYear = 0;
@@ -3141,7 +3143,8 @@
  const currentYear = String(new Date().getFullYear());
 
  myOwnedBooks.forEach(b => {
- if (isOwnedBorrowed(b)) borrowedCount++;
+ if (isOwnedSold(b)) soldCount++;
+ else if (isOwnedBorrowed(b)) borrowedCount++;
  if (isOwnedEbook(b)) ebooks++;
  const st = normalizeReadingStatus(b.status);
  if (st === '완독') {
@@ -3162,12 +3165,13 @@
  });
 
  const topReadingTagEntry = Array.from(readingTagMap.entries()).sort((a, b) => b[1] - a[1])[0];
- const bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+ const bookmarks = safeReadJson('myBookmarks', []);
 
  return {
  total,
- ownedOnly: total - borrowedCount,
+ ownedOnly: total - borrowedCount - soldCount,
  borrowedCount,
+ soldCount,
  paper: total - ebooks,
  ebooks,
  done,
@@ -3201,30 +3205,23 @@
 
  dash.classList.remove('hidden');
  const stats = computeLibraryStats();
- const doneSubText = stats.doneThisYear > 0
- ? `올해 ${stats.doneThisYear}권 · 평점 ★${stats.avgRating}`
- : `완독률 ${stats.donePct}% · 평점 ★${stats.avgRating}`;
 
  document.getElementById('homeKpiStrip').innerHTML = `
  <div class="home-kpi-card" onclick="openMyLibraryModal(false, 'all')">
  <span class="home-kpi-label">📚 전체 도서</span>
  <span class="home-kpi-value">${stats.total}권</span>
- <span class="home-kpi-sub">소장 ${stats.ownedOnly} · 대여 ${stats.borrowedCount} · e-book ${stats.ebooks}</span>
  </div>
  <div class="home-kpi-card" onclick="openMyLibraryModal(false, '완독')">
  <span class="home-kpi-label">✅ 완독 현황</span>
  <span class="home-kpi-value">${stats.done}권</span>
- <span class="home-kpi-sub">${doneSubText}</span>
  </div>
  <div class="home-kpi-card" onclick="openMyLibraryModal(false, '읽는 중')">
  <span class="home-kpi-label">📖 읽는 중</span>
  <span class="home-kpi-value">${stats.reading}권</span>
- <span class="home-kpi-sub">${stats.topReadingTag ? `최다 분야 #${escapeHtml(stats.topReadingTag)}` : '현재 독서 중인 도서'}</span>
  </div>
  <div class="home-kpi-card" onclick="event.stopPropagation(); toggleBookmarkModal();">
  <span class="home-kpi-label">⭐ 내 북마크</span>
  <span class="home-kpi-value">${stats.bookmarkCount}권</span>
- <span class="home-kpi-sub">읽고 싶은 책 리스트</span>
  </div>
  `;
 
@@ -3282,7 +3279,7 @@
  } else {
  renderRandomPickCard();
  }
- lucide.createIcons();
+ refreshIcons();
  }
 
  function toggleHomeBorrowedExpand() {
@@ -3482,14 +3479,10 @@
  : '<span class="match-pill similar">유사</span>';
 
  return `
- <div class="owned-mini-row">
+ <div class="owned-mini-row clickable" onclick="openOwnedEditModalByIndex(${rowIdx})">
  <div class="owned-mini-info">
  <p class="owned-mini-title">${ebook ? '📱 ' : '✅ '}${escapeHtml(formatOwnedTitle(b))} ${pill}</p>
  <p class="owned-mini-meta">${escapeHtml(formatAuthorWithSuffix(b.author))}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${seriesText}${statusBadge}${ratingBadge}</p>
- </div>
- <div class="owned-mini-actions">
- <button class="owned-chip-btn" onclick="searchFromMyLibraryByIndex(${rowIdx})">검색</button>
- <button class="owned-chip-btn primary" onclick="openOwnedEditModalByIndex(${rowIdx})">상태·평점</button>
  </div>
  </div>
  `;
@@ -3543,7 +3536,7 @@
  <details ${openAttr}>
  <summary class="same-author-summary">
  <span class="same-author-heading">✍️ ${headingLabel} <span>${others.length}권</span></span>
- <span class="owned-search-toggle" style="color:#1e3a8a; border-color:#bfdbfe;">접기 / 펼치기</span>
+ <span class="owned-search-toggle" style="color:#1e3a8a; border-color:#bfdbfe;"></span>
  </summary>
  <div class="same-author-list">${rowsHtml}</div>
  </details>
@@ -3676,7 +3669,7 @@
  renderRatingBreakdownModal();
  document.getElementById('ratingBreakdownModalOverlay').classList.add('open');
  pushModalHistory('ratingBreakdown');
- lucide.createIcons();
+ refreshIcons();
  }
 
  function closeRatingBreakdownModal() {
@@ -3771,7 +3764,7 @@
  populateMyLibFilters();
  renderMyLibraryList(true);
  }
- lucide.createIcons();
+ refreshIcons();
 
  if (myOwnedBooks.length === 0) {
  syncAllFromSheet(false);
@@ -3847,16 +3840,34 @@
  }
 
  const visibleTags = isMyLibTagsExpanded ? allTopTags : allTopTags.slice(0, 8);
- const moreBtnHtml = allTopTags.length > 8
- ? `<button type="button" class="mylib-filter-chip" style="background:#ffffff; color:#64748b;" onclick="toggleMyLibTagsExpand()">${isMyLibTagsExpanded ? '접기' : `+ 더 보기 (${allTopTags.length - 8})`}</button>`
- : '';
+ tagContainer.innerHTML = '';
 
- tagContainer.innerHTML = `<button class="mylib-filter-chip tag-chip ${myLibTagFilter === '' ? 'active' : ''}" onclick="setMyLibTagFilter('')"># 전체</button>` +
- visibleTags.map(([tag, cnt]) => {
- const activeCls = myLibTagFilter === tag ? 'active' : '';
- const safeTag = tag.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
- return `<button class="mylib-filter-chip tag-chip ${activeCls}" onclick="setMyLibTagFilter('${safeTag}')">#${escapeHtml(tag)} (${cnt})</button>`;
- }).join('') + moreBtnHtml;
+ const allBtn = document.createElement('button');
+ allBtn.type = 'button';
+ allBtn.className = `mylib-filter-chip tag-chip ${myLibTagFilter === '' ? 'active' : ''}`;
+ allBtn.textContent = '# 전체';
+ allBtn.addEventListener('click', () => setMyLibTagFilter(''));
+ tagContainer.appendChild(allBtn);
+
+ visibleTags.forEach(([tag, cnt]) => {
+ const btn = document.createElement('button');
+ btn.type = 'button';
+ btn.className = `mylib-filter-chip tag-chip ${myLibTagFilter === tag ? 'active' : ''}`;
+ btn.textContent = `#${tag} (${cnt})`;
+ btn.addEventListener('click', () => setMyLibTagFilter(tag));
+ tagContainer.appendChild(btn);
+ });
+
+ if (allTopTags.length > 8) {
+ const moreBtn = document.createElement('button');
+ moreBtn.type = 'button';
+ moreBtn.className = 'mylib-filter-chip';
+ moreBtn.style.background = '#ffffff';
+ moreBtn.style.color = '#64748b';
+ moreBtn.textContent = isMyLibTagsExpanded ? '접기' : `+ 더 보기 (${allTopTags.length - 8})`;
+ moreBtn.addEventListener('click', toggleMyLibTagsExpand);
+ tagContainer.appendChild(moreBtn);
+ }
  }
 
  function updateMyLibFilterChipsUI() {
@@ -3887,12 +3898,6 @@
  btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
  }
 
- function clearMyLibSeriesFilter() {
- const sel = document.getElementById('myLibSeriesSelect');
- if (sel) sel.value = '';
- applyMyLibFilters();
- }
-
  function renderMyLibActiveChips() {
  const bar = document.getElementById('myLibActiveChipsBar');
  const btn = document.getElementById('myLibFilterToggleBtn');
@@ -3900,41 +3905,44 @@
  if (!bar || !btn || !badge) return;
 
  const chips = [];
- const seriesVal = document.getElementById('myLibSeriesSelect')?.value || '';
 
  if (myLibStatusFilter === 'duplicates') {
- chips.push({ label: '⚠️ 중복 확인', fn: "setMyLibStatusFilter('all')" });
- } else if (myLibStatusFilter === 'activeBorrow') {
- chips.push({ label: '🏛️ 대여 중 (반납일 있음)', fn: "setMyLibStatusFilter('all')" });
+ chips.push({ label: '⚠️ 중복 확인', onClick: () => setMyLibStatusFilter('all') });
  } else {
  if (myLibOwnershipFilter !== 'all') {
- chips.push({ label: myLibOwnershipFilter, fn: `toggleMyLibOwnershipFilter('${myLibOwnershipFilter}')` });
+ const ownVal = myLibOwnershipFilter;
+ chips.push({ label: ownVal, onClick: () => toggleMyLibOwnershipFilter(ownVal) });
  }
  if (myLibEbookOnly) {
- chips.push({ label: 'e-book', fn: 'toggleMyLibEbookFilter()' });
+ chips.push({ label: 'e-book', onClick: () => toggleMyLibEbookFilter() });
  }
  if (myLibStatusFilter !== 'all') {
- chips.push({ label: myLibStatusFilter, fn: `toggleMyLibReadingStatusFilter('${myLibStatusFilter}')` });
+ const stVal = myLibStatusFilter;
+ chips.push({ label: stVal, onClick: () => toggleMyLibReadingStatusFilter(stVal) });
  }
- }
- if (seriesVal) {
- chips.push({ label: `시리즈: ${seriesVal}`, fn: 'clearMyLibSeriesFilter()' });
  }
  if (myLibTagFilter) {
- const safeT = myLibTagFilter.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
- chips.push({ label: `#${myLibTagFilter}`, fn: `setMyLibTagFilter('${safeT}')` });
+ const tagVal = myLibTagFilter;
+ chips.push({ label: `#${tagVal}`, onClick: () => setMyLibTagFilter(tagVal) });
  }
 
  btn.classList.toggle('has-active', chips.length > 0);
  badge.innerText = String(chips.length);
  badge.classList.toggle('hidden', chips.length === 0);
 
+ bar.innerHTML = '';
  if (chips.length === 0) {
  bar.classList.add('hidden');
- bar.innerHTML = '';
  } else {
  bar.classList.remove('hidden');
- bar.innerHTML = chips.map(c => `<button type="button" class="mylib-active-chip" onclick="${c.fn}">${escapeHtml(c.label)} ✕</button>`).join('');
+ chips.forEach(c => {
+ const chipBtn = document.createElement('button');
+ chipBtn.type = 'button';
+ chipBtn.className = 'mylib-active-chip';
+ chipBtn.textContent = `${c.label} ✕`;
+ chipBtn.addEventListener('click', c.onClick);
+ bar.appendChild(chipBtn);
+ });
  }
  }
 
@@ -3955,6 +3963,7 @@
  myLibStatusFilter = 'all';
  myLibOwnershipFilter = 'all';
  myLibEbookOnly = false;
+ myLibTagFilter = '';
  } else if (status === 'e-book') {
  myLibStatusFilter = 'all';
  myLibOwnershipFilter = 'all';
@@ -4004,17 +4013,12 @@
  function getFilteredOwnedBooks() {
  const q = (document.getElementById('myLibSearchInput')?.value || '').trim().toLowerCase();
  const qCompact = q.replace(/\s+/g, '');
- const seriesFilter = document.getElementById('myLibSeriesSelect')?.value || '';
  const sortMode = document.getElementById('myLibSortSelect')?.value || 'recent';
  const dupSet = myLibStatusFilter === 'duplicates' ? getDuplicateOwnedBookSet() : null;
 
  let result = myOwnedBooks.filter(b => {
  if (myLibStatusFilter === 'duplicates') {
  if (!dupSet.has(b)) return false;
- } else if (myLibStatusFilter === 'activeBorrow') {
- if (!isOwnedBorrowed(b) || isOwnedSold(b)) return false;
- if (!String(b.dueDate || '').trim()) return false;
- if (['완독', '중단'].includes(normalizeReadingStatus(b.status))) return false;
  } else {
  if (myLibOwnershipFilter === '소장' && (isOwnedBorrowed(b) || isOwnedSold(b))) return false;
  if (myLibOwnershipFilter === '대여' && !isOwnedBorrowed(b)) return false;
@@ -4035,9 +4039,7 @@
  if (!tags.includes(myLibTagFilter)) return false;
  }
 
- if (seriesFilter && extractSeriesGroupName(getOwnedSeries(b)) !== seriesFilter) {
- return false;
- }
+
 
  if (q) {
  const hay = `${b.title || ''} ${b.author || ''} ${b.translator || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${b.vol || ''} ${getOwnedMemo(b)} ${b.isbn || ''} ${b.review || ''} ${getOwnedSource(b)} ${isOwnedSold(b) ? '판매' : ''}`.toLowerCase();
@@ -4052,10 +4054,7 @@
  result = result.slice().sort((a, b) => normalizeBookTitle(a.title).localeCompare(normalizeBookTitle(b.title), 'ko'));
  return result;
  }
- if (myLibStatusFilter === 'activeBorrow') {
- result = result.slice().sort((a, b) => String(a.dueDate || '').localeCompare(String(b.dueDate || '')));
- return result;
- }
+
 
  result = result.slice();
 
@@ -4138,7 +4137,7 @@
  <p class="mylib-item-sub">${subLine}</p>
  </div>
  <div class="owned-mini-actions" onclick="event.stopPropagation()">
- <button class="owned-chip-btn danger icon-trash-btn" onclick="quickDeleteOwnedByIndex(${idx})" title="삭제" aria-label="삭제"><i data-lucide="trash-2" size="14"></i></button>
+ <button class="owned-chip-btn danger icon-trash-btn" onclick="quickDeleteOwnedByIndex(${idx})" title="삭제" aria-label="삭제">${TRASH_ICON_SVG_14}</button>
  </div>
  </div>
  <div class="mylib-item-badges">
@@ -4151,7 +4150,7 @@
  }).join('');
  return headerHtml + cardsHtml;
  }).join('');
- lucide.createIcons();
+ refreshIcons();
  return;
  }
 
@@ -4241,7 +4240,7 @@
  <p class="mylib-item-title">${escapeHtml(formatOwnedTitle(b))}</p>
  <p class="mylib-item-sub">${subLine}</p>
  </div>
- ${myLibStatusFilter === 'duplicates' ? `<div class="owned-mini-actions" onclick="event.stopPropagation()"><button class="owned-chip-btn danger icon-trash-btn" onclick="quickDeleteOwnedByIndex(${idx})" title="삭제" aria-label="삭제"><i data-lucide="trash-2" size="14"></i></button></div>` : ''}
+ ${myLibStatusFilter === 'duplicates' ? `<div class="owned-mini-actions" onclick="event.stopPropagation()"><button class="owned-chip-btn danger icon-trash-btn" onclick="quickDeleteOwnedByIndex(${idx})" title="삭제" aria-label="삭제">${TRASH_ICON_SVG_14}</button></div>` : ''}
  </div>
  ${b.review ? `<div class="mylib-item-review">💬 ${escapeHtml(b.review)}</div>` : ''}
  <div class="mylib-item-badges">
@@ -4265,7 +4264,7 @@
  `;
  }
  listEl.innerHTML = html;
- lucide.createIcons();
+ refreshIcons();
  }
 
  function loadMoreMyLibrary() {
@@ -4319,10 +4318,11 @@
  openOwnedEditModal({ mode: 'edit', book: { ...book } });
  }
 
- function openMoveBookmarkToLibraryModal(bookmark) {
+ function openMoveBookmarkToLibraryModal(bookmark, replaceHistory = false) {
  if (!bookmark) return;
  openOwnedEditModal({
  mode: 'add',
+ replaceHistory: !!replaceHistory,
  fromBookmarkIsbn: String(bookmark.isbn || ''),
  book: {
  title: bookmark.title || '',
@@ -4399,8 +4399,8 @@
  }
 
  document.getElementById('ownedEditModalOverlay').classList.add('open');
- pushModalHistory('ownedEdit');
- lucide.createIcons();
+ pushModalHistory('ownedEdit', !!ctx.replaceHistory);
+ refreshIcons(document.getElementById('ownedEditModalOverlay'));
 
  if (ctx.mode === 'edit') {
  autoFetchMissingBookMetaOnEditOpen(b);
@@ -4605,11 +4605,9 @@
 
  function toggleOwnedIsbnEditor(forceOpen) {
  const row = document.getElementById('ownedIsbnEditRow');
- const btn = document.getElementById('ownedIsbnEditToggleBtn');
  if (!row) return;
  const willOpen = typeof forceOpen === 'boolean' ? forceOpen : row.classList.contains('hidden');
  row.classList.toggle('hidden', !willOpen);
- if (btn) btn.innerText = willOpen ? '닫기' : 'ISBN 수정';
  if (willOpen) {
  document.getElementById('ownedInputIsbn')?.focus();
  }
@@ -4690,7 +4688,7 @@
  if (hit && hit.doc.bookImageURL) foundUrl = hit.doc.bookImageURL;
  }
  if (!foundUrl && isbn) {
- const bms = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+ const bms = safeReadJson('myBookmarks', []);
  const bmHit = bms.find(x => normalizeIsbn(x.isbn) === isbn);
  if (bmHit && bmHit.cover) foundUrl = bmHit.cover;
  }
@@ -4736,7 +4734,7 @@
  if (triedMap[fetchKey] && Date.now() - triedMap[fetchKey] < 30 * 24 * 60 * 60 * 1000) return;
 
  const targetRow = book.row;
- if (!currentModalCoverUrl) setOwnedCoverDisplay('', '조회 중...');
+ if (!currentModalCoverUrl) setOwnedCoverDisplay('');
  const plotBox = document.getElementById('ownedMetaPlotBox');
  const plotHeading = document.getElementById('ownedMetaPlotHeading');
  const plotBody = document.getElementById('ownedMetaPlotBody');
@@ -4785,7 +4783,7 @@
 
  if (isSameModalOpen) {
  if (fetchedCover) setOwnedCoverDisplay(fetchedCover);
- else setOwnedCoverDisplay('', '표지 없음');
+ else setOwnedCoverDisplay('');
 
  if (fetchedPubYear) currentModalPubYear = fetchedPubYear;
  if (fetchedDesc) currentModalDescription = fetchedDesc;
@@ -4824,7 +4822,7 @@
  }
  } catch (e) {
  if (activeOwnedEditContext && activeOwnedEditContext.book.row === targetRow) {
- if (!currentModalCoverUrl) setOwnedCoverDisplay('', '표지 없음');
+ if (!currentModalCoverUrl) setOwnedCoverDisplay('');
  renderOwnedMetaPlotBox();
  }
  }
@@ -5276,7 +5274,7 @@
  async function enrichMissingBookmarkMeta() {
  if (isEnrichingBookmarks) return;
  if (getApiUsageRecord().count >= 80) return;
- const bookmarks = mergeBookmarksWithMeta(JSON.parse(localStorage.getItem('myBookmarks')) || []);
+ const bookmarks = mergeBookmarksWithMeta(safeReadJson('myBookmarks', []));
  const missing = bookmarks.filter(b => b.isbn && (!b.author || !b.pubYear)).slice(0, 3);
  if (missing.length === 0) return;
 
@@ -5316,6 +5314,22 @@
  * ========================================================= */
  const searchInputEl = document.getElementById('searchInput');
 
+ function updateSearchClearBtn() {
+ const clearBtn = document.getElementById('searchClearBtn');
+ if (!clearBtn || !searchInputEl) return;
+ clearBtn.classList.toggle('hidden', !searchInputEl.value);
+ }
+
+ function clearSearchInput() {
+ if (!searchInputEl) return;
+ searchInputEl.value = '';
+ updateSearchClearBtn();
+ document.getElementById('liveOwnedDropdown').classList.add('hidden');
+ loadRecentSearches();
+ document.getElementById('recentSearchArea').classList.remove('hidden');
+ searchInputEl.focus();
+ }
+
  searchInputEl.addEventListener('click', function (event) {
  event.stopPropagation();
  document.getElementById('liveOwnedDropdown').classList.add('hidden');
@@ -5324,6 +5338,7 @@
  });
 
  searchInputEl.addEventListener('input', function () {
+ updateSearchClearBtn();
  const val = this.value.trim();
  if (!val) {
  document.getElementById('liveOwnedDropdown').classList.add('hidden');
@@ -5448,8 +5463,9 @@
  // 사용자 설정 유지: 검색어 자동 클립보드 복사
  navigator.clipboard.writeText(keyword).catch(() => {});
  document.getElementById('searchInput').value = keyword;
+ updateSearchClearBtn();
 
- let searches = JSON.parse(localStorage.getItem('recentBooks')) || [];
+ let searches = safeReadJson('recentBooks', []);
  searches = searches.filter(item => item !== keyword);
  searches.unshift(keyword);
  if (searches.length > 10) searches.pop();
@@ -5577,7 +5593,7 @@
  </a>
  </div>
  `;
- lucide.createIcons();
+ refreshIcons();
  showEmptyBookState(keyword);
  return;
  }
@@ -5666,7 +5682,7 @@
  updateDynamicLinks(cleanTitle);
  }
 
- const bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+ const bookmarks = safeReadJson('myBookmarks', []);
  const savedBook = bookmarks.find(b => String(b.isbn) === isbn);
  updateBookmarkBtnUI(!!savedBook, savedBook ? (savedBook.memo || '') : '');
 
@@ -5686,7 +5702,7 @@
  </button>
  </div>
  `;
- lucide.createIcons();
+ refreshIcons();
  }
  } else {
  document.getElementById('recommendScroll').innerHTML = "<div class='loading-msg'>ISBN 정보가 없어 추천 도서를 불러올 수 없습니다.</div>";
@@ -5719,14 +5735,14 @@
  modal.classList.add('open');
  pushModalHistory('bookmark');
  enrichMissingBookmarkMeta();
- lucide.createIcons();
+ refreshIcons();
  }
  }
 
  function refreshCurrentBookBookmarkUI() {
  if (!currentSelectedBook) return;
  const isbn = String(currentSelectedBook.isbn13 || currentSelectedBook.isbn || '');
- const bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+ const bookmarks = safeReadJson('myBookmarks', []);
  const savedBook = bookmarks.find(b => String(b.isbn) === isbn);
  updateBookmarkBtnUI(!!savedBook, savedBook ? (savedBook.memo || '') : '');
  }
@@ -5738,23 +5754,55 @@
  showToast('ISBN 정보가 없어 북마크에 보관할 수 없습니다.', 'error');
  return;
  }
- const bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+ const bookmarks = mergeBookmarksWithMeta(safeReadJson('myBookmarks', []));
  const existing = bookmarks.find(b => String(b.isbn) === isbn);
+
+ if (!existing) {
+ const author = currentSelectedBook.authors || '';
+ const pubYear = currentSelectedBook.publication_year || '';
+ if (author || pubYear) {
+ saveBookMetaCache(isbn, author, pubYear);
+ }
+ const newBook = {
+ title: currentSelectedBook.bookname,
+ isbn: isbn,
+ cover: normalizeCoverUrl(currentSelectedBook.bookImageURL),
+ keyword: document.getElementById('searchInput').value,
+ author: author,
+ pubYear: pubYear,
+ memo: ''
+ };
+ bookmarks.push(newBook);
+ localStorage.setItem('myBookmarks', JSON.stringify(bookmarks));
+ loadBookmarks(false);
+ refreshCurrentBookBookmarkUI();
+ renderHomeReadingDashboard();
+ sendSheetPost({ action: 'add', book: newBook }).catch(() => {});
+ showToast('북마크에 저장되었습니다.', 'success');
+
+ openMemoModal({
+ ...newBook,
+ isExisting: true,
+ isNewBookmark: true
+ });
+ return;
+ }
 
  openMemoModal({
  isbn: isbn,
  title: currentSelectedBook.bookname,
- author: currentSelectedBook.authors || (existing && existing.author) || '',
- pubYear: currentSelectedBook.publication_year || (existing && existing.pubYear) || '',
+ author: currentSelectedBook.authors || existing.author || '',
+ pubYear: currentSelectedBook.publication_year || existing.pubYear || '',
  cover: normalizeCoverUrl(currentSelectedBook.bookImageURL),
  keyword: document.getElementById('searchInput').value,
- memo: existing ? (existing.memo || '') : '',
- isExisting: !!existing
+ memo: existing.memo || '',
+ isExisting: true,
+ isNewBookmark: false
  });
  }
 
  function openMemoModalForIsbn(isbn) {
- const bookmarks = mergeBookmarksWithMeta(JSON.parse(localStorage.getItem('myBookmarks')) || []);
+ const bookmarks = mergeBookmarksWithMeta(safeReadJson('myBookmarks', []));
  const existing = bookmarks.find(b => String(b.isbn) === String(isbn));
  if (!existing) return;
 
@@ -5768,36 +5816,40 @@
 
  function openMemoModal(target) {
  activeMemoTarget = target;
- document.getElementById('memoModalTitle').innerText = target.isExisting ? '북마크 · 메모 수정' : '북마크 저장';
+ const hasMemo = !!(target.memo && target.memo.trim());
+ document.getElementById('memoModalTitle').innerText = (target.isNewBookmark || !hasMemo) ? '메모 추가' : '메모 수정';
  document.getElementById('memoModalBookName').innerText = target.title;
  document.getElementById('memoTextarea').value = target.memo || '';
 
+ const actionsRow = document.getElementById('memoModalActions');
  const deleteBtn = document.getElementById('memoDeleteBtn');
  const moveBtn = document.getElementById('memoMoveToLibBtn');
- if (target.isExisting) {
+ if (target.isExisting && !target.isNewBookmark) {
+ actionsRow.classList.remove('hidden');
  deleteBtn.classList.remove('hidden');
  moveBtn.classList.remove('hidden');
  } else {
+ actionsRow.classList.add('hidden');
  deleteBtn.classList.add('hidden');
  moveBtn.classList.add('hidden');
  }
 
  document.getElementById('memoModalOverlay').classList.add('open');
  pushModalHistory('memo');
- lucide.createIcons();
+ refreshIcons();
  }
 
- function closeMemoModal() {
+ function closeMemoModal(skipHistoryBack = false) {
  document.getElementById('memoModalOverlay').classList.remove('open');
- popModalHistory('memo');
+ popModalHistory('memo', skipHistoryBack);
  activeMemoTarget = null;
  }
 
  function moveActiveBookmarkToLibrary() {
  if (!activeMemoTarget) return;
  const target = { ...activeMemoTarget };
- closeMemoModal();
- openMoveBookmarkToLibraryModal(target);
+ closeMemoModal(true);
+ openMoveBookmarkToLibraryModal(target, true);
  }
 
  function saveFromMemoModal() {
@@ -5811,10 +5863,14 @@
  saveBookMetaCache(targetIsbn, author, pubYear);
  }
 
- let bookmarks = mergeBookmarksWithMeta(JSON.parse(localStorage.getItem('myBookmarks')) || []);
+ let bookmarks = mergeBookmarksWithMeta(safeReadJson('myBookmarks', []));
  const idx = bookmarks.findIndex(b => String(b.isbn) === targetIsbn);
 
  if (idx > -1) {
+ if (activeMemoTarget.isNewBookmark && !memo) {
+ closeMemoModal();
+ return;
+ }
  bookmarks[idx].memo = memo;
  if (author) bookmarks[idx].author = author;
  if (pubYear) bookmarks[idx].pubYear = pubYear;
@@ -5879,7 +5935,7 @@
  }
 
  function loadBookmarks(shouldEnrich = true) {
- const bookmarks = mergeBookmarksWithMeta(JSON.parse(localStorage.getItem('myBookmarks')) || []);
+ const bookmarks = mergeBookmarksWithMeta(safeReadJson('myBookmarks', []));
  const container = document.getElementById('bookmarkModalContent');
  const badge = document.getElementById('bookmarkBadge');
 
@@ -5918,7 +5974,7 @@
  delBtn.className = 'bookmark-delete';
  delBtn.title = '북마크 삭제';
  delBtn.setAttribute('aria-label', '북마크 삭제');
- delBtn.innerHTML = '<i data-lucide="trash-2" size="11"></i>';
+ delBtn.innerHTML = TRASH_ICON_SVG_11;
  delBtn.onclick = (e) => {
  e.stopPropagation();
  removeBookmark(book.isbn);
@@ -5985,7 +6041,7 @@
  container.appendChild(item);
  });
 
- lucide.createIcons();
+ refreshIcons();
  if (shouldEnrich) {
  enrichMissingBookmarkMeta();
  }
@@ -5993,7 +6049,7 @@
 
  function removeBookmark(isbn) {
  const targetIsbn = String(isbn);
- let bookmarks = JSON.parse(localStorage.getItem('myBookmarks')) || [];
+ let bookmarks = safeReadJson('myBookmarks', []);
  bookmarks = bookmarks.filter(b => String(b.isbn) !== targetIsbn);
  localStorage.setItem('myBookmarks', JSON.stringify(bookmarks));
  loadBookmarks(false);
@@ -6094,7 +6150,7 @@
  </button>
  </div>
  `;
- lucide.createIcons();
+ refreshIcons();
  }
 
  async function loadMoreSameAuthorBooks() {
@@ -6167,7 +6223,7 @@
  </button>
  </div>
  `;
- lucide.createIcons();
+ refreshIcons();
  }
 
  async function fetchRecommendations(isbn) {
@@ -6259,8 +6315,8 @@
  const needYongsan = !fixedMap.dream?.libCode || !fixedMap.cheongpa?.libCode || !fixedMap.namsan?.libCode;
  const needMapo = !fixedMap.ahyon?.libCode;
 
- const mapoUrl = `https://data4library.kr/api/libSrchByBook?authKey=${apiKey}&isbn=${isbn}&region=11&dtl_region=11140&format=json`;
- const yongsanUrl = `https://data4library.kr/api/libSrchByBook?authKey=${apiKey}&isbn=${isbn}&region=11&dtl_region=11030&format=json`;
+ const mapoUrl = `https://data4library.kr/api/libSrch?authKey=${apiKey}&region=11&dtl_region=11140&pageSize=100&format=json`;
+ const yongsanUrl = `https://data4library.kr/api/libSrch?authKey=${apiKey}&region=11&dtl_region=11030&pageSize=100&format=json`;
 
  const [mapoData, yongsanData] = await Promise.all([
  needMapo ? data4LibFetchJson(mapoUrl).catch(() => null) : Promise.resolve(null),
@@ -6421,7 +6477,7 @@
  });
 
  container.innerHTML = html + footerHtml;
- lucide.createIcons();
+ refreshIcons();
  }
 
  async function fetchRealTimeLibraryStatus(isbn, bookName, forceRefresh = false, onlyRemaining = false) {
@@ -6451,7 +6507,7 @@
  }
 
  function loadRecentSearches() {
- const searches = JSON.parse(localStorage.getItem('recentBooks')) || [];
+ const searches = safeReadJson('recentBooks', []);
  const container = document.getElementById('recent-tags-container');
  container.innerHTML = '';
 
@@ -6463,16 +6519,26 @@
  searches.forEach(keyword => {
  const tag = document.createElement('div');
  tag.className = 'recent-tag';
- const safeKw = keyword.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
- tag.innerHTML = `${escapeHtml(keyword)} <i data-lucide="x" size="14" onclick="event.stopPropagation(); deleteSearch('${safeKw}')"></i>`;
- tag.onclick = () => executeSearch(keyword);
+ const labelSpan = document.createElement('span');
+ labelSpan.textContent = keyword;
+ const delSpan = document.createElement('span');
+ delSpan.style.display = 'inline-flex';
+ delSpan.style.alignItems = 'center';
+ delSpan.style.color = '#818cf8';
+ delSpan.innerHTML = CLOSE_ICON_SVG_14;
+ delSpan.addEventListener('click', (e) => {
+ e.stopPropagation();
+ deleteSearch(keyword);
+ });
+ tag.appendChild(labelSpan);
+ tag.appendChild(delSpan);
+ tag.addEventListener('click', () => executeSearch(keyword));
  container.appendChild(tag);
  });
- lucide.createIcons();
  }
 
  function deleteSearch(keyword) {
- let searches = JSON.parse(localStorage.getItem('recentBooks')) || [];
+ let searches = safeReadJson('recentBooks', []);
  searches = searches.filter(item => item !== keyword);
  localStorage.setItem('recentBooks', JSON.stringify(searches));
  loadRecentSearches();

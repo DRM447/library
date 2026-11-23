@@ -1,4 +1,4 @@
-const CACHE_NAME = 'allbooks-cache-v31';
+const CACHE_NAME = 'allbooks-cache-v34';
 const CORE_URLS = [
   './index.html',
   './manifest.json',

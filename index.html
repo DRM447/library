@@ -132,13 +132,13 @@
  .bm-memo-plus-overlay:hover { background: rgba(255, 255, 255, 0.78); }
  .bm-memo-plus-circle {
  width: 28px; height: 28px; border-radius: 50%;
- background: #1f2937; color: #ffffff;
+ background: rgba(107, 114, 128, 0.55); color: #ffffff;
  display: inline-flex; align-items: center; justify-content: center;
  font-size: 17px; font-weight: 800; line-height: 1;
- box-shadow: 0 2px 6px rgba(17, 24, 39, 0.22);
+ box-shadow: 0 1px 4px rgba(17, 24, 39, 0.12);
  transition: transform 0.14s, background-color 0.14s;
  }
- .bm-memo-plus-overlay:hover .bm-memo-plus-circle { background: #111827; }
+ .bm-memo-plus-overlay:hover .bm-memo-plus-circle { background: rgba(75, 85, 99, 0.78); }
  .bm-memo-plus-overlay:active .bm-memo-plus-circle { transform: scale(0.92); }
  .bm-memo-obi {
  position: absolute; left: 0; right: 0; bottom: 0; height: 52px;
@@ -2214,6 +2214,13 @@
  return cleaned || '저자 미상';
  }
 
+ function formatAuthorWithSuffix(author) {
+ const s = String(author || '').trim();
+ if (!s) return '저자 미상';
+ if (/(?:^|\s)(지음|저자\s*미상|글·그림|글그림|글|그림|엮음|편저|감수|옮김)$/.test(s)) return s;
+ return `${s} 지음`;
+ }
+
  function formatPubYearText(pubYear) {
  const cleaned = String(pubYear || '').trim();
  if (!cleaned) return '출간일 미상';
@@ -3234,7 +3241,7 @@
  const srcHtml = src
  ? `<span style="display:inline-flex; align-items:center;">${logoSrc ? `<img src="${escapeHtml(logoSrc)}" class="home-lib-logo" alt="" onerror="this.style.display='none'">` : ''}${escapeHtml(src)}</span>`
  : '';
- const metaParts = [srcHtml, escapeHtml(b.author || '저자 미상'), st ? escapeHtml(st) : ''].filter(Boolean);
+ const metaParts = [srcHtml, escapeHtml(formatAuthorWithSuffix(b.author)), st ? escapeHtml(st) : ''].filter(Boolean);
  return `
  <div class="owned-mini-row clickable" onclick="openOwnedEditModalByIndex(${idx})">
  <div class="owned-mini-info">
@@ -3293,7 +3300,7 @@
  const idx = myOwnedBooks.indexOf(b);
  const ebook = isOwnedEbook(b);
  const st = normalizeReadingStatus(b.status);
- const authorDisplay = String(b.author || '').trim() || '저자 미상';
+ const authorDisplay = formatAuthorWithSuffix(b.author);
  const tags = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && !isEbookTagToken(t)).slice(0, 4)
  .map(t => `<span class="mylib-badge">#${escapeHtml(t)}</span>`).join('');
 
@@ -3407,7 +3414,7 @@
  <div class="live-ac-item ${ebook ? 'is-ebook' : ''}" onclick="openOwnedFromLiveAutocomplete(${idx})">
  <div class="live-ac-main">
  <p class="live-ac-title">${ebook ? '📱 ' : '✅ '}${escapeHtml(formatOwnedTitle(b))}</p>
- <p class="live-ac-sub">${escapeHtml(b.author || '저자 미상')}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${statusPart}${ratingPart}</p>
+ <p class="live-ac-sub">${escapeHtml(formatAuthorWithSuffix(b.author))}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${statusPart}${ratingPart}</p>
  </div>
  <div class="owned-mini-actions" onclick="event.stopPropagation()">
  <button class="owned-chip-btn indigo" onclick="searchFromMyLibraryByIndex(${idx})">통합 검색</button>
@@ -3450,7 +3457,7 @@
  <div class="owned-mini-row">
  <div class="owned-mini-info">
  <p class="owned-mini-title">${ebook ? '📱 ' : '✅ '}${escapeHtml(formatOwnedTitle(b))} ${pill}</p>
- <p class="owned-mini-meta">${escapeHtml(b.author || '저자 미상')}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${seriesText}${statusBadge}${ratingBadge}</p>
+ <p class="owned-mini-meta">${escapeHtml(formatAuthorWithSuffix(b.author))}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${seriesText}${statusBadge}${ratingBadge}</p>
  </div>
  <div class="owned-mini-actions">
  <button class="owned-chip-btn" onclick="searchFromMyLibraryByIndex(${rowIdx})">검색</button>
@@ -3496,7 +3503,7 @@
  <div class="owned-mini-row clickable" style="border-color:#e2e8f0;" onclick="openOwnedEditModalByIndex(${idx})">
  <div class="owned-mini-info">
  <p class="owned-mini-title">${formatText} ${escapeHtml(formatOwnedTitle(b))} ${rolePill}</p>
- <p class="owned-mini-meta">${escapeHtml(b.author || '저자 미상')}${pubText}${noteText}${statusText}${ratingText}</p>
+ <p class="owned-mini-meta">${escapeHtml(formatAuthorWithSuffix(b.author))}${pubText}${noteText}${statusText}${ratingText}</p>
  </div>
  </div>
  `;
@@ -3711,7 +3718,7 @@
  <div class="owned-mini-row clickable" onclick="openOwnedEditModalByIndex(${idx})">
  <div class="owned-mini-info">
  <p class="owned-mini-title">${ebook ? '📱 ' : '📘 '}${escapeHtml(formatOwnedTitle(b))} <span class="mylib-badge rating">★ ${r}</span></p>
- <p class="owned-mini-meta">${escapeHtml(b.author || '저자 미상')}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${period ? ' · 📅 ' + escapeHtml(period) : ''}</p>
+ <p class="owned-mini-meta">${escapeHtml(formatAuthorWithSuffix(b.author))}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${period ? ' · 📅 ' + escapeHtml(period) : ''}</p>
  ${b.review ? `<div class="mylib-item-review" style="margin-top:4px;">💬 ${escapeHtml(b.review)}</div>` : ''}
  </div>
  </div>
@@ -4094,7 +4101,7 @@
  const idx = myOwnedBooks.indexOf(b);
  const ebook = isOwnedEbook(b);
  const transSup = getTranslatorSupervisorInfo(b);
- const subLine = `${escapeHtml(b.author || '저자 미상')}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${transSup ? ' · ' + escapeHtml(transSup) : ''}`;
+ const subLine = `${escapeHtml(formatAuthorWithSuffix(b.author))}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${transSup ? ' · ' + escapeHtml(transSup) : ''}`;
  return `
  <div class="mylib-item" onclick="openOwnedEditModalByIndex(${idx})">
  <div class="mylib-item-top">
@@ -4156,7 +4163,7 @@
  const ratingShort = formatRatingShort(b.rating);
  const transSup = getTranslatorSupervisorInfo(b);
  const pubText = (myLibStatusFilter === 'duplicates' && b.publisher) ? ` · ${escapeHtml(b.publisher)}` : '';
- const subLine = `${escapeHtml(b.author || '저자 미상')}${pubText}${transSup ? ' · ' + escapeHtml(transSup) : ''}`;
+ const subLine = `${escapeHtml(formatAuthorWithSuffix(b.author))}${pubText}${transSup ? ' · ' + escapeHtml(transSup) : ''}`;
  const rawTags = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && !isEbookTagToken(t));
  const srcText = getOwnedSource(b);
  const borrowedBadgeHtml = isOwnedSold(b)

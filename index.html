@@ -305,10 +305,23 @@
  .home-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
  }
  .reading-now-list { display: flex; flex-direction: column; gap: 8px; }
+ .home-borrow-thumb {
+ width: 38px; height: 54px; border-radius: 6px; object-fit: cover; flex-shrink: 0;
+ background: #f3f4f6; border: 1px solid rgba(15, 23, 42, 0.08);
+ box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+ }
  .random-pick-box {
  background: linear-gradient(135deg, #ecfdf5 0%, #eef2ff 100%);
  border: 1px solid #c7d2fe; border-radius: 14px; padding: 14px;
- display: flex; flex-direction: column; gap: 8px;
+ display: flex; flex-direction: row; align-items: flex-start; gap: 12px;
+ }
+ .random-pick-thumb {
+ width: 64px; height: 92px; border-radius: 8px; object-fit: cover; flex-shrink: 0;
+ background: #f3f4f6; border: 1px solid rgba(15, 23, 42, 0.08);
+ box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
+ }
+ .random-pick-body {
+ flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px;
  }
  .random-pick-title { font-size: 16px; font-weight: 800; color: #1e1b4b; margin: 0; line-height: 1.35; }
  .random-pick-meta { font-size: 12.5px; color: #4b5563; margin: 0; }
@@ -1217,7 +1230,7 @@
  </div>
  <div class="card">
  <div class="section-title" style="justify-content: space-between; margin-bottom: 10px;">
- <span style="display:flex; align-items:center; gap:7px;"><i data-lucide="dices" size="18" color="#059669"></i> 오늘 뭐 읽지?</span>
+ <span style="display:flex; align-items:center; gap:7px;"><i data-lucide="help-circle" size="18" color="#059669"></i> 오늘 뭐 읽지?</span>
  <button class="owned-chip-btn indigo icon-trash-btn" onclick="pickRandomUnreadBook()" title="다시 뽑기" aria-label="다시 뽑기"><i data-lucide="dices" size="15"></i></button>
  </div>
  <div id="homeRandomPickContainer"></div>
@@ -1608,6 +1621,11 @@
  <div id="ownedMetaPlotBox" class="owned-meta-plot-box hidden">
  <div class="owned-meta-plot-header">
  <span id="ownedMetaPlotHeading">📖 도서 상세 정보</span>
+ <button type="button" id="ownedIsbnEditToggleBtn" class="saved-memo-edit-btn" style="border-color:#cbd5e1; color:#475569;" onclick="toggleOwnedIsbnEditor()">ISBN 수정</button>
+ </div>
+ <div id="ownedIsbnEditRow" class="hidden" style="display:flex; gap:6px; align-items:center; margin-top:8px;">
+ <input type="text" id="ownedInputIsbn" class="form-input" style="padding:7px 10px; font-size:12.5px;" placeholder="ISBN (10 또는 13자리)" oninput="renderOwnedMetaPlotBox()" onblur="triggerAutoFillOwnedMeta()">
+ <button type="button" class="owned-chip-btn primary" style="padding:7px 10px;" onclick="toggleOwnedIsbnEditor(false)">완료</button>
  </div>
  <div id="ownedMetaPlotMeta" class="owned-meta-plot-meta"></div>
  <div id="ownedMetaPlotBody" class="owned-meta-plot-body"></div>
@@ -1685,25 +1703,11 @@
  </div>
  </div>
 
- <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px;">
- <div class="form-field">
- <label class="form-label" for="ownedInputSeries">시리즈명</label>
- <input type="text" id="ownedInputSeries" class="form-input" placeholder="예: 사이언스 클래식, 펭귄클래식 시리즈">
- </div>
- <div class="form-field">
- <label class="form-label" for="ownedInputVol">권수</label>
- <input type="text" id="ownedInputVol" class="form-input" placeholder="예: 1">
- </div>
- </div>
- <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
- <div class="form-field">
- <label class="form-label" for="ownedInputPublisher">출판사</label>
- <input type="text" id="ownedInputPublisher" class="form-input" placeholder="출판사">
- </div>
- <div class="form-field">
- <label class="form-label" for="ownedInputIsbn">ISBN</label>
- <input type="text" id="ownedInputIsbn" class="form-input" placeholder="ISBN" onblur="triggerAutoFillOwnedMeta()">
- </div>
+ <!-- 출판사·시리즈명·#은 자동 입력 및 저장용으로 숨김 유지 -->
+ <div class="hidden" aria-hidden="true">
+ <input type="text" id="ownedInputSeries" value="">
+ <input type="text" id="ownedInputVol" value="">
+ <input type="text" id="ownedInputPublisher" value="">
  </div>
  <div class="form-field">
  <label class="form-label" for="ownedInputMemo">메모</label>
@@ -2275,13 +2279,20 @@
  return '';
  }
 
+ function formatVolHash(vol) {
+ const v = String(vol || '').replace(/^[#\s]+/, '').replace(/(권|호)$/, '').trim();
+ return v ? `#${v}` : '';
+ }
+
  function formatSeriesBadgeText(b) {
  const s = getOwnedSeries(b);
- if (!s) return '';
- const v = String(b?.vol || '').trim();
- if (!v) return s;
- if (s.endsWith(v) || s.endsWith(v + '권')) return s;
- return `${s} ${/권$|호$/.test(v) ? v : v + '권'}`;
+ const vHash = formatVolHash(b?.vol);
+ if (!s && !vHash) return '';
+ if (s && !vHash) return s;
+ if (!s && vHash) return vHash;
+ const rawV = vHash.slice(1);
+ if (s.endsWith(vHash) || s.endsWith(` ${rawV}`) || s.endsWith(`${rawV}권`)) return s;
+ return `${s} ${vHash}`;
  }
 
  function extractSeriesGroupName(seriesStr) {
@@ -2994,6 +3005,7 @@
 
  if (mode === 'addModal') {
  document.getElementById('ownedInputIsbn').value = isbn;
+ renderOwnedMetaPlotBox();
  showToast(`ISBN ${isbn} 인식 완료! 도서 정보를 불러옵니다.`, 'success');
  autoFillOwnedBookMeta(isbn);
  return;
@@ -3169,6 +3181,16 @@
  };
  }
 
+ function getOwnedBookThumbUrl(b, cacheObj = null) {
+ if (!b) return NO_COVER_SVG;
+ const cache = cacheObj || getBookCoverCache();
+ const rawCover = String(b.cover || '').trim()
+ || (b.isbn ? cache[normalizeIsbn(b.isbn)] : '')
+ || cache[normalizeBookTitle(b.title)]
+ || '';
+ return !isPlaceholderCoverUrl(rawCover) ? normalizeCoverUrl(rawCover) : NO_COVER_SVG;
+ }
+
  function renderHomeReadingDashboard() {
  const dash = document.getElementById('homeReadingDashboard');
  if (!dash) return;
@@ -3232,18 +3254,21 @@
  const toggleBtnHtml = borrowedBooks.length > defaultVisible
  ? `<button type="button" class="home-more-btn" onclick="toggleHomeBorrowedExpand()">${isHomeBorrowedExpanded ? '접기 ▲' : `더보기 (+${borrowedBooks.length - defaultVisible}권) ▼`}</button>`
  : '';
+ const homeCoverCache = getBookCoverCache();
  readingEl.innerHTML = visibleBorrowed.map(b => {
  const idx = myOwnedBooks.indexOf(b);
  const dueBadge = getDueDateBadgeHtml(b);
  const src = getOwnedSource(b);
  const st = normalizeReadingStatus(b.status);
  const logoSrc = getLibraryLogoSrc(src);
+ const thumbUrl = getOwnedBookThumbUrl(b, homeCoverCache);
  const srcHtml = src
  ? `<span style="display:inline-flex; align-items:center;">${logoSrc ? `<img src="${escapeHtml(logoSrc)}" class="home-lib-logo" alt="" onerror="this.style.display='none'">` : ''}${escapeHtml(src)}</span>`
  : '';
  const metaParts = [srcHtml, escapeHtml(formatAuthorWithSuffix(b.author)), st ? escapeHtml(st) : ''].filter(Boolean);
  return `
  <div class="owned-mini-row clickable" onclick="openOwnedEditModalByIndex(${idx})">
+ <img class="home-borrow-thumb" src="${escapeHtml(thumbUrl)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG">
  <div class="owned-mini-info">
  <p class="owned-mini-title">${escapeHtml(formatOwnedTitle(b))} ${dueBadge}</p>
  <p class="owned-mini-meta">${metaParts.join(' · ')}</p>
@@ -3304,14 +3329,18 @@
  const tags = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && !isEbookTagToken(t)).slice(0, 4)
  .map(t => `<span class="mylib-badge">#${escapeHtml(t)}</span>`).join('');
 
+ const randomThumbUrl = getOwnedBookThumbUrl(b);
  container.innerHTML = `
  ${undoBarHtml}
  <div class="random-pick-box clickable" onclick="openOwnedEditModalByIndex(${idx})">
- <p class="random-pick-title">${ebook ? '📱 ' : '📘 '}${escapeHtml(formatOwnedTitle(b))}</p>
- <p class="random-pick-meta" style="font-weight:700; color:#374151;">✍️ ${escapeHtml(authorDisplay)}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${getOwnedSeries(b) ? ' · ' + escapeHtml(getOwnedSeries(b)) : ''}</p>
- <div class="mylib-item-badges">${ebook ? '<span class="mylib-badge ebook">📱 e-book</span>' : ''}${st === '읽을 예정' ? '<span class="mylib-badge status-planned">읽을 예정</span>' : ''}${tags}</div>
+ <img class="random-pick-thumb" src="${escapeHtml(randomThumbUrl)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG">
+ <div class="random-pick-body">
+ <p class="random-pick-title">${escapeHtml(formatOwnedTitle(b))}</p>
+ <p class="random-pick-meta" style="font-weight:700; color:#374151;">${escapeHtml(authorDisplay)}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${getOwnedSeries(b) ? ' · ' + escapeHtml(getOwnedSeries(b)) : ''}</p>
+ <div class="mylib-item-badges">${ebook ? '<span class="mylib-badge ebook">e-book</span>' : ''}${st === '읽을 예정' ? '<span class="mylib-badge status-planned">읽을 예정</span>' : ''}${tags}</div>
  <div class="random-pick-actions" onclick="event.stopPropagation()">
  <button class="owned-action-btn add" onclick="startReadingOwnedByIndex(${idx})">📖 읽기 시작</button>
+ </div>
  </div>
  </div>
  `;
@@ -4359,6 +4388,7 @@
  currentModalKdc = String(b.kdc || '').trim();
  currentModalVol = String(b.vol || '').trim();
  currentModalLoanStats = String(b.loanStats || '').trim();
+ toggleOwnedIsbnEditor(false);
  renderOwnedMetaPlotBox();
  loadOwnedEditCover(b);
 
@@ -4574,6 +4604,18 @@
  return parts.join(' · ');
  }
 
+ function toggleOwnedIsbnEditor(forceOpen) {
+ const row = document.getElementById('ownedIsbnEditRow');
+ const btn = document.getElementById('ownedIsbnEditToggleBtn');
+ if (!row) return;
+ const willOpen = typeof forceOpen === 'boolean' ? forceOpen : row.classList.contains('hidden');
+ row.classList.toggle('hidden', !willOpen);
+ if (btn) btn.innerText = willOpen ? '닫기' : 'ISBN 수정';
+ if (willOpen) {
+ document.getElementById('ownedInputIsbn')?.focus();
+ }
+ }
+
  function renderOwnedMetaPlotBox() {
  const box = document.getElementById('ownedMetaPlotBox');
  const heading = document.getElementById('ownedMetaPlotHeading');
@@ -4583,11 +4625,11 @@
 
  const cleanDesc = stripHtmlText(currentModalDescription);
  const pubText = currentModalPubYear ? ` (${formatPubYearText(currentModalPubYear)})` : '';
- const hasAny = cleanDesc || currentModalPubYear || currentModalKdc || currentModalVol || currentModalLoanStats;
- if (!hasAny) {
- box.classList.add('hidden');
- return;
- }
+ const seriesVal = (document.getElementById('ownedInputSeries')?.value || '').trim();
+ const volVal = (document.getElementById('ownedInputVol')?.value || currentModalVol || '').trim();
+ const volHash = formatVolHash(volVal);
+ const pubVal = (document.getElementById('ownedInputPublisher')?.value || '').trim();
+ const isbnVal = normalizeIsbn(document.getElementById('ownedInputIsbn')?.value || '');
 
  heading.innerText = `📖 도서 상세 정보${pubText}`;
 
@@ -4595,7 +4637,15 @@
  .replace(/^(?:KDC\s*)?[0-9]+(?:\.[0-9]+)?\s*(?:[·•:|\-/]\s*)?/i, '')
  .trim();
  const badges = [];
- if (currentModalVol) badges.push(`<span class="mylib-badge series">🔢 ${escapeHtml(currentModalVol)}권</span>`);
+ if (seriesVal && volHash) {
+ badges.push(`<span class="mylib-badge series">${escapeHtml(seriesVal)} ${escapeHtml(volHash)}</span>`);
+ } else if (seriesVal) {
+ badges.push(`<span class="mylib-badge series">${escapeHtml(seriesVal)}</span>`);
+ } else if (volHash) {
+ badges.push(`<span class="mylib-badge series">${escapeHtml(volHash)}</span>`);
+ }
+ if (pubVal) badges.push(`<span class="mylib-badge">${escapeHtml(pubVal)}</span>`);
+ if (isbnVal) badges.push(`<span class="mylib-badge">ISBN ${escapeHtml(isbnVal)}</span>`);
  if (cleanCategory) badges.push(`<span class="mylib-badge">🏷️ ${escapeHtml(cleanCategory)}</span>`);
  if (currentModalLoanStats) badges.push(`<span class="mylib-badge status-reading">📊 ${escapeHtml(currentModalLoanStats)}</span>`);
  metaEl.innerHTML = badges.join('');

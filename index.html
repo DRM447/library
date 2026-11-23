@@ -592,6 +592,25 @@
  .mylib-stat-pill {
  background: #f8fafc; border: 1px solid var(--border); border-radius: 9px;
  padding: 6px 3px; text-align: center; min-width: 0;
+ cursor: pointer; transition: border-color 0.15s, background-color 0.15s, transform 0.1s;
+ }
+ .mylib-stat-pill:hover { border-color: #a7f3d0; background: #ecfdf5; }
+ .mylib-stat-pill:active { transform: scale(0.96); }
+ .mylib-stat-pill.active-pill { border-color: #059669; background: #ecfdf5; }
+ .rating-dist-list { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 12px 0; }
+ .rating-dist-row {
+ display: grid; grid-template-columns: 54px 1fr 44px; align-items: center; gap: 8px;
+ padding: 5px 8px; border-radius: 9px; cursor: pointer; border: 1px solid transparent;
+ transition: background-color 0.15s, border-color 0.15s;
+ }
+ .rating-dist-row:hover { background: #fffbeb; border-color: #fde68a; }
+ .rating-dist-row.active { background: #fef3c7; border-color: #f59e0b; }
+ .rating-dist-label { font-size: 12px; font-weight: 800; color: #b45309; white-space: nowrap; }
+ .rating-dist-bar-bg { height: 8px; border-radius: 999px; background: #f3f4f6; overflow: hidden; }
+ .rating-dist-bar-fill { height: 100%; border-radius: 999px; background: #f59e0b; transition: width 0.25s ease; }
+ .rating-dist-cnt { font-size: 11.5px; font-weight: 700; color: var(--sec-text); text-align: right; white-space: nowrap; }
+ .rating-books-scroll {
+ display: flex; flex-direction: column; gap: 7px; max-height: 44dvh; overflow-y: auto; padding-right: 2px;
  }
  .mylib-stat-val { font-size: 11.5px; font-weight: 800; color: #065f46; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
  .mylib-stat-lbl { font-size: 9.5px; color: var(--sec-text); font-weight: 600; display: block; white-space: nowrap; }
@@ -780,15 +799,15 @@
  font-size: 10.5px; font-weight: 700; padding: 4px; text-align: center; pointer-events: none;
  }
  .ebook-icon-toggle {
- width: 34px; height: 34px; border-radius: 10px;
+ width: 24px; height: 24px; border-radius: 7px;
  border: 1.5px solid var(--border); background: #f3f4f6; color: #9ca3af;
  display: inline-flex; align-items: center; justify-content: center;
- cursor: pointer; flex-shrink: 0; transition: all 0.18s ease;
+ cursor: pointer; flex-shrink: 0; transition: all 0.18s ease; padding: 0;
  }
- .ebook-icon-toggle:active { transform: scale(0.93); }
+ .ebook-icon-toggle:active { transform: scale(0.92); }
  .ebook-icon-toggle.is-on {
  background: var(--ebook); border-color: var(--ebook); color: #ffffff;
- box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.22), 0 3px 10px rgba(124, 58, 237, 0.35);
+ box-shadow: 0 0 0 2.5px rgba(124, 58, 237, 0.22), 0 2px 6px rgba(124, 58, 237, 0.35);
  }
  .tag-chip-editor {
  display: flex; flex-wrap: wrap; align-items: center; gap: 5px;
@@ -974,7 +993,7 @@
  </div>
 
  <div id="linksCard" class="card hidden">
- <div class="section-title"><i data-lucide="book-open"></i> 전자책 둘러보기</div>
+ <div class="section-title"><i data-lucide="book-open"></i> eBook 둘러보기</div>
  <div class="links-container" style="border-top: none; padding-top: 0;">
 
  <div class="link-group">
@@ -1178,8 +1197,8 @@
  <button class="mylib-filter-chip" data-status="읽을 예정" onclick="setMyLibStatusFilter('읽을 예정')">읽을 예정</button>
  <button class="mylib-filter-chip" data-status="읽는 중" onclick="setMyLibStatusFilter('읽는 중')">읽는 중</button>
  <button class="mylib-filter-chip" data-status="완독" onclick="setMyLibStatusFilter('완독')">완독</button>
- <button class="mylib-filter-chip" data-status="전자책" onclick="setMyLibStatusFilter('전자책')">📱 전자책</button>
- <button class="mylib-filter-chip dup-chip" id="myLibDupFilterBtn" data-status="duplicates" onclick="setMyLibStatusFilter('duplicates')">⚠️ 중복 점검</button>
+ <button class="mylib-filter-chip" data-status="eBook" onclick="setMyLibStatusFilter('eBook')">📱 eBook</button>
+ <button class="mylib-filter-chip dup-chip" id="myLibDupFilterBtn" data-status="duplicates" onclick="setMyLibStatusFilter('duplicates')">⚠️ 중복 확인</button>
  </div>
 
  <div class="mylib-filter-row" id="myLibTagFilters"></div>
@@ -1194,13 +1213,33 @@
  </div>
  </div>
 
+ <!-- 평점별 도서 보기 모달 -->
+ <div id="ratingBreakdownModalOverlay" class="memo-modal-overlay" style="z-index: 2050;" onclick="if(event.target===this) closeRatingBreakdownModal()">
+ <div class="memo-modal-box" style="max-width: 520px;">
+ <div class="owned-edit-top-bar" style="align-items:center; margin-bottom:6px;">
+ <h3 class="memo-modal-title" id="ratingModalTitle" style="margin:0;">⭐ 평점별 도서 보기</h3>
+ <button type="button" class="icon-square-btn" onclick="closeRatingBreakdownModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="16"></i></button>
+ </div>
+ <div id="ratingDistList" class="rating-dist-list"></div>
+ <div class="mylib-filter-row" id="ratingStarTabs" style="margin-bottom:10px;">
+ <button type="button" class="mylib-filter-chip active" data-star="all" onclick="selectRatingBreakdownStar('all')">평가 전체</button>
+ <button type="button" class="mylib-filter-chip" data-star="5" onclick="selectRatingBreakdownStar(5)">★ 5</button>
+ <button type="button" class="mylib-filter-chip" data-star="4" onclick="selectRatingBreakdownStar(4)">★ 4</button>
+ <button type="button" class="mylib-filter-chip" data-star="3" onclick="selectRatingBreakdownStar(3)">★ 3</button>
+ <button type="button" class="mylib-filter-chip" data-star="2" onclick="selectRatingBreakdownStar(2)">★ 2</button>
+ <button type="button" class="mylib-filter-chip" data-star="1" onclick="selectRatingBreakdownStar(1)">★ 1</button>
+ </div>
+ <div id="ratingBooksList" class="rating-books-scroll"></div>
+ </div>
+ </div>
+
  <!-- 내 서재 책 추가 / 독서 상태·평점·시작일·완독일·한줄평 수정 모달 -->
  <div id="ownedEditModalOverlay" class="memo-modal-overlay" style="z-index: 2100;" onclick="if(event.target===this) closeOwnedEditModal()">
  <div class="memo-modal-box">
  <div class="owned-edit-top-bar" style="align-items:center;">
  <h3 class="memo-modal-title" id="ownedEditModalTitle" style="margin:0;">내 서재에 책 추가</h3>
- <button type="button" id="ownedEbookToggleBtn" class="ebook-icon-toggle" role="switch" aria-checked="false" title="전자책 여부 (ON/OFF)" aria-label="전자책 여부" onclick="toggleOwnedEbookSwitch()">
- <i data-lucide="smartphone" size="17"></i>
+ <button type="button" class="icon-square-btn" style="width:32px; height:32px; padding:0; background:#eef2ff; border-color:#c7d2fe; color:#4338ca;" onclick="openBarcodeScanner('addModal')" title="ISBN 바코드 스캔" aria-label="ISBN 바코드 스캔">
+ <i data-lucide="scan-barcode" size="18"></i>
  </button>
  </div>
 
@@ -1212,13 +1251,14 @@
  <div class="owned-edit-cover-wrap">
  <div id="ownedCoverCol" class="owned-cover-col">
  <img id="ownedEditCoverImg" class="owned-edit-cover hidden" src="" alt="책 표지" onerror="handleOwnedCoverError()">
- <div id="ownedCoverPlaceholder" class="cover-auto-placeholder"><span>📘</span><span id="ownedCoverPlaceholderText">표지 없음</span></div>
  </div>
  <div class="owned-edit-cover-right">
  <div class="form-field" style="margin-bottom:0;">
- <label class="form-label" for="ownedInputTitle">
+ <label class="form-label" for="ownedInputTitle" style="justify-content:flex-start; gap:7px;">
  <span>책 제목 *</span>
- <button type="button" class="owned-chip-btn" onclick="openBarcodeScanner('addModal')">📷 바코드</button>
+ <button type="button" id="ownedEbookToggleBtn" class="ebook-icon-toggle" role="switch" aria-checked="false" title="eBook 여부 (ON/OFF)" aria-label="eBook 여부" onclick="toggleOwnedEbookSwitch()">
+ <i data-lucide="smartphone" size="13"></i>
+ </button>
  </label>
  <input type="text" id="ownedInputTitle" class="form-input" placeholder="책 제목" onblur="triggerAutoFillOwnedMeta()">
  </div>
@@ -2061,7 +2101,7 @@
  updateDuplicateFilterBadge();
  renderMyLibraryList(false);
  pushSyncStateToSheet(true);
- showToast('중복 점검 목록으로 복원했습니다.', 'success');
+ showToast('중복 확인 목록으로 복원했습니다.', 'success');
  }
 
  function toggleSkippedDuplicatesView(show) {
@@ -2070,7 +2110,7 @@
  }
 
  function resetSkippedDuplicates() {
- if (!confirm('건너뛰기한 중복 항목들을 모두 중복 점검 목록으로 복원할까요?')) return;
+ if (!confirm('건너뛰기한 중복 항목들을 모두 중복 확인 목록으로 복원할까요?')) return;
  localStorage.removeItem('ignoredDuplicateGroups');
  lastSkippedDupUndo = null;
  isViewingSkippedDuplicates = false;
@@ -2115,7 +2155,7 @@
  const btn = document.getElementById('myLibDupFilterBtn');
  if (!btn) return;
  const dupCount = getDuplicateOwnedBookSet().size;
- btn.innerText = dupCount > 0 ? `⚠️ 중복 점검 (${dupCount})` : '⚠️ 중복 점검';
+ btn.innerText = dupCount > 0 ? `⚠️ 중복 확인 (${dupCount})` : '⚠️ 중복 확인';
  }
 
  function findOwnedMatch(apiBook) {
@@ -2512,7 +2552,7 @@
  <div class="home-kpi-card" onclick="openMyLibraryModal(false, 'all')">
  <span class="home-kpi-label">📚 전체 보유 도서</span>
  <span class="home-kpi-value">${stats.total}권</span>
- <span class="home-kpi-sub">종이책 ${stats.paper} · e북 ${stats.ebooks}</span>
+ <span class="home-kpi-sub">종이책 ${stats.paper} · eBook ${stats.ebooks}</span>
  </div>
  <div class="home-kpi-card" onclick="openMyLibraryModal(false, '완독')">
  <span class="home-kpi-label">✅ 완독 현황</span>
@@ -2605,7 +2645,7 @@
  <div class="random-pick-box clickable" onclick="openOwnedEditModalByIndex(${idx})">
  <p class="random-pick-title">${ebook ? '📱 ' : '📘 '}${escapeHtml(formatOwnedTitle(b))}</p>
  <p class="random-pick-meta" style="font-weight:700; color:#374151;">✍️ ${escapeHtml(authorDisplay)}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${getOwnedSeries(b) ? ' · ' + escapeHtml(getOwnedSeries(b)) : ''}</p>
- <div class="mylib-item-badges">${ebook ? '<span class="mylib-badge ebook">📱 전자책</span>' : ''}${st === '읽을 예정' ? '<span class="mylib-badge status-planned">읽을 예정</span>' : ''}${tags}</div>
+ <div class="mylib-item-badges">${ebook ? '<span class="mylib-badge ebook">📱 eBook</span>' : ''}${st === '읽을 예정' ? '<span class="mylib-badge status-planned">읽을 예정</span>' : ''}${tags}</div>
  <div class="random-pick-actions" onclick="event.stopPropagation()">
  <button class="owned-action-btn add" onclick="startReadingOwnedByIndex(${idx})">📖 읽기</button>
  </div>
@@ -2850,7 +2890,7 @@
  bar.innerHTML = `
  <div class="owned-status-left">
  <div class="owned-status-heading">
- ${ebook ? '📱 내 서재 보유 중 (전자책)' : '✅ 내 서재 보유 중'}
+ ${ebook ? '📱 내 서재 보유 중 (eBook)' : '✅ 내 서재 보유 중'}
  ${matched.matchType === 'title' ? '<span style="font-size:10.5px; font-weight:600; opacity:0.85;">(다른 판본 가능)</span>' : ''}
  </div>
  <div class="owned-status-sub">${statusText}${ratingText}${dateText}${noteText}</div>
@@ -2898,33 +2938,119 @@
  populateMyLibFilters();
  renderMyLibraryList(false);
  }
+ if (document.getElementById('ratingBreakdownModalOverlay')?.classList.contains('open')) {
+ renderRatingBreakdownModal();
+ }
  }
 
  /* =========================================================
- * 내 서재 모달 · 통계 · 정렬 · 중복 점검 · 편집/추가/자동채우기
+ * 내 서재 모달 · 통계 · 정렬 · 중복 확인 · 편집/추가/자동채우기
  * ========================================================= */
+ let selectedRatingBreakdownStar = 'all';
+
  function renderMyLibStatsBar() {
  const bar = document.getElementById('myLibStatsBar');
  if (!bar) return;
  const stats = computeLibraryStats();
  bar.innerHTML = `
- <div class="mylib-stat-pill">
+ <div class="mylib-stat-pill ${myLibStatusFilter === 'all' ? 'active-pill' : ''}" onclick="setMyLibStatusFilter('all')" title="전체 보유 도서 보기">
  <span class="mylib-stat-val">${stats.total}권</span>
  <span class="mylib-stat-lbl">전체 보유</span>
  </div>
- <div class="mylib-stat-pill">
+ <div class="mylib-stat-pill ${myLibStatusFilter === 'eBook' ? 'active-pill' : ''}" onclick="setMyLibStatusFilter('eBook')" title="eBook만 보기">
  <span class="mylib-stat-val">${stats.paper} / ${stats.ebooks}</span>
- <span class="mylib-stat-lbl">종이 / 전자책</span>
+ <span class="mylib-stat-lbl">종이 / eBook</span>
  </div>
- <div class="mylib-stat-pill">
+ <div class="mylib-stat-pill ${myLibStatusFilter === '완독' ? 'active-pill' : ''}" onclick="setMyLibStatusFilter('완독')" title="완독한 책 보기">
  <span class="mylib-stat-val">${stats.done}권(${stats.donePct}%)</span>
  <span class="mylib-stat-lbl">완독률</span>
  </div>
- <div class="mylib-stat-pill">
+ <div class="mylib-stat-pill" onclick="openRatingBreakdownModal('all')" title="평점별 도서 보기">
  <span class="mylib-stat-val">★ ${stats.avgRating}</span>
  <span class="mylib-stat-lbl">평균 평점</span>
  </div>
  `;
+ }
+
+ function openRatingBreakdownModal(initialStar = 'all') {
+ selectedRatingBreakdownStar = initialStar;
+ renderRatingBreakdownModal();
+ document.getElementById('ratingBreakdownModalOverlay').classList.add('open');
+ lucide.createIcons();
+ }
+
+ function closeRatingBreakdownModal() {
+ document.getElementById('ratingBreakdownModalOverlay').classList.remove('open');
+ }
+
+ function selectRatingBreakdownStar(starVal) {
+ selectedRatingBreakdownStar = starVal;
+ renderRatingBreakdownModal();
+ }
+
+ function renderRatingBreakdownModal() {
+ const stats = computeLibraryStats();
+ const ratedBooks = myOwnedBooks.filter(b => parseRating(b.rating) > 0);
+ const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+ ratedBooks.forEach(b => {
+ const r = parseRating(b.rating);
+ if (counts[r] !== undefined) counts[r]++;
+ });
+ const maxCnt = Math.max(1, ...Object.values(counts));
+
+ const titleEl = document.getElementById('ratingModalTitle');
+ if (titleEl) {
+ titleEl.innerText = `⭐ 평점별 도서 (평균 ★ ${stats.avgRating} · ${ratedBooks.length}권)`;
+ }
+
+ const distEl = document.getElementById('ratingDistList');
+ if (distEl) {
+ distEl.innerHTML = [5, 4, 3, 2, 1].map(star => {
+ const cnt = counts[star];
+ const pct = Math.round((cnt / maxCnt) * 100);
+ const isAct = String(selectedRatingBreakdownStar) === String(star);
+ return `
+ <div class="rating-dist-row ${isAct ? 'active' : ''}" onclick="selectRatingBreakdownStar(${star})">
+ <span class="rating-dist-label">★ ${star}점</span>
+ <div class="rating-dist-bar-bg"><div class="rating-dist-bar-fill" style="width:${cnt > 0 ? Math.max(6, pct) : 0}%;"></div></div>
+ <span class="rating-dist-cnt">${cnt}권</span>
+ </div>
+ `;
+ }).join('');
+ }
+
+ document.querySelectorAll('#ratingStarTabs .mylib-filter-chip').forEach(btn => {
+ btn.classList.toggle('active', btn.getAttribute('data-star') === String(selectedRatingBreakdownStar));
+ });
+
+ const listEl = document.getElementById('ratingBooksList');
+ if (!listEl) return;
+
+ const filtered = (selectedRatingBreakdownStar === 'all'
+ ? ratedBooks
+ : ratedBooks.filter(b => parseRating(b.rating) === Number(selectedRatingBreakdownStar))
+ ).slice().sort((a, b) => parseRating(b.rating) - parseRating(a.rating) || String(b.finishDate || '').localeCompare(String(a.finishDate || '')) || String(a.title || '').localeCompare(String(b.title || ''), 'ko'));
+
+ if (filtered.length === 0) {
+ listEl.innerHTML = `<div class="loading-msg" style="padding:18px;">해당 평점의 도서가 없습니다.</div>`;
+ return;
+ }
+
+ listEl.innerHTML = filtered.map(b => {
+ const idx = myOwnedBooks.indexOf(b);
+ const ebook = isOwnedEbook(b);
+ const r = parseRating(b.rating);
+ const period = formatReadingPeriod(b.startDate, b.finishDate);
+ return `
+ <div class="owned-mini-row clickable" onclick="openOwnedEditModalByIndex(${idx})">
+ <div class="owned-mini-info">
+ <p class="owned-mini-title">${ebook ? '📱 ' : '📘 '}${escapeHtml(formatOwnedTitle(b))} <span class="mylib-badge rating">★ ${r}</span></p>
+ <p class="owned-mini-meta">${escapeHtml(b.author || '저자 미상')}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${period ? ' · 📅 ' + escapeHtml(period) : ''}</p>
+ ${b.review ? `<div class="mylib-item-review" style="margin-top:4px;">💬 ${escapeHtml(b.review)}</div>` : ''}
+ </div>
+ </div>
+ `;
+ }).join('');
  }
 
  function openMyLibraryModal(openSetup = false, initialStatus = null) {
@@ -3063,7 +3189,7 @@
  let result = myOwnedBooks.filter(b => {
  if (myLibStatusFilter === 'duplicates') {
  if (!dupSet.has(b)) return false;
- } else if (myLibStatusFilter === '전자책') {
+ } else if (myLibStatusFilter === 'eBook') {
  if (!isOwnedEbook(b)) return false;
  } else if (myLibStatusFilter === '읽을 예정') {
  const st = normalizeReadingStatus(b.status);
@@ -3148,10 +3274,10 @@
 
  if (myLibStatusFilter === 'duplicates' && isViewingSkippedDuplicates) {
  const totalSkippedBooks = skippedGroupEntries.reduce((sum, g) => sum + g.books.length, 0);
- infoEl.innerHTML = `건너뛰기한 도서 ${skippedGroupCount}그룹 (${totalSkippedBooks}권) · <button class="owned-chip-btn indigo" style="padding:2px 8px; font-size:10.5px;" onclick="toggleSkippedDuplicatesView(false)">← 중복 점검</button>${skippedGroupCount > 0 ? ` <button class="owned-chip-btn skip" style="padding:2px 8px; font-size:10.5px;" onclick="resetSkippedDuplicates()">전체 복원</button>` : ''}`;
+ infoEl.innerHTML = `건너뛰기한 도서 ${skippedGroupCount}그룹 (${totalSkippedBooks}권) · <button class="owned-chip-btn indigo" style="padding:2px 8px; font-size:10.5px;" onclick="toggleSkippedDuplicatesView(false)">← 중복 확인</button>${skippedGroupCount > 0 ? ` <button class="owned-chip-btn skip" style="padding:2px 8px; font-size:10.5px;" onclick="resetSkippedDuplicates()">전체 복원</button>` : ''}`;
 
  if (skippedGroupCount === 0) {
- listEl.innerHTML = `<div class="loading-msg">건너뛰기한 도서가 없습니다.<br><button class="owned-chip-btn indigo" style="margin-top:8px;" onclick="toggleSkippedDuplicatesView(false)">← 중복 점검으로 돌아가기</button></div>`;
+ listEl.innerHTML = `<div class="loading-msg">건너뛰기한 도서가 없습니다.<br><button class="owned-chip-btn indigo" style="margin-top:8px;" onclick="toggleSkippedDuplicatesView(false)">← 중복 확인으로 돌아가기</button></div>`;
  return;
  }
 
@@ -3181,7 +3307,7 @@
  </div>
  </div>
  <div class="mylib-item-badges">
- ${ebook ? '<span class="mylib-badge ebook">📱 전자책</span>' : ''}
+ ${ebook ? '<span class="mylib-badge ebook">📱 eBook</span>' : ''}
  ${getOwnedSeries(b) ? `<span class="mylib-badge series">${escapeHtml(getOwnedSeries(b))}</span>` : ''}
  ${b.isbn ? `<span class="mylib-badge">ISBN ${escapeHtml(b.isbn)}</span>` : ''}
  </div>
@@ -3230,7 +3356,7 @@
  const transSup = getTranslatorSupervisorInfo(b);
  const subLine = `${escapeHtml(b.author || '저자 미상')}${transSup ? ' · ' + escapeHtml(transSup) : ''}`;
  const rawTags = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && !isEbookTagToken(t));
- const ebookBadgeHtml = ebook ? '<span class="mylib-badge ebook">📱 전자책</span>' : '';
+ const ebookBadgeHtml = ebook ? '<span class="mylib-badge ebook">📱 eBook</span>' : '';
  const tagBadges = ebookBadgeHtml + rawTags.slice(0, 3)
  .map(t => `<span class="mylib-badge">#${escapeHtml(t)}</span>`).join('');
 
@@ -3452,7 +3578,7 @@
  if (btn) {
  btn.classList.toggle('is-on', selectedOwnedIsEbook);
  btn.setAttribute('aria-checked', selectedOwnedIsEbook ? 'true' : 'false');
- btn.title = selectedOwnedIsEbook ? '전자책 (ON)' : '전자책 (OFF)';
+ btn.title = selectedOwnedIsEbook ? 'eBook (ON)' : 'eBook (OFF)';
  }
  }
 
@@ -3546,29 +3672,21 @@
  box.classList.remove('hidden');
  }
 
- function setOwnedCoverDisplay(url, statusText = '') {
+ function setOwnedCoverDisplay(url) {
  const colEl = document.getElementById('ownedCoverCol');
  const imgEl = document.getElementById('ownedEditCoverImg');
- const placeholderEl = document.getElementById('ownedCoverPlaceholder');
- const placeholderTxt = document.getElementById('ownedCoverPlaceholderText');
  if (!imgEl || !colEl) return;
 
  if (url && !url.includes('via.placeholder.com')) {
  currentModalCoverUrl = normalizeCoverUrl(url);
  imgEl.src = currentModalCoverUrl;
  imgEl.classList.remove('hidden');
- if (placeholderEl) placeholderEl.classList.add('hidden');
  colEl.classList.add('has-cover');
  } else {
  currentModalCoverUrl = '';
  imgEl.src = '';
  imgEl.classList.add('hidden');
  colEl.classList.remove('has-cover');
- if (placeholderEl) placeholderEl.classList.remove('hidden');
- if (placeholderTxt) {
- const isAddMode = activeOwnedEditContext && activeOwnedEditContext.mode === 'add';
- placeholderTxt.innerText = statusText || (isAddMode ? '자동 조회' : '표지 없음');
- }
  }
  }
 
@@ -3750,7 +3868,7 @@
  if (!cleaned) return;
  if (isEbookTagToken(cleaned)) {
  setOwnedEbookToggle(true);
- showToast('전자책 여부는 상단 ON/OFF 버튼으로 설정했어요.');
+ showToast('eBook 여부는 상단 아이콘 버튼으로 설정했어요.');
  return;
  }
  if (!ownedEditTagsList.includes(cleaned)) {
@@ -4210,7 +4328,7 @@
  let badgeHtml = '';
  if (ownedMatch) {
  const ebook = isOwnedEbook(ownedMatch.owned);
- badgeHtml = `<span class="cover-badge ${ebook ? 'ebook' : 'owned'}">${ebook ? 'e북 보유' : '보유 중'}</span>`;
+ badgeHtml = `<span class="cover-badge ${ebook ? 'ebook' : 'owned'}">${ebook ? 'eBook 보유' : '보유 중'}</span>`;
  }
 
  listHtml += `
@@ -4652,7 +4770,7 @@
  isEbookOwned = isOwnedEbook(ownedMatch.owned);
  const ownBadge = document.createElement('span');
  ownBadge.className = `cover-badge ${isEbookOwned ? 'ebook' : 'owned'}`;
- ownBadge.innerText = isEbookOwned ? 'e북 보유' : '보유 중';
+ ownBadge.innerText = isEbookOwned ? 'eBook 보유' : '보유 중';
  item.appendChild(ownBadge);
  }
 
@@ -4756,7 +4874,7 @@
  let displayTitle = b.bookname;
  if (ownedMatch) {
  const ebook = isOwnedEbook(ownedMatch.owned);
- badgeHtml = `<span class="cover-badge ${ebook ? 'ebook' : 'owned'}">${ebook ? 'e북' : '보유'}</span>`;
+ badgeHtml = `<span class="cover-badge ${ebook ? 'ebook' : 'owned'}">${ebook ? 'eBook' : '보유'}</span>`;
 
  }
 

@@ -116,29 +116,30 @@
  width: 100%; height: 100%; object-fit: cover; display: block; border: none; border-radius: 0; box-shadow: none;
  }
  .bm-memo-plus-overlay {
- position: absolute; left: 50%; bottom: 10%; transform: translateX(-50%);
- height: 26px; padding: 0 10px; border-radius: 999px;
- background: rgba(245, 158, 11, 0.92); color: #ffffff;
+ position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
+ width: 31px; height: 31px; border-radius: 50%;
+ background: rgba(245, 158, 11, 0.6); color: #ffffff;
  border: 1.5px solid rgba(255, 255, 255, 0.85);
  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
- display: inline-flex; align-items: center; justify-content: center; gap: 2px;
- font-size: 11px; font-weight: 800; line-height: 1; white-space: nowrap; cursor: pointer;
+ display: flex; align-items: center; justify-content: center;
+ font-size: 18px; font-weight: 800; line-height: 1; cursor: pointer;
  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
  transition: transform 0.14s, background-color 0.14s;
  }
- .bm-memo-plus-overlay:hover { background: rgba(217, 119, 6, 0.96); }
+ .bm-memo-plus-overlay:hover { background: rgba(217, 119, 6, 0.78); }
  .bm-memo-plus-overlay:active { transform: translateX(-50%) scale(0.92); }
  .bm-memo-obi {
- position: absolute; left: 0; right: 0; bottom: 0;
- background: rgba(255, 251, 235, 0.64);
+ position: absolute; left: 0; right: 0; bottom: 0; height: 55px;
+ background: rgba(255, 255, 255, 0.62);
  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
- border-top: 1px solid rgba(245, 158, 11, 0.42);
+ border-top: 1px solid rgba(17, 24, 39, 0.14);
  padding: 6px 7px; text-align: center; cursor: pointer;
+ display: flex; align-items: center; justify-content: center;
  }
  .bm-memo-obi-text {
  display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical;
- overflow: hidden; word-break: break-word;
- font-size: 10.5px; font-weight: 700; color: #78350f;
+ overflow: hidden; word-break: break-word; width: 100%;
+ font-size: 10.5px; font-weight: 700; color: #111827;
  line-height: 1.35; max-height: calc(10.5px * 1.35 * 3);
  }
  .home-lib-logo {
@@ -1591,7 +1592,7 @@
  <label for="ownedInputDueDate" style="font-size:12px; font-weight:800; color:#0369a1; white-space:nowrap;">📅 반납 예정일</label>
  <div style="display:flex; align-items:center; gap:6px; flex:1; justify-content:flex-end;">
  <input type="date" id="ownedInputDueDate" class="form-input" style="max-width:155px; padding:6px 8px; font-size:12.5px;">
- <button type="button" class="quick-tag-pick" style="background:#ffffff; border-color:#7dd3fc; color:#0369a1;" onclick="setDueDatePlus14Days()">+14일</button>
+ <button type="button" class="quick-tag-pick" style="background:#ffffff; border-color:#7dd3fc; color:#0369a1;" onclick="setDueDatePlus7Days()">+7일</button>
  </div>
  </div>
 
@@ -1931,6 +1932,7 @@
  let currentModalVol = '';
  let currentModalLoanStats = '';
  let currentRandomPick = null;
+ let isHomeBorrowedExpanded = false;
  let lastStartReadingUndo = null;
  let lastSkippedDupUndo = null;
  let isViewingSkippedDuplicates = false;
@@ -2076,13 +2078,19 @@
  document.getElementById('ownedInputFinishDate').value = getTodayDateStr();
  }
 
- function setDueDatePlus14Days() {
- const d = new Date();
- d.setDate(d.getDate() + 14);
+ function setDueDatePlus7Days() {
+ const inputEl = document.getElementById('ownedInputDueDate');
+ const raw = String(inputEl?.value || '').trim();
+ let d = new Date();
+ if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+ const [yy, mm, dd] = raw.split('-').map(Number);
+ d = new Date(yy, mm - 1, dd);
+ }
+ d.setDate(d.getDate() + 7);
  const y = d.getFullYear();
  const m = String(d.getMonth() + 1).padStart(2, '0');
  const day = String(d.getDate()).padStart(2, '0');
- document.getElementById('ownedInputDueDate').value = `${y}-${m}-${day}`;
+ inputEl.value = `${y}-${m}-${day}`;
  }
 
  function getBookCoverCache() {
@@ -3161,7 +3169,12 @@
  </div>
  `;
  } else {
- readingEl.innerHTML = borrowedBooks.slice(0, 6).map(b => {
+ const defaultVisible = 3;
+ const visibleBorrowed = isHomeBorrowedExpanded ? borrowedBooks : borrowedBooks.slice(0, defaultVisible);
+ const toggleBtnHtml = borrowedBooks.length > defaultVisible
+ ? `<button type="button" class="home-more-btn" onclick="toggleHomeBorrowedExpand()">${isHomeBorrowedExpanded ? '접기 ▲' : `더보기 (+${borrowedBooks.length - defaultVisible}권) ▼`}</button>`
+ : '';
+ readingEl.innerHTML = visibleBorrowed.map(b => {
  const idx = myOwnedBooks.indexOf(b);
  const dueBadge = getDueDateBadgeHtml(b);
  const src = getOwnedSource(b);
@@ -3179,7 +3192,7 @@
  </div>
  </div>
  `;
- }).join('') + `<button type="button" class="home-more-btn" onclick="openMyLibraryModal(false, 'activeBorrow')">더보기</button>`;
+ }).join('') + toggleBtnHtml;
  }
 
  if (!currentRandomPick || !myOwnedBooks.includes(currentRandomPick)) {
@@ -3188,6 +3201,11 @@
  renderRandomPickCard();
  }
  lucide.createIcons();
+ }
+
+ function toggleHomeBorrowedExpand() {
+ isHomeBorrowedExpanded = !isHomeBorrowedExpanded;
+ renderHomeReadingDashboard();
  }
 
  function pickRandomUnreadBook() {
@@ -3235,7 +3253,7 @@
  <p class="random-pick-meta" style="font-weight:700; color:#374151;">✍️ ${escapeHtml(authorDisplay)}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${getOwnedSeries(b) ? ' · ' + escapeHtml(getOwnedSeries(b)) : ''}</p>
  <div class="mylib-item-badges">${ebook ? '<span class="mylib-badge ebook">📱 e-book</span>' : ''}${st === '읽을 예정' ? '<span class="mylib-badge status-planned">읽을 예정</span>' : ''}${tags}</div>
  <div class="random-pick-actions" onclick="event.stopPropagation()">
- <button class="owned-action-btn add" onclick="startReadingOwnedByIndex(${idx})">📖 읽기</button>
+ <button class="owned-action-btn add" onclick="startReadingOwnedByIndex(${idx})">📖 읽기 시작</button>
  </div>
  </div>
  `;
@@ -5758,7 +5776,7 @@
  memoEl.className = 'bm-memo-plus-overlay';
  memoEl.title = '메모 추가';
  memoEl.setAttribute('aria-label', '메모 추가');
- memoEl.innerText = '+ 메모';
+ memoEl.innerText = '+';
  }
  memoEl.onclick = (e) => {
  e.stopPropagation();

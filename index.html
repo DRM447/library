@@ -784,7 +784,7 @@
  display: flex; align-items: center; justify-content: space-between; gap: 8px;
  font-weight: 800; color: #334155;
  }
- .form-input::placeholder { color: #9ca3af; font-weight: 400; }
+ .form-input::placeholder, .tag-chip-input::placeholder { color: #9ca3af; font-weight: 400; }
  .mylib-filter-sep {
  width: 1px; height: 18px; background: #d1d5db; margin: 0 2px; align-self: center; flex-shrink: 0;
  }
@@ -1205,7 +1205,7 @@
 
  <div class="mylib-controls">
  <div class="mylib-search-row">
- <input type="text" id="myLibSearchInput" class="mylib-search-input" placeholder="내 보유 도서 검색 (제목·저자·역자·태그·출판사·시리즈·한줄평)" oninput="renderMyLibraryList(true)">
+ <input type="text" id="myLibSearchInput" class="mylib-search-input" placeholder="내 서재 도서 검색 (제목·저자·역자·태그·출판사·시리즈·한줄평)" oninput="renderMyLibraryList(true)">
  <div class="mylib-select-group">
  <select id="myLibSortSelect" class="mylib-series-select" onchange="renderMyLibraryList(true)" aria-label="정렬 기준">
  <option value="recent" selected>최근 추가순</option>
@@ -1271,8 +1271,8 @@
  <div class="memo-modal-box">
  <div class="owned-edit-top-bar" style="align-items:center;">
  <h3 class="memo-modal-title" id="ownedEditModalTitle" style="margin:0;">내 서재에 책 추가</h3>
- <button type="button" class="icon-square-btn" style="width:32px; height:32px; padding:0; background:#eef2ff; border-color:#c7d2fe; color:#4338ca;" onclick="openBarcodeScanner('addModal')" title="ISBN 바코드 스캔" aria-label="ISBN 바코드 스캔">
- <i data-lucide="scan-barcode" size="18"></i>
+ <button type="button" class="icon-square-btn" onclick="closeOwnedEditModal()" title="닫기" aria-label="닫기">
+ <i data-lucide="x" size="16"></i>
  </button>
  </div>
 
@@ -1295,7 +1295,12 @@
  <button type="button" id="ownedEbookToggleBtn" class="mini-pill-toggle" role="switch" aria-checked="false" title="e-book 여부" onclick="toggleOwnedEbookSwitch()">e-book</button>
  </span>
  </label>
- <input type="text" id="ownedInputTitle" class="form-input" placeholder="책 제목" onblur="triggerAutoFillOwnedMeta()">
+ <div style="display:flex; align-items:center; gap:6px;">
+ <input type="text" id="ownedInputTitle" class="form-input" style="flex:1; min-width:0;" placeholder="책 제목" onblur="triggerAutoFillOwnedMeta()">
+ <button type="button" class="icon-square-btn" style="width:38px; height:38px; padding:0; flex-shrink:0; background:#eef2ff; border-color:#c7d2fe; color:#4338ca;" onclick="openBarcodeScanner('addModal')" title="ISBN 바코드 스캔" aria-label="ISBN 바코드 스캔">
+ <i data-lucide="scan-barcode" size="18"></i>
+ </button>
+ </div>
  </div>
  </div>
  </div>
@@ -1306,8 +1311,8 @@
  <input type="text" id="ownedInputAuthor" class="form-input" placeholder="저자명">
  </div>
  <div class="form-field">
- <label class="form-label" for="ownedInputPublisher">출판사</label>
- <input type="text" id="ownedInputPublisher" class="form-input" placeholder="출판사">
+ <label class="form-label" for="ownedInputTranslator">역자/편집</label>
+ <input type="text" id="ownedInputTranslator" class="form-input" placeholder="옮긴이·감수·엮은이">
  </div>
  </div>
 
@@ -1325,6 +1330,12 @@
  <input type="date" id="ownedInputDueDate" class="form-input" style="max-width:155px; padding:6px 8px; font-size:12.5px;">
  <button type="button" class="quick-tag-pick" style="background:#ffffff; border-color:#7dd3fc; color:#0369a1;" onclick="setDueDatePlus14Days()">+14일</button>
  </div>
+ </div>
+
+ <div id="ownedSourceField" class="form-field hidden">
+ <label class="form-label" for="ownedInputSource" id="ownedSourceLabel">소장처/대여처</label>
+ <input type="text" id="ownedInputSource" class="form-input" placeholder="도서관 또는 플랫폼을 선택하거나 입력하세요.">
+ <div id="ownedSourceQuickPicks" class="quick-tag-picks" style="margin-top:6px;"></div>
  </div>
 
  <div class="form-field">
@@ -1371,12 +1382,9 @@
  </div>
 
  <div class="form-field">
- <label class="form-label" for="ownedTagInput">
- <span>태그</span>
- <span style="font-size:11px; font-weight:500; color:var(--sec-text);">스페이스바로 구분</span>
- </label>
+ <label class="form-label" for="ownedTagInput">태그</label>
  <div id="ownedTagChipBox" class="tag-chip-editor" onclick="document.getElementById('ownedTagInput').focus()">
- <input type="text" id="ownedTagInput" class="tag-chip-input" placeholder="" onkeydown="handleOwnedTagKeydown(event)" oninput="handleOwnedTagInput(this)" onblur="commitPendingOwnedTag()">
+ <input type="text" id="ownedTagInput" class="tag-chip-input" placeholder="스페이스바로 구분" onkeydown="handleOwnedTagKeydown(event)" oninput="handleOwnedTagInput(this)" onblur="commitPendingOwnedTag()">
  </div>
  <div class="quick-tag-picks">
  <button type="button" class="quick-tag-pick" onclick="appendOwnedTag('과학')">+ 과학</button>
@@ -1399,12 +1407,12 @@
  </div>
  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
  <div class="form-field">
- <label class="form-label" for="ownedInputTranslator">역자/편집</label>
- <input type="text" id="ownedInputTranslator" class="form-input" placeholder="옮긴이·감수·엮은이">
+ <label class="form-label" for="ownedInputPublisher">출판사</label>
+ <input type="text" id="ownedInputPublisher" class="form-input" placeholder="출판사">
  </div>
  <div class="form-field">
  <label class="form-label" for="ownedInputIsbn">ISBN</label>
- <input type="text" id="ownedInputIsbn" class="form-input" placeholder="" onblur="triggerAutoFillOwnedMeta()">
+ <input type="text" id="ownedInputIsbn" class="form-input" placeholder="ISBN" onblur="triggerAutoFillOwnedMeta()">
  </div>
  </div>
  <div class="form-field">
@@ -1955,8 +1963,12 @@
  function isOwnedSold(ownedBook) {
  if (!ownedBook) return false;
  if (typeof ownedBook.isSold === 'boolean') return ownedBook.isSold;
- const raw = String(ownedBook.isSold || ownedBook.borrowSource || '').trim().toLowerCase();
+ const raw = String(ownedBook.isSold || '').trim().toLowerCase();
  return raw === '판매' || raw === 'sold' || raw === 'true';
+ }
+
+ function getOwnedSource(b) {
+ return String(b?.source || b?.borrowSource || '').trim();
  }
 
  function getDueDateBadgeHtml(book) {
@@ -3090,9 +3102,9 @@
  if (!bar) return;
  const stats = computeLibraryStats();
  bar.innerHTML = `
- <div class="mylib-stat-pill ${(myLibStatusFilter === 'all' && myLibOwnershipFilter === 'all' && !myLibEbookOnly) ? 'active-pill' : ''}" onclick="setMyLibStatusFilter('all')" title="전체 보유 도서 보기">
+ <div class="mylib-stat-pill ${(myLibStatusFilter === 'all' && myLibOwnershipFilter === 'all' && !myLibEbookOnly) ? 'active-pill' : ''}" onclick="setMyLibStatusFilter('all')" title="전체 도서 보기">
  <span class="mylib-stat-val">${stats.total}권</span>
- <span class="mylib-stat-lbl">전체 보유</span>
+ <span class="mylib-stat-lbl">전체</span>
  </div>
  <div class="mylib-stat-pill ${(myLibEbookOnly && myLibStatusFilter !== 'duplicates') ? 'active-pill' : ''}" onclick="toggleMyLibEbookFilter()" title="e-book 필터 켜기/끄기">
  <span class="mylib-stat-val">${stats.paper} / ${stats.ebooks}</span>
@@ -3408,7 +3420,7 @@
  }
 
  if (q) {
- const hay = `${b.title || ''} ${b.author || ''} ${b.translator || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${b.vol || ''} ${getOwnedMemo(b)} ${b.isbn || ''} ${b.review || ''} ${b.borrowSource || ''} ${isOwnedSold(b) ? '판매' : ''}`.toLowerCase();
+ const hay = `${b.title || ''} ${b.author || ''} ${b.translator || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${b.vol || ''} ${getOwnedMemo(b)} ${b.isbn || ''} ${b.review || ''} ${getOwnedSource(b)} ${isOwnedSold(b) ? '판매' : ''}`.toLowerCase();
  if (!hay.includes(q) && !(qCompact.length >= 2 && hay.replace(/\s+/g, '').includes(qCompact))) {
  return false;
  }
@@ -3556,9 +3568,14 @@
  const pubText = (myLibStatusFilter === 'duplicates' && b.publisher) ? ` · ${escapeHtml(b.publisher)}` : '';
  const subLine = `${escapeHtml(b.author || '저자 미상')}${pubText}${transSup ? ' · ' + escapeHtml(transSup) : ''}`;
  const rawTags = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && !isEbookTagToken(t));
- const borrowedBadgeHtml = isOwnedSold(b) ? '<span class="mylib-badge sold">판매</span>' : (isOwnedBorrowed(b) ? `<span class="mylib-badge borrowed">🏛️ ${escapeHtml(b.borrowSource || '대여')}</span>` : '');
+ const srcText = getOwnedSource(b);
+ const borrowedBadgeHtml = isOwnedSold(b)
+ ? '<span class="mylib-badge sold">판매</span>'
+ : (isOwnedBorrowed(b) ? `<span class="mylib-badge borrowed">🏛️ ${escapeHtml(srcText || '대여')}</span>` : '');
  const dueBadgeHtml = getDueDateBadgeHtml(b);
- const ebookBadgeHtml = ebook ? '<span class="mylib-badge ebook">📱 e-book</span>' : '';
+ const ebookBadgeHtml = ebook
+ ? `<span class="mylib-badge ebook">📱 ${(!isOwnedBorrowed(b) && !isOwnedSold(b) && srcText) ? escapeHtml(srcText) : 'e-book'}</span>`
+ : ((!isOwnedBorrowed(b) && !isOwnedSold(b) && srcText) ? `<span class="mylib-badge">${escapeHtml(srcText)}</span>` : '');
  const tagBadges = borrowedBadgeHtml + dueBadgeHtml + ebookBadgeHtml + rawTags.slice(0, 3)
  .map(t => `<span class="mylib-badge">#${escapeHtml(t)}</span>`).join('');
 
@@ -3719,9 +3736,11 @@
  selectOwnedStatus(normalizedSt, false);
  selectOwnedRating(parseRating(b.rating), false);
  document.getElementById('ownedInputDueDate').value = b.dueDate || '';
+ document.getElementById('ownedInputSource').value = getOwnedSource(b);
  setOwnedBorrowToggle(isOwnedBorrowed(b));
  setOwnedSoldToggle(isOwnedSold(b));
  setOwnedEbookToggle(isOwnedEbook(b));
+ updateSourceFieldUI();
  currentModalPubYear = String(b.pubYear || '').trim();
  currentModalDescription = String(b.description || '').trim();
  currentModalKdc = String(b.kdc || '').trim();
@@ -3779,6 +3798,59 @@
  });
  }
 
+ const EBOOK_OWNED_SOURCES = ['교보 ebook', '알라딘 ebook', '구글 플레이북'];
+ const EBOOK_BORROW_SOURCES = ['밀리의 서재', '알라딘 전자도서관', '교보 전자도서관', '예스24전자도서관', '이씨오(eco) 도서관', '서울도서관 통합전자책', '부커스(bookers)', '북큐브', '에피루스(Epyrus)'];
+ const OFFLINE_BORROW_SOURCES = ['남산도서관', '청파도서관', '꿈나무도서관', '이화여대 도서관', '마포평생 아현분관', '송파도서관'];
+
+ function selectOwnedSourcePreset(val) {
+ const input = document.getElementById('ownedInputSource');
+ if (!input) return;
+ input.value = (input.value.trim() === val) ? '' : val;
+ updateSourceFieldUI();
+ }
+
+ function updateSourceFieldUI() {
+ const field = document.getElementById('ownedSourceField');
+ const label = document.getElementById('ownedSourceLabel');
+ const input = document.getElementById('ownedInputSource');
+ const picksEl = document.getElementById('ownedSourceQuickPicks');
+ if (!field || !label || !input || !picksEl) return;
+
+ const currentVal = input.value.trim();
+ let presets = [];
+ let showField = false;
+
+ if (selectedOwnedIsBorrowed && selectedOwnedIsEbook) {
+ showField = true;
+ label.innerText = '대여처 (전자도서관)';
+ input.placeholder = '전자도서관 또는 구독 플랫폼을 선택·입력하세요.';
+ presets = EBOOK_BORROW_SOURCES;
+ } else if (selectedOwnedIsBorrowed && !selectedOwnedIsEbook) {
+ showField = true;
+ label.innerText = '대여처 (도서관)';
+ input.placeholder = '대출한 도서관을 선택·입력하세요.';
+ presets = OFFLINE_BORROW_SOURCES;
+ } else if (!selectedOwnedIsBorrowed && !selectedOwnedIsSold && selectedOwnedIsEbook) {
+ showField = true;
+ label.innerText = '소장처 (e-book 플랫폼)';
+ input.placeholder = '구매·소장 중인 e-book 플랫폼을 선택·입력하세요.';
+ presets = EBOOK_OWNED_SOURCES;
+ } else if (currentVal) {
+ showField = true;
+ label.innerText = '소장처/대여처';
+ input.placeholder = '소장처 또는 대여처를 입력하세요.';
+ presets = [];
+ }
+
+ field.classList.toggle('hidden', !showField);
+ picksEl.innerHTML = presets.map(name => {
+ const safeName = name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+ const isActive = currentVal === name;
+ const style = isActive ? 'background:#4f46e5; border-color:#4f46e5; color:#ffffff;' : '';
+ return `<button type="button" class="quick-tag-pick" style="${style}" onclick="selectOwnedSourcePreset('${safeName}')">${escapeHtml(name)}</button>`;
+ }).join('');
+ }
+
  function updateDueDateFieldVisibility() {
  const field = document.getElementById('ownedDueDateField');
  if (!field) return;
@@ -3788,6 +3860,7 @@
  } else {
  field.classList.add('hidden');
  }
+ updateSourceFieldUI();
  }
 
  function setOwnedEbookToggle(isOn) {
@@ -3830,6 +3903,7 @@
  btn.setAttribute('aria-checked', selectedOwnedIsSold ? 'true' : 'false');
  btn.title = selectedOwnedIsSold ? '판매 (ON)' : '판매 (OFF)';
  }
+ updateSourceFieldUI();
  }
 
  function toggleOwnedSoldSwitch() {
@@ -3914,7 +3988,6 @@
  heading.innerText = `📖 도서 상세 정보${pubText}`;
 
  const badges = [];
- if (currentModalPubYear) badges.push(`<span class="mylib-badge date">📅 ${escapeHtml(formatPubYearText(currentModalPubYear))}</span>`);
  if (currentModalVol) badges.push(`<span class="mylib-badge series">🔢 ${escapeHtml(currentModalVol)}권</span>`);
  if (currentModalKdc) badges.push(`<span class="mylib-badge">🏷️ KDC ${escapeHtml(currentModalKdc)}</span>`);
  if (currentModalLoanStats) badges.push(`<span class="mylib-badge status-reading">📊 ${escapeHtml(currentModalLoanStats)}</span>`);
@@ -4323,7 +4396,8 @@
  isEbook: selectedOwnedIsEbook,
  isSold: selectedOwnedIsSold,
  isBorrowed: selectedOwnedIsBorrowed && !selectedOwnedIsSold,
- borrowSource: (selectedOwnedIsBorrowed && !selectedOwnedIsSold) ? String(activeOwnedEditContext?.book?.borrowSource || '').trim() : '',
+ source: selectedOwnedIsSold ? '' : (document.getElementById('ownedInputSource')?.value.trim() || ''),
+ borrowSource: selectedOwnedIsSold ? '' : (document.getElementById('ownedInputSource')?.value.trim() || ''),
  dueDate: (selectedOwnedIsBorrowed && !selectedOwnedIsEbook) ? document.getElementById('ownedInputDueDate').value.trim() : '',
  cover: currentModalCoverUrl || '',
  pubYear: currentModalPubYear || '',

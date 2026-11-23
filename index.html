@@ -62,7 +62,7 @@
  font-family: "Helvetica Neue", "Inter", "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
  }
  .brand-wordmark span { font-weight: 900; }
- .main-headline { font-size: 26px; font-weight: 800; color: #3730a3; margin: 4px 0 3px 0; word-break: keep-all; letter-spacing: -0.5px; }
+ .main-headline { font-size: 12.5px; font-weight: 500; color: var(--sec-text); margin: 2px 0 0 0; word-break: keep-all; letter-spacing: 1.8px; }
  .header p { font-size: 14.5px; color: var(--sec-text); margin: 0; word-break: keep-all; font-weight: 500; }
 
  .search-container { max-width: 1200px; margin: 0 auto 18px auto; min-width: 0; position: relative; }
@@ -116,31 +116,38 @@
  width: 100%; height: 100%; object-fit: cover; display: block; border: none; border-radius: 0; box-shadow: none;
  }
  .bm-memo-plus-overlay {
- position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
- width: 31px; height: 31px; border-radius: 50%;
- background: rgba(245, 158, 11, 0.6); color: #ffffff;
- border: 1.5px solid rgba(255, 255, 255, 0.85);
- backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
- display: flex; align-items: center; justify-content: center;
- font-size: 18px; font-weight: 800; line-height: 1; cursor: pointer;
- box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
- transition: transform 0.14s, background-color 0.14s;
- }
- .bm-memo-plus-overlay:hover { background: rgba(217, 119, 6, 0.78); }
- .bm-memo-plus-overlay:active { transform: translateX(-50%) scale(0.92); }
- .bm-memo-obi {
- position: absolute; left: 0; right: 0; bottom: 0; height: 55px;
+ position: absolute; left: 0; right: 0; bottom: 0; height: 52px;
  background: rgba(255, 255, 255, 0.62);
  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
  border-top: 1px solid rgba(17, 24, 39, 0.14);
- padding: 6px 7px; text-align: center; cursor: pointer;
+ padding: 5px 6px; cursor: pointer;
+ display: flex; align-items: center; justify-content: center;
+ transition: background-color 0.14s;
+ }
+ .bm-memo-plus-overlay:hover { background: rgba(255, 255, 255, 0.78); }
+ .bm-memo-plus-circle {
+ width: 28px; height: 28px; border-radius: 50%;
+ background: #4f46e5; color: #ffffff;
+ display: inline-flex; align-items: center; justify-content: center;
+ font-size: 17px; font-weight: 800; line-height: 1;
+ box-shadow: 0 2px 6px rgba(79, 70, 229, 0.28);
+ transition: transform 0.14s, background-color 0.14s;
+ }
+ .bm-memo-plus-overlay:hover .bm-memo-plus-circle { background: #4338ca; }
+ .bm-memo-plus-overlay:active .bm-memo-plus-circle { transform: scale(0.92); }
+ .bm-memo-obi {
+ position: absolute; left: 0; right: 0; bottom: 0; height: 52px;
+ background: rgba(255, 255, 255, 0.62);
+ backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+ border-top: 1px solid rgba(17, 24, 39, 0.14);
+ padding: 5px 6px; text-align: center; cursor: pointer;
  display: flex; align-items: center; justify-content: center;
  }
  .bm-memo-obi-text {
  display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical;
  overflow: hidden; word-break: break-word; width: 100%;
- font-size: 10.5px; font-weight: 700; color: #111827;
- line-height: 1.35; max-height: calc(10.5px * 1.35 * 3);
+ font-size: 10px; font-weight: 700; color: #111827;
+ line-height: 1.34; max-height: calc(10px * 1.34 * 3);
  }
  .home-lib-logo {
  width: 13px; height: 13px; border-radius: 3px; object-fit: contain;
@@ -161,9 +168,9 @@
  @media (max-width: 520px) {
  body { padding: 12px 12px calc(96px + env(safe-area-inset-bottom)) 12px; }
  .main-logo { width: 84px; }
- .main-headline { font-size: 23px; }
+ .main-headline { font-size: 11.5px; letter-spacing: 1.4px; }
  .top-quick-links { gap: 5px; }
- .top-quick-btn { padding: 5px 2px; font-size: 10px; }
+ .top-quick-btn { padding: 5px 2px; font-size: 9.5px; letter-spacing: -0.4px; }
  .top-quick-btn img { width: 17px; height: 17px; }
  }
 
@@ -172,7 +179,7 @@
  @media (min-width: 660px) {
  body { padding: 18px 20px calc(104px + env(safe-area-inset-bottom)) 20px; }
  .main-logo { width: 105px; }
- .main-headline { font-size: 30px; }
+ .main-headline { font-size: 13px; letter-spacing: 2px; }
  .main-container { grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr); gap: 22px; align-items: start; }
  .right-panel { position: sticky; top: 16px; }
  .link-grid.district-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -549,22 +556,26 @@
  border-radius: 999px; display: none; align-items: center; justify-content: center; border: 2px solid white;
  }
 
- .bookmark-modal {
- position: absolute; bottom: 72px; left: 0; width: 350px; max-width: calc(100vw - 36px);
- background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
- border: 1px solid var(--border); padding: 18px; display: none; flex-direction: column; max-height: 76dvh;
+ .bookmark-modal-box {
+ width: 100%; max-width: 600px; height: 90dvh; max-height: 850px;
+ background: #ffffff; border-radius: 22px; padding: 16px;
+ box-shadow: 0 20px 45px rgba(0,0,0,0.24); border: 1px solid var(--border);
+ display: flex; flex-direction: column; overflow: hidden;
+ }
+ .bookmark-modal-content {
+ flex: 1;
+ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+ gap: 10px; overflow-y: auto; overflow-x: hidden;
+ padding: 4px 4px 14px 0; margin-top: 10px; align-content: start;
+ }
+ .bookmark-item {
+ min-width: 0; width: 100%; text-align: center; cursor: pointer;
+ position: relative; display: flex; flex-direction: column;
  }
  @media (min-width: 660px) {
- .bookmark-modal { width: 520px; }
- .bookmark-modal-content {
- display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
- overflow-x: visible; overflow-y: auto; gap: 12px; padding-right: 4px;
+ .bookmark-modal-box { max-width: min(92vw, 780px); padding: 20px; }
+ .bookmark-modal-content { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
  }
- .bookmark-item { min-width: 0; width: 100%; }
- }
- .bookmark-modal.open { display: flex; }
- .bookmark-modal-content { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; margin-top: 10px; }
- .bookmark-item { min-width: 122px; width: 122px; text-align: center; cursor: pointer; position: relative; flex-shrink: 0; display: flex; flex-direction: column; }
  .bookmark-item img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border: 1px solid var(--border); background-color: #f9fafb; }
  .bookmark-item .bookmark-title { font-size: 11.5px; margin: 5px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; color: var(--text); }
  .bookmark-item .bookmark-author { font-size: 10.5px; margin: 2px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #4b5563; font-weight: 500; }
@@ -590,8 +601,13 @@
  .memo-modal-overlay {
  position: fixed; inset: 0; background: rgba(17, 24, 39, 0.52); backdrop-filter: blur(3px);
  z-index: 2000; display: none; align-items: center; justify-content: center; padding: 14px;
+ touch-action: none;
  }
  .memo-modal-overlay.open { display: flex; }
+ body:has(.memo-modal-overlay.open) { overflow: hidden; }
+ body:has(.memo-modal-overlay.open) > :not(.memo-modal-overlay):not(.toast-banner) {
+ pointer-events: none !important;
+ }
  .memo-modal-box {
  width: 100%; max-width: 440px; background: #ffffff; border-radius: 20px; padding: 20px;
  box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid var(--border); max-height: 88dvh; overflow-y: auto;
@@ -1137,19 +1153,19 @@
  <div class="search-container">
  <div class="top-quick-links" aria-label="주요 도서관 및 서점 바로가기">
  <a href="https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchSimple.do" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="yongsan_logo.svg" alt=""><span>꿈나무</span>
+ <img src="yongsan_logo.svg" alt=""><span>꿈나무도서관</span>
  </a>
  <a href="https://ahyon.sen.go.kr/ahyon/intro/search/index.do?menu_idx=4" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="mapo_logo.svg" alt=""><span>아현</span>
+ <img src="mapo_logo.svg" alt=""><span>아현분관</span>
  </a>
  <a href="https://nslib.sen.go.kr/nslib/intro/search/index.do?menu_idx=4" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="SeoulEdu_logo.svg" alt=""><span>남산</span>
+ <img src="SeoulEdu_logo.svg" alt=""><span>남산도서관</span>
  </a>
  <a href="https://www.aladin.co.kr/account/wmaininfo.aspx?pType=MyAccount" target="_blank" rel="noopener" class="top-quick-btn">
  <img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" alt=""><span>알라딘</span>
  </a>
  <a href="https://www.kyobobook.co.kr/" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32" alt=""><span>교보</span>
+ <img src="https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32" alt=""><span>교보문고</span>
  </a>
  </div>
 
@@ -1355,12 +1371,16 @@
  <!-- 좌측 하단: 내 북마크 FAB -->
  <div id="fabContainer" class="fab-container">
  <button class="fab-btn" onclick="toggleBookmarkModal()" title="내 북마크" aria-label="내 북마크"><i data-lucide="bookmark" fill="currentColor"></i><span id="bookmarkBadge" class="fab-badge">0</span></button>
- <div id="bookmarkModal" class="bookmark-modal">
- <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px;">
- <h3 style="margin:0; font-size:15px; color:#f59e0b; display:flex; align-items:center; gap:5px;"><i data-lucide="bookmark" fill="#f59e0b" color="#f59e0b" size="16"></i> 내 북마크</h3>
- <button onclick="toggleBookmarkModal()" style="background:none; border:none; cursor:pointer;" aria-label="닫기"><i data-lucide="x" size="18" color="var(--sec-text)"></i></button>
  </div>
- <p style="font-size:11px; color:var(--sec-text); margin: 8px 0 0 0;">표지 클릭 시 재검색합니다.</p>
+
+ <!-- 내 북마크 전체 모달 (내 서재와 동일 크기) -->
+ <div id="bookmarkModal" class="memo-modal-overlay" data-close-fn="closeBookmarkModal">
+ <div class="bookmark-modal-box">
+ <div class="mylib-header">
+ <h3 class="mylib-header-title" style="color:#d97706;"><i data-lucide="bookmark" fill="#f59e0b" color="#f59e0b" size="18"></i> 내 북마크</h3>
+ <button type="button" class="mylib-ghost-icon-btn" onclick="closeBookmarkModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="18"></i></button>
+ </div>
+ <p style="font-size:11.5px; color:var(--sec-text); margin: 8px 0 0 0;">표지 클릭 시 재검색 · 하단 띠지/+ 버튼 클릭 시 메모 편집</p>
  <div id="bookmarkModalContent" class="bookmark-modal-content"></div>
  </div>
  </div>
@@ -1377,7 +1397,7 @@
  <div id="toastBanner" class="toast-banner" role="status" aria-live="polite"></div>
 
  <!-- ISBN 바코드 스캐너 모달 -->
- <div id="barcodeModalOverlay" class="memo-modal-overlay" style="z-index: 2300;" onclick="if(event.target===this) closeBarcodeScanner()">
+ <div id="barcodeModalOverlay" class="memo-modal-overlay" style="z-index: 2300;" data-close-fn="closeBarcodeScanner">
  <div class="memo-modal-box">
  <h3 class="memo-modal-title"><i data-lucide="scan-barcode" size="18" color="#4f46e5"></i> ISBN 바코드 스캔</h3>
  <p class="memo-modal-bookname">책 뒷면의 ISBN 바코드(978/979로 시작)를 사각형 안에 맞춰주세요.</p>
@@ -1397,7 +1417,7 @@
  </div>
 
  <!-- 북마크 메모 모달 -->
- <div id="memoModalOverlay" class="memo-modal-overlay" onclick="if(event.target===this) closeMemoModal()">
+ <div id="memoModalOverlay" class="memo-modal-overlay" style="z-index: 2150;" data-close-fn="closeMemoModal">
  <div class="memo-modal-box">
  <div class="owned-edit-top-bar" style="align-items:center; margin-bottom:4px;">
  <h3 class="memo-modal-title" id="memoModalTitle" style="margin:0;">북마크 저장</h3>
@@ -1414,7 +1434,7 @@
  </div>
 
  <!-- 내 서재 전체 모달 -->
- <div id="myLibModalOverlay" class="memo-modal-overlay" onclick="if(event.target===this) closeMyLibraryModal()">
+ <div id="myLibModalOverlay" class="memo-modal-overlay" data-close-fn="closeMyLibraryModal">
  <div class="mylib-modal-box">
  <div class="mylib-header">
  <h3 class="mylib-header-title"><i data-lucide="library" size="19"></i> 내 서재</h3>
@@ -1511,7 +1531,7 @@
  </div>
 
  <!-- 평점별 도서 보기 모달 -->
- <div id="ratingBreakdownModalOverlay" class="memo-modal-overlay" style="z-index: 2050;" onclick="if(event.target===this) closeRatingBreakdownModal()">
+ <div id="ratingBreakdownModalOverlay" class="memo-modal-overlay" style="z-index: 2050;" data-close-fn="closeRatingBreakdownModal">
  <div class="memo-modal-box" style="max-width: 520px;">
  <div class="owned-edit-top-bar" style="align-items:center; margin-bottom:6px;">
  <h3 class="memo-modal-title" id="ratingModalTitle" style="margin:0;">⭐ 평점별 도서 보기</h3>
@@ -1531,7 +1551,7 @@
  </div>
 
  <!-- 내 서재 책 추가 / 독서 상태·평점·시작일·완독일·한줄평 수정 모달 -->
- <div id="ownedEditModalOverlay" class="memo-modal-overlay" style="z-index: 2100;" onclick="if(event.target===this) closeOwnedEditModal()">
+ <div id="ownedEditModalOverlay" class="memo-modal-overlay" style="z-index: 2100;" data-close-fn="closeOwnedEditModal">
  <div class="memo-modal-box">
  <div class="owned-edit-top-bar" style="align-items:center;">
  <h3 class="memo-modal-title" id="ownedEditModalTitle" style="margin:0;">내 서재에 책 추가</h3>
@@ -1976,13 +1996,7 @@
  else if (topModal === 'ratingBreakdown') closeRatingBreakdownModal();
  else if (topModal === 'memo') closeMemoModal();
  else if (topModal === 'myLib') closeMyLibraryModal();
- else if (topModal === 'bookmark') {
- const bmModal = document.getElementById('bookmarkModal');
- if (bmModal && bmModal.classList.contains('open')) {
- bmModal.classList.remove('open');
- popModalHistory('bookmark');
- }
- }
+ else if (topModal === 'bookmark') closeBookmarkModal();
  } finally {
  isHandlingPopState = false;
  }
@@ -5212,20 +5226,49 @@
  }
  });
 
+ // 검색 드롭다운이 열려 있을 때 바깥(버튼 포함)을 누르면 버튼이 실행되지 않고 드롭다운만 닫히도록 차단
  document.addEventListener('click', function (event) {
- const searchBox = document.getElementById('searchSection');
- if (!searchBox.contains(event.target)) {
- document.getElementById('recentSearchArea').classList.add('hidden');
- document.getElementById('liveOwnedDropdown').classList.add('hidden');
- }
+ const recentArea = document.getElementById('recentSearchArea');
+ const liveArea = document.getElementById('liveOwnedDropdown');
+ const isDropdownOpen = (recentArea && !recentArea.classList.contains('hidden')) ||
+ (liveArea && !liveArea.classList.contains('hidden'));
+ if (!isDropdownOpen) return;
 
- const fabContainer = document.getElementById('fabContainer');
- const modal = document.getElementById('bookmarkModal');
- if (fabContainer && !fabContainer.contains(event.target) && modal.classList.contains('open')) {
- modal.classList.remove('open');
- popModalHistory('bookmark');
+ const searchBox = document.getElementById('searchSection');
+ if (searchBox && !searchBox.contains(event.target)) {
+ event.preventDefault();
+ event.stopPropagation();
+ recentArea?.classList.add('hidden');
+ liveArea?.classList.add('hidden');
  }
+ }, true);
+
+ // 모든 모달 오버레이 바깥 배경 클릭 시 뒷배경 버튼 클릭 전파 없이 자연스럽게 닫기
+ (function initModalBackdropClose() {
+ let pointerDownOverlay = null;
+ const closeMap = {
+ closeBookmarkModal,
+ closeBarcodeScanner,
+ closeMemoModal,
+ closeMyLibraryModal,
+ closeRatingBreakdownModal,
+ closeOwnedEditModal
+ };
+ document.querySelectorAll('.memo-modal-overlay[data-close-fn]').forEach(overlay => {
+ overlay.addEventListener('pointerdown', (e) => {
+ pointerDownOverlay = (e.target === overlay) ? overlay : null;
  });
+ overlay.addEventListener('click', (e) => {
+ if (e.target === overlay && pointerDownOverlay === overlay) {
+ e.preventDefault();
+ e.stopPropagation();
+ const fnName = overlay.getAttribute('data-close-fn');
+ if (typeof closeMap[fnName] === 'function') closeMap[fnName]();
+ }
+ pointerDownOverlay = null;
+ });
+ });
+ })();
 
  let lastViewportWidth = window.innerWidth;
  window.addEventListener('resize', () => {
@@ -5551,14 +5594,24 @@
  fetchRealTimeLibraryStatus(isbn, currentSelectedBook.bookname || '', forceRefresh);
  }
 
+ function closeBookmarkModal() {
+ const modal = document.getElementById('bookmarkModal');
+ if (modal && modal.classList.contains('open')) {
+ modal.classList.remove('open');
+ popModalHistory('bookmark');
+ }
+ }
+
  function toggleBookmarkModal() {
  const modal = document.getElementById('bookmarkModal');
- modal.classList.toggle('open');
+ if (!modal) return;
  if (modal.classList.contains('open')) {
+ closeBookmarkModal();
+ } else {
+ modal.classList.add('open');
  pushModalHistory('bookmark');
  enrichMissingBookmarkMeta();
- } else {
- popModalHistory('bookmark');
+ lucide.createIcons();
  }
  }
 
@@ -5776,7 +5829,10 @@
  memoEl.className = 'bm-memo-plus-overlay';
  memoEl.title = '메모 추가';
  memoEl.setAttribute('aria-label', '메모 추가');
- memoEl.innerText = '+';
+ const plusCircle = document.createElement('span');
+ plusCircle.className = 'bm-memo-plus-circle';
+ plusCircle.innerText = '+';
+ memoEl.appendChild(plusCircle);
  }
  memoEl.onclick = (e) => {
  e.stopPropagation();

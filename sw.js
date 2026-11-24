@@ -1,6 +1,6 @@
-const CACHE_NAME = 'allbooks-cache-v73';
+const CACHE_NAME = 'allbooks-cache-v75';
 const CORE_URLS = [
-  './index.html',
+  './all_books.html',
   './manifest.json',
   './AllBooks_emblem.svg',
   './icon-192.png',
@@ -15,7 +15,10 @@ const OPTIONAL_ASSETS = [
   './mapo_logo.svg',
   './SeoulEdu_logo.svg',
   './Ewha_logo.svg',
-  './SeoulLibrary_logo.svg'
+  './SeoulLibrary_logo.svg',
+  './Ahyeon.jpg',
+  './namsan.png',
+  './yongsan_ggumnamu.jpg'
 ];
 
 self.addEventListener('install', event => {
@@ -51,7 +54,7 @@ self.addEventListener('fetch', event => {
   if (!isSameOrigin) return;
 
   const isDynamicCore = (
-    requestUrl.pathname.endsWith('/index.html') ||
+    requestUrl.pathname.endsWith('/all_books.html') ||
     requestUrl.pathname.endsWith('/manifest.json') ||
     requestUrl.pathname.endsWith('/')
   );

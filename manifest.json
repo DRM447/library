@@ -2,7 +2,7 @@
   "name": "All BOOKs - 프리미엄 통합 도서 검색",
   "short_name": "All BOOKs",
   "description": "원하는 책을 한 번에 여러 도서관과 서점에서 찾아보세요.",
-  "start_url": "./index.html",
+  "start_url": "./all_books.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",

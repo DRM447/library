@@ -1063,16 +1063,20 @@
  }
 
  .title-toggle-group {
- display: inline-flex; align-items: center; gap: 5px; margin-left: auto; flex-shrink: 0;
+ display: inline-flex; align-items: center; gap: 4px; margin-left: auto; flex-shrink: 0;
  }
  .mini-pill-toggle {
- height: 24px; padding: 0 8px; border-radius: 999px;
+ height: 23px; padding: 0 7px; border-radius: 999px;
  border: 1.5px solid var(--border); background: #f3f4f6; color: #6b7280;
  display: inline-flex; align-items: center; justify-content: center;
- font-size: 11px; font-weight: 800; font-family: inherit;
+ font-size: 10.5px; font-weight: 800; font-family: inherit;
  cursor: pointer; flex-shrink: 0; transition: all 0.16s ease; white-space: nowrap;
  }
  .mini-pill-toggle:active { transform: scale(0.93); }
+ .mini-pill-toggle.is-owned-on {
+ background: #059669; border-color: #059669; color: #ffffff;
+ box-shadow: 0 2px 6px rgba(5, 150, 105, 0.28);
+ }
  .mini-pill-toggle.is-ebook-on {
  background: var(--ebook); border-color: var(--ebook); color: #ffffff;
  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
@@ -1609,8 +1613,9 @@
  <label class="form-label" for="ownedInputTitle">
  <span>책 제목 *</span>
  <span class="title-toggle-group">
- <button type="button" id="ownedBorrowToggleBtn" class="mini-pill-toggle" role="switch" aria-checked="false" title="도서관 대여 여부" onclick="toggleOwnedBorrowSwitch()">대여</button>
- <button type="button" id="ownedSoldToggleBtn" class="mini-pill-toggle" role="switch" aria-checked="false" title="판매 여부" onclick="toggleOwnedSoldSwitch()">판매</button>
+ <button type="button" id="ownedOwnToggleBtn" class="mini-pill-toggle is-owned-on" role="radio" aria-checked="true" title="소장" onclick="selectOwnedOwnershipMode('owned')">소장</button>
+ <button type="button" id="ownedBorrowToggleBtn" class="mini-pill-toggle" role="radio" aria-checked="false" title="도서관 대여" onclick="selectOwnedOwnershipMode('borrowed')">대여</button>
+ <button type="button" id="ownedSoldToggleBtn" class="mini-pill-toggle" role="radio" aria-checked="false" title="판매 완료" onclick="selectOwnedOwnershipMode('sold')">판매</button>
  <button type="button" id="ownedEbookToggleBtn" class="mini-pill-toggle" role="switch" aria-checked="false" title="e-book 여부" onclick="toggleOwnedEbookSwitch()">e-book</button>
  </span>
  </label>
@@ -4687,38 +4692,52 @@
  setOwnedEbookToggle(!selectedOwnedIsEbook);
  }
 
- function setOwnedBorrowToggle(isOn) {
- selectedOwnedIsBorrowed = !!isOn;
- const btn = document.getElementById('ownedBorrowToggleBtn');
- if (btn) {
- btn.classList.toggle('is-borrow-on', selectedOwnedIsBorrowed);
- btn.setAttribute('aria-checked', selectedOwnedIsBorrowed ? 'true' : 'false');
- btn.title = selectedOwnedIsBorrowed ? '대여 (ON)' : '대여 (OFF)';
+ function syncOwnedOwnershipButtonsUI() {
+ const isOwnedMode = !selectedOwnedIsBorrowed && !selectedOwnedIsSold;
+ const ownBtn = document.getElementById('ownedOwnToggleBtn');
+ if (ownBtn) {
+ ownBtn.classList.toggle('is-owned-on', isOwnedMode);
+ ownBtn.setAttribute('aria-checked', isOwnedMode ? 'true' : 'false');
  }
+ const borrowBtn = document.getElementById('ownedBorrowToggleBtn');
+ if (borrowBtn) {
+ borrowBtn.classList.toggle('is-borrow-on', selectedOwnedIsBorrowed);
+ borrowBtn.setAttribute('aria-checked', selectedOwnedIsBorrowed ? 'true' : 'false');
+ }
+ const soldBtn = document.getElementById('ownedSoldToggleBtn');
+ if (soldBtn) {
+ soldBtn.classList.toggle('is-sold-on', selectedOwnedIsSold);
+ soldBtn.setAttribute('aria-checked', selectedOwnedIsSold ? 'true' : 'false');
+ }
+ }
+
+ function selectOwnedOwnershipMode(mode) {
+ if (mode === 'borrowed') {
+ selectedOwnedIsBorrowed = true;
+ selectedOwnedIsSold = false;
+ } else if (mode === 'sold') {
+ selectedOwnedIsBorrowed = false;
+ selectedOwnedIsSold = true;
+ } else {
+ selectedOwnedIsBorrowed = false;
+ selectedOwnedIsSold = false;
+ }
+ syncOwnedOwnershipButtonsUI();
  updateDueDateFieldVisibility();
  }
 
- function toggleOwnedBorrowSwitch() {
- const next = !selectedOwnedIsBorrowed;
- setOwnedBorrowToggle(next);
- if (next && selectedOwnedIsSold) setOwnedSoldToggle(false);
+ function setOwnedBorrowToggle(isOn) {
+ selectedOwnedIsBorrowed = !!isOn;
+ if (selectedOwnedIsBorrowed) selectedOwnedIsSold = false;
+ syncOwnedOwnershipButtonsUI();
+ updateDueDateFieldVisibility();
  }
 
  function setOwnedSoldToggle(isOn) {
  selectedOwnedIsSold = !!isOn;
- const btn = document.getElementById('ownedSoldToggleBtn');
- if (btn) {
- btn.classList.toggle('is-sold-on', selectedOwnedIsSold);
- btn.setAttribute('aria-checked', selectedOwnedIsSold ? 'true' : 'false');
- btn.title = selectedOwnedIsSold ? '판매 (ON)' : '판매 (OFF)';
- }
- updateSourceFieldUI();
- }
-
- function toggleOwnedSoldSwitch() {
- const next = !selectedOwnedIsSold;
- setOwnedSoldToggle(next);
- if (next && selectedOwnedIsBorrowed) setOwnedBorrowToggle(false);
+ if (selectedOwnedIsSold) selectedOwnedIsBorrowed = false;
+ syncOwnedOwnershipButtonsUI();
+ updateDueDateFieldVisibility();
  }
 
  function appendOwnedTag(tag) {
@@ -4806,9 +4825,18 @@
 
  heading.innerText = `📖 도서 상세 정보${pubText}`;
 
- const cleanCategory = String(currentModalKdc || '').trim()
+ const KDC_MAJOR_MAP = {
+ '0': '총류', '1': '철학', '2': '종교', '3': '사회과학', '4': '자연과학',
+ '5': '기술과학', '6': '예술', '7': '언어', '8': '문학', '9': '역사'
+ };
+ const rawKdcStr = String(currentModalKdc || '').trim();
+ let cleanCategory = rawKdcStr
  .replace(/^(?:KDC\s*)?[0-9]+(?:\.[0-9]+)?\s*(?:[·•:|\-/]\s*)?/i, '')
  .trim();
+ if (!cleanCategory && rawKdcStr) {
+ const mDigit = rawKdcStr.match(/^(?:KDC\s*)?([0-9])/i);
+ if (mDigit && KDC_MAJOR_MAP[mDigit[1]]) cleanCategory = KDC_MAJOR_MAP[mDigit[1]];
+ }
  const badges = [];
  if (seriesVal && volHash) {
  badges.push(`<span class="mylib-badge series">${escapeHtml(seriesVal)} ${escapeHtml(volHash)}</span>`);

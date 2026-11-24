@@ -856,17 +856,43 @@
  .owned-cover-col {
  position: relative; width: 66px; height: 96px; flex-shrink: 0;
  border-radius: 9px; overflow: hidden; background: #f3f4f6;
- border: 1px dashed #cbd5e1;
+ border: 1.5px dashed #cbd5e1; cursor: pointer;
+ transition: border-color 0.15s, background-color 0.15s;
  }
+ .owned-cover-col:hover { border-color: #94a3b8; background: #e5e7eb; }
  .owned-cover-col.has-cover { border-style: solid; border-color: var(--border); }
  .owned-cover-col .owned-edit-cover { width: 100%; height: 100%; border: none; border-radius: 0; box-shadow: none; display: block; }
+ .owned-cover-placeholder {
+ position: absolute; inset: 0;
+ display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+ color: #9ca3af; font-size: 10px; font-weight: 700; text-align: center;
+ padding: 4px; pointer-events: none;
+ }
+ .owned-cover-col.has-cover .owned-cover-placeholder { display: none; }
+ .owned-cover-clear-btn {
+ position: absolute; top: 3px; right: 3px; z-index: 3;
+ width: 18px; height: 18px; border-radius: 50%; border: none;
+ background: rgba(17, 24, 39, 0.65); color: #ffffff;
+ font-size: 10px; font-weight: 800; line-height: 1;
+ display: none; align-items: center; justify-content: center;
+ cursor: pointer; padding: 0;
+ }
+ .owned-cover-col.has-cover .owned-cover-clear-btn { display: inline-flex; }
  .owned-meta-plot-box {
  margin-bottom: 11px; padding: 10px 12px; border-radius: 11px;
  background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12.5px; color: #374151;
  }
  .owned-meta-plot-header {
- display: flex; align-items: center; justify-content: space-between; gap: 8px;
+ display: flex; align-items: center; justify-content: space-between; gap: 6px;
  font-weight: 800; color: #334155;
+ }
+ .owned-meta-plot-heading {
+ display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+ min-width: 0; flex: 1; line-height: 1.3;
+ }
+ .owned-meta-inline-badge {
+ font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 6px;
+ background: #e2e8f0; color: #334155; white-space: nowrap;
  }
  .form-input::placeholder, .tag-chip-input::placeholder { color: #9ca3af; font-weight: 400; }
  .fav-lib-grid {
@@ -1605,8 +1631,14 @@
  </label>
 
  <div class="owned-edit-cover-wrap">
- <div id="ownedCoverCol" class="owned-cover-col">
+ <div id="ownedCoverCol" class="owned-cover-col" onclick="triggerOwnedCoverUpload()" title="터치하여 표지 이미지 첨부 또는 변경">
  <img id="ownedEditCoverImg" class="owned-edit-cover hidden" src="" alt="책 표지" onerror="handleOwnedCoverError()">
+ <div class="owned-cover-placeholder">
+ <i data-lucide="image-plus" size="18"></i>
+ <span>표지 추가</span>
+ </div>
+ <button type="button" class="owned-cover-clear-btn" onclick="event.stopPropagation(); clearOwnedCoverManual()" title="표지 삭제" aria-label="표지 삭제">✕</button>
+ <input type="file" id="ownedCoverFileInput" accept="image/*" class="hidden" onchange="handleOwnedCoverFileSelect(event)">
  </div>
  <div class="owned-edit-cover-right">
  <div class="form-field" style="margin-bottom:0;">
@@ -1635,16 +1667,24 @@
  <input type="text" id="ownedInputAuthor" class="form-input" placeholder="저자명">
  </div>
  <div class="form-field">
- <label class="form-label" for="ownedInputTranslator">번역 · 감수</label>
- <input type="text" id="ownedInputTranslator" class="form-input" placeholder="옮긴이·감수·엮은이·해설">
+ <label class="form-label" for="ownedInputTranslator">저자 외</label>
+ <input type="text" id="ownedInputTranslator" class="form-input" placeholder="옮긴이, 감수, 엮은이 등">
  </div>
  </div>
 
+ <details id="ownedAuthorOtherBooksDetails" class="owned-author-other-box hidden" ontoggle="handleOwnedAuthorOtherBooksToggle(this)">
+ <summary>
+ <span id="ownedAuthorOtherBooksTitle">작가의 다른 책</span>
+ <span class="owned-search-toggle" style="padding:2px 8px; font-size:10.5px;"></span>
+ </summary>
+ <div id="ownedAuthorOtherBooksList" class="owned-author-other-scroll"></div>
+ </details>
+
  <div id="ownedMetaPlotBox" class="owned-meta-plot-box hidden">
  <div class="owned-meta-plot-header">
- <span id="ownedMetaPlotHeading">📖 도서 상세 정보</span>
- <button type="button" id="ownedMetaRefreshBtn" class="mylib-ghost-icon-btn" style="width:24px; height:24px;" onclick="refreshOwnedBookMetaNow()" title="카카오·국립중앙도서관에서 도서 정보 새로고침 (정보나루 API 미사용)" aria-label="도서 정보 새로고침">
- <i data-lucide="refresh-cw" size="13"></i>
+ <span id="ownedMetaPlotHeading" class="owned-meta-plot-heading">도서 상세 정보</span>
+ <button type="button" id="ownedMetaRefreshBtn" class="mylib-ghost-icon-btn" style="width:20px; height:20px; flex-shrink:0;" onclick="refreshOwnedBookMetaNow()" title="카카오·국립중앙도서관에서 도서 정보 새로고침 (정보나루 API 미사용)" aria-label="도서 정보 새로고침">
+ <i data-lucide="refresh-cw" size="10"></i>
  </button>
  </div>
  <div id="ownedIsbnEditRow" class="hidden" style="display:flex; gap:6px; align-items:center; margin-top:8px;">
@@ -1656,14 +1696,6 @@
  <div id="ownedMetaExtLinks" class="owned-meta-ext-links"></div>
  </div>
 
- <details id="ownedAuthorOtherBooksDetails" class="owned-author-other-box hidden" ontoggle="handleOwnedAuthorOtherBooksToggle(this)">
- <summary>
- <span id="ownedAuthorOtherBooksTitle">✍️ 작가의 다른 책</span>
- <span class="owned-search-toggle" style="padding:2px 8px; font-size:10.5px;"></span>
- </summary>
- <div id="ownedAuthorOtherBooksList" class="owned-author-other-scroll"></div>
- </details>
-
  <div id="ownedDueDateField" class="due-date-row hidden">
  <label for="ownedInputDueDate" style="font-size:12px; font-weight:800; color:#0369a1; white-space:nowrap;">📅 반납 예정일</label>
  <div style="display:flex; align-items:center; gap:6px; flex:1; justify-content:flex-end;">
@@ -1674,7 +1706,7 @@
 
  <div id="ownedSourceField" class="form-field hidden">
  <label class="form-label" for="ownedInputSource" id="ownedSourceLabel">대여처</label>
- <select id="ownedInputSource" class="form-input">
+ <select id="ownedInputSource" class="form-input" onchange="updateDueDateFieldVisibility()">
  <option value="">선택 안 함</option>
  </select>
  </div>
@@ -1713,7 +1745,7 @@
  <span>완독일</span>
  <button type="button" class="quick-tag-pick" onclick="setFinishDateToday()">오늘</button>
  </label>
- <input type="date" id="ownedInputFinishDate" class="form-input">
+ <input type="date" id="ownedInputFinishDate" class="form-input" oninput="updateDueDateFieldVisibility()" onchange="updateDueDateFieldVisibility()">
  </div>
  </div>
 
@@ -2213,6 +2245,7 @@
 
  function setFinishDateToday() {
  document.getElementById('ownedInputFinishDate').value = getTodayDateStr();
+ updateDueDateFieldVisibility();
  }
 
  function setDueDatePlus7Days() {
@@ -2237,7 +2270,7 @@
  function saveBookCoverCache(key, url) {
  const k = String(key || '').trim();
  const u = String(url || '').trim();
- if (!k || !u || isPlaceholderCoverUrl(u)) return;
+ if (!k || !u || isPlaceholderCoverUrl(u) || u.startsWith('data:image/')) return;
  const cache = getBookCoverCache();
  cache[k] = normalizeCoverUrl(u);
  const keys = Object.keys(cache);
@@ -2511,6 +2544,7 @@
  if (s.includes('강북')) return 'gangbuk_logo.svg';
  if (s.includes('밀리')) return 'https://www.google.com/s2/favicons?domain=millie.co.kr&sz=32';
  if (s.includes('알라딘')) return 'https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32';
+ if (s.includes('리디')) return 'https://www.google.com/s2/favicons?domain=ridibooks.com&sz=32';
  if (s.includes('교보')) return 'https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32';
  if (s.includes('예스24') || s.toLowerCase().includes('yes24')) return 'https://www.google.com/s2/favicons?domain=yes24.com&sz=32';
  if (s.includes('플레이북') || s.includes('구글')) return 'https://www.google.com/s2/favicons?domain=play.google.com&sz=32';
@@ -2522,7 +2556,9 @@
  }
 
  function getDueDateBadgeHtml(book) {
- if (!book || !isOwnedBorrowed(book) || isOwnedEbook(book)) return '';
+ if (!book || !isOwnedBorrowed(book)) return '';
+ if (isOwnedEbook(book) && !getOwnedSource(book).includes('알라딘')) return '';
+ if (String(book.finishDate || '').trim()) return '';
  const st = normalizeReadingStatus(book.status);
  if (st === '완독' || st === '중단') return '';
  const due = String(book.dueDate || '').trim();
@@ -3405,7 +3441,7 @@
  `;
 
  const borrowedBooks = myOwnedBooks
- .filter(b => isOwnedBorrowed(b) && !isOwnedSold(b) && !!String(b.dueDate || '').trim() && !['완독', '중단'].includes(normalizeReadingStatus(b.status)))
+ .filter(b => isOwnedBorrowed(b) && !isOwnedSold(b) && !String(b.finishDate || '').trim() && !!String(b.dueDate || '').trim() && !['완독', '중단'].includes(normalizeReadingStatus(b.status)))
  .slice()
  .sort((a, b) => {
  const da = String(a.dueDate || '').trim();
@@ -4561,6 +4597,7 @@
  setOwnedSoldToggle(isOwnedSold(b));
  setOwnedEbookToggle(isOwnedEbook(b));
  updateSourceFieldUI(initialSourceVal);
+ updateDueDateFieldVisibility();
  currentModalPubYear = String(b.pubYear || '').trim();
  currentModalDescription = String(b.description || '').trim();
  currentModalKdc = String(b.kdc || '').trim();
@@ -4608,6 +4645,7 @@
  finishEl.value = getTodayDateStr();
  }
  }
+ updateDueDateFieldVisibility();
  }
 
  function selectOwnedRating(starVal, allowToggleReset = true) {
@@ -4623,8 +4661,8 @@
  });
  }
 
- const EBOOK_OWNED_SOURCES = ['교보 ebook', '알라딘 ebook', '구글 플레이북'];
- const EBOOK_BORROW_SOURCES = ['밀리의 서재', '알라딘 전자도서관', '교보 전자도서관', '예스24전자도서관', '이씨오(eco) 도서관', '서울도서관 통합전자책', '부커스(bookers)', '북큐브', '에피루스(Epyrus)'];
+ const EBOOK_OWNED_SOURCES = ['교보 ebook', '알라딘 ebook', '리디북스', '구글 플레이북'];
+ const EBOOK_BORROW_SOURCES = ['밀리의 서재', '알라딘 ebook', '알라딘 전자도서관', '교보 전자도서관', '예스24전자도서관', '이씨오(eco) 도서관', '서울도서관 통합전자책', '부커스(bookers)', '북큐브', '에피루스(Epyrus)'];
  const OFFLINE_BORROW_SOURCES = ['남산도서관', '청파도서관', '꿈나무도서관', '이화여대 도서관', '마포평생 아현분관', '송파도서관'];
 
  function updateSourceFieldUI(overrideVal) {
@@ -4668,13 +4706,16 @@
  function updateDueDateFieldVisibility() {
  const field = document.getElementById('ownedDueDateField');
  if (!field) return;
- // 오프라인 도서관 대여(대여 ON && e-book OFF)일 때만 반납 예정일 표시
- if (selectedOwnedIsBorrowed && !selectedOwnedIsEbook) {
- field.classList.remove('hidden');
- } else {
- field.classList.add('hidden');
+ const finishVal = (document.getElementById('ownedInputFinishDate')?.value || '').trim();
+ const sourceVal = (document.getElementById('ownedInputSource')?.value || '').trim();
+ // 완독일이 적혀있으면 숨김 / 오프라인 대여 또는 e-book 대여(알라딘)일 때 표시
+ const showDue = selectedOwnedIsBorrowed && !selectedOwnedIsSold && !finishVal && (!selectedOwnedIsEbook || sourceVal.includes('알라딘'));
+ field.classList.toggle('hidden', !showDue);
  }
+
+ function refreshOwnedModeDependentFields() {
  updateSourceFieldUI();
+ updateDueDateFieldVisibility();
  }
 
  function setOwnedEbookToggle(isOn) {
@@ -4685,7 +4726,7 @@
  btn.setAttribute('aria-checked', selectedOwnedIsEbook ? 'true' : 'false');
  btn.title = selectedOwnedIsEbook ? 'e-book (ON)' : 'e-book (OFF)';
  }
- updateDueDateFieldVisibility();
+ refreshOwnedModeDependentFields();
  }
 
  function toggleOwnedEbookSwitch() {
@@ -4723,21 +4764,21 @@
  selectedOwnedIsSold = false;
  }
  syncOwnedOwnershipButtonsUI();
- updateDueDateFieldVisibility();
+ refreshOwnedModeDependentFields();
  }
 
  function setOwnedBorrowToggle(isOn) {
  selectedOwnedIsBorrowed = !!isOn;
  if (selectedOwnedIsBorrowed) selectedOwnedIsSold = false;
  syncOwnedOwnershipButtonsUI();
- updateDueDateFieldVisibility();
+ refreshOwnedModeDependentFields();
  }
 
  function setOwnedSoldToggle(isOn) {
  selectedOwnedIsSold = !!isOn;
  if (selectedOwnedIsSold) selectedOwnedIsBorrowed = false;
  syncOwnedOwnershipButtonsUI();
- updateDueDateFieldVisibility();
+ refreshOwnedModeDependentFields();
  }
 
  function appendOwnedTag(tag) {
@@ -4816,14 +4857,17 @@
  if (!box || !heading || !body || !metaEl) return;
 
  const cleanDesc = stripHtmlText(currentModalDescription);
- const pubText = currentModalPubYear ? ` (${formatPubYearText(currentModalPubYear)})` : '';
  const seriesVal = (document.getElementById('ownedInputSeries')?.value || '').trim();
  const volVal = (document.getElementById('ownedInputVol')?.value || currentModalVol || '').trim();
  const volHash = formatVolHash(volVal);
  const pubVal = (document.getElementById('ownedInputPublisher')?.value || '').trim();
  const isbnVal = normalizeIsbn(document.getElementById('ownedInputIsbn')?.value || '');
 
- heading.innerText = `📖 도서 상세 정보${pubText}`;
+ const pubYearBadgeHtml = currentModalPubYear
+ ? `<span class="owned-meta-inline-badge">출간연도 ${escapeHtml(formatPubYearText(currentModalPubYear))}</span>`
+ : '';
+ const isbnBadgeHtml = `<button type="button" class="owned-meta-inline-badge" style="border:1px solid #cbd5e1; background:#ffffff; cursor:pointer; font-family:inherit;" onclick="toggleOwnedIsbnEditor()" title="터치하여 ISBN 수정">${isbnVal ? `ISBN ${escapeHtml(isbnVal)}` : 'ISBN 입력'}</button>`;
+ heading.innerHTML = `<span>도서 상세 정보</span>${pubYearBadgeHtml}${isbnBadgeHtml}`;
 
  const KDC_MAJOR_MAP = {
  '0': '총류', '1': '철학', '2': '종교', '3': '사회과학', '4': '자연과학',
@@ -4846,10 +4890,10 @@
  badges.push(`<span class="mylib-badge series">${escapeHtml(volHash)}</span>`);
  }
  if (pubVal) badges.push(`<span class="mylib-badge">${escapeHtml(pubVal)}</span>`);
- badges.push(`<button type="button" class="mylib-badge" style="border:1px solid #cbd5e1; cursor:pointer; font-family:inherit;" onclick="toggleOwnedIsbnEditor()" title="터치하여 ISBN 수정">${isbnVal ? `ISBN ${escapeHtml(isbnVal)}` : 'ISBN 입력'}</button>`);
  if (cleanCategory) badges.push(`<span class="mylib-badge">🏷️ ${escapeHtml(cleanCategory)}</span>`);
  if (currentModalLoanStats) badges.push(`<span class="mylib-badge status-reading">📊 ${escapeHtml(currentModalLoanStats)}</span>`);
  metaEl.innerHTML = badges.join('');
+ metaEl.classList.toggle('hidden', badges.length === 0);
 
  body.innerText = cleanDesc || '등록된 줄거리 정보가 없습니다.';
 
@@ -4897,7 +4941,7 @@
  return;
  }
 
- titleEl.innerText = `✍️ ${primaryAuthor}의 다른 책`;
+ titleEl.innerText = `${primaryAuthor}의 다른 책`;
  listEl.innerHTML = '';
  detailsEl.classList.remove('hidden');
  }
@@ -5004,6 +5048,83 @@
 
  function handleOwnedCoverError() {
  setOwnedCoverDisplay('');
+ }
+
+ function triggerOwnedCoverUpload() {
+ const input = document.getElementById('ownedCoverFileInput');
+ if (!input) return;
+ input.value = '';
+ input.click();
+ }
+
+ function clearOwnedCoverManual() {
+ setOwnedCoverDisplay('');
+ showToast('표지를 제거했습니다. 저장을 눌러 반영해 주세요.');
+ }
+
+ function compressCoverImageFile(file) {
+ return new Promise((resolve, reject) => {
+ const reader = new FileReader();
+ reader.onerror = () => reject(new Error('파일을 읽지 못했습니다.'));
+ reader.onload = () => {
+ const img = new Image();
+ img.onerror = () => reject(new Error('이미지 형식을 인식하지 못했습니다.'));
+ img.onload = () => {
+ const encodeWith = (maxW, maxH, quality) => {
+ let w = img.naturalWidth || img.width;
+ let h = img.naturalHeight || img.height;
+ if (!w || !h) return '';
+ const ratio = Math.min(maxW / w, maxH / h, 1);
+ w = Math.max(1, Math.round(w * ratio));
+ h = Math.max(1, Math.round(h * ratio));
+ const canvas = document.createElement('canvas');
+ canvas.width = w;
+ canvas.height = h;
+ const ctx = canvas.getContext('2d');
+ ctx.fillStyle = '#ffffff';
+ ctx.fillRect(0, 0, w, h);
+ ctx.drawImage(img, 0, 0, w, h);
+ return canvas.toDataURL('image/jpeg', quality);
+ };
+
+ // 구글 시트 단일 셀 한도(50,000자) 이내로 안전하게 자동 압축
+ const presets = [
+ [200, 300, 0.76],
+ [180, 270, 0.65],
+ [150, 225, 0.55],
+ [120, 180, 0.45]
+ ];
+ for (const [mw, mh, q] of presets) {
+ const dataUrl = encodeWith(mw, mh, q);
+ if (dataUrl && dataUrl.length <= 38000) {
+ resolve(dataUrl);
+ return;
+ }
+ }
+ reject(new Error('이미지 용량이 너무 큽니다. 다른 이미지를 선택해 주세요.'));
+ };
+ img.src = reader.result;
+ };
+ reader.readAsDataURL(file);
+ });
+ }
+
+ async function handleOwnedCoverFileSelect(event) {
+ const file = event?.target?.files?.[0];
+ if (!file) return;
+ if (!file.type || !file.type.startsWith('image/')) {
+ showToast('이미지 파일만 첨부할 수 있습니다.', 'error');
+ return;
+ }
+ try {
+ const compressedDataUrl = await compressCoverImageFile(file);
+ setOwnedCoverDisplay(compressedDataUrl);
+ showToast("표지 이미지를 첨부했습니다. '저장'을 눌러 시트에 반영해 주세요.", 'success');
+ } catch (err) {
+ showToast(err?.message || '표지 이미지를 처리하지 못했습니다.', 'error');
+ } finally {
+ if (event?.target) event.target.value = '';
+ }
  }
 
  function loadOwnedEditCover(book) {
@@ -5321,7 +5442,7 @@
  const resolvedTrans = String(doc.translator || '').trim() || parsedPeople.translator;
  if (resolvedTrans && trEl && !trEl.value.trim()) {
  trEl.value = resolvedTrans;
- filledLabels.push('번역·감수');
+ filledLabels.push('저자 외');
  }
  }
  if (doc.publisher && !document.getElementById('ownedInputPublisher').value.trim()) {
@@ -5409,7 +5530,12 @@
  isBorrowed: selectedOwnedIsBorrowed && !selectedOwnedIsSold,
  source: selectedOwnedIsSold ? '' : (document.getElementById('ownedInputSource')?.value.trim() || ''),
  borrowSource: selectedOwnedIsSold ? '' : (document.getElementById('ownedInputSource')?.value.trim() || ''),
- dueDate: (selectedOwnedIsBorrowed && !selectedOwnedIsEbook) ? document.getElementById('ownedInputDueDate').value.trim() : '',
+ dueDate: (() => {
+ const srcVal = document.getElementById('ownedInputSource')?.value.trim() || '';
+ const finVal = document.getElementById('ownedInputFinishDate')?.value.trim() || '';
+ const allowDue = selectedOwnedIsBorrowed && !selectedOwnedIsSold && !finVal && (!selectedOwnedIsEbook || srcVal.includes('알라딘'));
+ return allowDue ? document.getElementById('ownedInputDueDate').value.trim() : '';
+ })(),
  cover: currentModalCoverUrl || '',
  pubYear: currentModalPubYear || '',
  description: currentModalDescription || '',

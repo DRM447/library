@@ -302,6 +302,26 @@
  .home-kpi-card:active { transform: scale(0.97); }
  .home-kpi-label { font-size: 11.5px; font-weight: 700; color: var(--sec-text); }
  .home-kpi-value { font-size: 20px; font-weight: 900; color: #065f46; line-height: 1.2; }
+ .home-sub-strip {
+ display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 7px;
+ margin-bottom: -4px;
+ }
+ .home-sub-pill {
+ display: inline-flex; align-items: center; gap: 4px;
+ padding: 4px 10px; border-radius: 999px;
+ background: #ffffff; border: 1px solid var(--border);
+ font-size: 11.5px; font-weight: 700; color: #4b5563;
+ cursor: pointer; font-family: inherit;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+ transition: border-color 0.15s, background-color 0.15s, transform 0.1s;
+ }
+ .home-sub-pill:hover { border-color: #a7f3d0; background: #f0fdf4; color: #065f46; }
+ .home-sub-pill:active { transform: scale(0.96); }
+ .home-sub-pill strong { color: #059669; font-weight: 800; }
+ .library-item-link {
+ display: flex; justify-content: space-between; align-items: center; gap: 8px;
+ width: 100%; text-decoration: none; color: inherit;
+ }
 
 
  .home-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
@@ -1410,6 +1430,7 @@
 
  <!-- 검색 전 홈 독서 대시보드 -->
  <div id="homeReadingDashboard" class="home-dashboard hidden">
+ <div class="home-sub-strip hidden" id="homeSubStrip"></div>
  <div class="home-kpi-strip" id="homeKpiStrip"></div>
  <div class="home-grid">
  <div class="card">
@@ -1946,10 +1967,28 @@
  <input type="text" id="ownedInputMemo" class="form-input" placeholder="구매처, 선물받은 기록 등 개인 메모를 남겨보세요.">
  </div>
 
+ <label id="syncSiblingsCheckRow" class="checkbox-row hidden" style="margin-bottom:10px; background:#eef2ff; border-color:#c7d2fe; color:#3730a3;">
+ <input type="checkbox" id="syncSiblingsCheckbox" checked>
+ <span id="syncSiblingsLabel">같은 제목 도서에도 평점·한줄평·메모 함께 동기화</span>
+ </label>
+
  <div class="memo-modal-actions">
  <button id="ownedDeleteBtn" class="memo-btn memo-btn-delete hidden" onclick="deleteOwnedBookFromModal()" title="서재에서 삭제" aria-label="서재에서 삭제"><i data-lucide="trash-2" size="17"></i></button>
  <button class="memo-btn memo-btn-cancel" onclick="closeOwnedEditModal()">취소</button>
  <button id="ownedSaveBtn" class="memo-btn memo-btn-save green" onclick="saveOwnedBookFromModal()">저장</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- 편집 모달 변경 사항 저장/닫기 확인 모달 -->
+ <div id="dirtyConfirmModalOverlay" class="memo-modal-overlay" style="z-index: 2350;" data-close-fn="cancelDirtyConfirmModal">
+ <div class="memo-modal-box" style="max-width: 360px;">
+ <h3 class="memo-modal-title" style="margin-bottom:6px;">저장하지 않은 변경 사항</h3>
+ <p style="font-size:13px; color:var(--sec-text); margin:0 0 14px 0; line-height:1.5;">입력한 내용이 변경되었습니다. 저장하고 닫을까요, 아니면 그냥 닫을까요?</p>
+ <div class="memo-modal-actions" style="justify-content:flex-end; gap:6px;">
+ <button type="button" class="memo-btn memo-btn-cancel" onclick="cancelDirtyConfirmModal()">계속 편집</button>
+ <button type="button" class="memo-btn" style="background:#fee2e2; color:#b91c1c;" onclick="discardAndCloseOwnedEditModal()">그냥 닫기</button>
+ <button type="button" class="memo-btn memo-btn-save green" onclick="saveAndCloseOwnedEditModal()">저장</button>
  </div>
  </div>
  </div>
@@ -1968,6 +2007,74 @@
  } catch (e) {
  return fallback;
  }
+ }
+
+ /* IndexedDB 경량 래퍼 (대용량 내 서재 캐시 저장용 — localStorage 5MB 한도 초과 방지) */
+ const AllBooksIDB = (() => {
+ const DB_NAME = 'allbooks-db';
+ const STORE_NAME = 'kv';
+ let dbPromise = null;
+ function openDb() {
+ if (dbPromise) return dbPromise;
+ if (typeof indexedDB === 'undefined') return Promise.resolve(null);
+ dbPromise = new Promise(resolve => {
+ try {
+ const req = indexedDB.open(DB_NAME, 1);
+ req.onupgradeneeded = () => {
+ const db = req.result;
+ if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME);
+ };
+ req.onsuccess = () => resolve(req.result);
+ req.onerror = () => resolve(null);
+ } catch (e) {
+ resolve(null);
+ }
+ });
+ return dbPromise;
+ }
+ async function get(key) {
+ const db = await openDb();
+ if (!db) return null;
+ return new Promise(resolve => {
+ try {
+ const tx = db.transaction(STORE_NAME, 'readonly');
+ const req = tx.objectStore(STORE_NAME).get(key);
+ req.onsuccess = () => resolve(req.result ?? null);
+ req.onerror = () => resolve(null);
+ } catch (e) {
+ resolve(null);
+ }
+ });
+ }
+ async function set(key, value) {
+ const db = await openDb();
+ if (!db) return false;
+ return new Promise(resolve => {
+ try {
+ const tx = db.transaction(STORE_NAME, 'readwrite');
+ tx.objectStore(STORE_NAME).put(value, key);
+ tx.oncomplete = () => resolve(true);
+ tx.onerror = () => resolve(false);
+ } catch (e) {
+ resolve(false);
+ }
+ });
+ }
+ return { get, set };
+ })();
+
+ function buildSheetGetUrl(paramsObj = {}) {
+ const sheetUrl = getUnifiedApiUrl();
+ if (!sheetUrl) return '';
+ const sep = sheetUrl.includes('?') ? '&' : '?';
+ const qs = new URLSearchParams();
+ const pin = getSheetWritePin();
+ if (pin) qs.set('pin', pin);
+ Object.entries(paramsObj).forEach(([k, v]) => {
+ if (v !== undefined && v !== null && String(v) !== '') qs.set(k, String(v));
+ });
+ const qStr = qs.toString();
+ return qStr ? `${sheetUrl}${sep}${qStr}` : sheetUrl;
  }
 
  function refreshIcons(rootEl = document) {
@@ -2065,19 +2172,21 @@
  }
  }
 
- async function data4LibProxyFetch(endpoint, paramsObj = {}) {
- const sheetUrl = getUnifiedApiUrl();
- if (!sheetUrl) throw new Error('시트 URL이 설정되지 않았습니다.');
- const sep = sheetUrl.includes('?') ? '&' : '?';
- const qs = new URLSearchParams({ action: 'd4lProxy', endpoint });
- Object.entries(paramsObj).forEach(([k, v]) => {
- if (v !== undefined && v !== null && String(v) !== '') qs.set(k, String(v));
- });
- const res = await fetch(`${sheetUrl}${sep}${qs.toString()}`);
+ async function data4LibProxyFetch(endpoint, paramsObj = {}, _retried = false) {
+ const reqUrl = buildSheetGetUrl({ action: 'd4lProxy', endpoint, ...paramsObj });
+ if (!reqUrl) throw new Error('시트 URL이 설정되지 않았습니다.');
+ const res = await fetch(reqUrl);
  if (!res.ok) {
  throw new Error(`HTTP ${res.status}`);
  }
  const data = await res.json();
+ if (data && data.status === 'unauthorized') {
+ if (!_retried) {
+ const entered = await openPinPromptModal('도서 검색을 위해 설정된 PIN을 입력해 주세요.');
+ if (entered) return data4LibProxyFetch(endpoint, paramsObj, true);
+ }
+ throw new Error('PIN 인증이 필요합니다.');
+ }
  incrementApiUsage(1);
  return data;
  }
@@ -2116,18 +2225,20 @@
  if (cached !== null) return { ok: true, book: cached.book || null, cached: true };
  }
 
- const sheetUrl = getUnifiedApiUrl();
- if (!sheetUrl) return { ok: false, error: '시트 URL이 설정되지 않았습니다.' };
- const sep = sheetUrl.includes('?') ? '&' : '?';
- const params = new URLSearchParams({ action: 'lookupBook' });
- if (cleanIsbn) params.set('isbn', cleanIsbn);
- else params.set('title', cleanTitle);
- if (author) params.set('author', String(author).trim());
+ const queryParams = { action: 'lookupBook' };
+ if (cleanIsbn) queryParams.isbn = cleanIsbn;
+ else queryParams.title = cleanTitle;
+ if (author) queryParams.author = String(author).trim();
+ const reqUrl = buildSheetGetUrl(queryParams);
+ if (!reqUrl) return { ok: false, error: '시트 URL이 설정되지 않았습니다.' };
 
  try {
- const res = await fetch(`${sheetUrl}${sep}${params.toString()}`);
+ const res = await fetch(reqUrl);
  if (!res.ok) return { ok: false, error: `서버 응답 오류 (HTTP ${res.status})` };
  const data = await res.json();
+ if (data && data.status === 'unauthorized') {
+ return { ok: false, error: 'PIN 인증이 필요합니다. 설정(⚙️)에서 PIN을 확인해 주세요.' };
+ }
  if (!data || !('source' in data)) {
  return { ok: false, error: 'Code.gs를 최신 버전으로 재배포해 주세요.' };
  }
@@ -2217,7 +2328,7 @@
  if (map[libKey]?.libCode === libInfo.libCode) return;
  map[libKey] = libInfo;
  try { localStorage.setItem('fixedTargetLibCodes', JSON.stringify(map)); } catch (e) {}
- pushSyncStateToSheet(false);
+ pushSyncStateToSheet(true);
  }
 
  let currentBooksList = [];
@@ -2302,6 +2413,7 @@
  if (openModalStack.length === 0) return false;
  const topModal = openModalStack[openModalStack.length - 1];
  if (topModal === 'pinPrompt') closePinPromptModal();
+ else if (topModal === 'dirtyConfirm') cancelDirtyConfirmModal();
  else if (topModal === 'barcode') closeBarcodeScanner();
  else if (topModal === 'ownedEdit') closeOwnedEditModal();
  else if (topModal === 'ratingBreakdown') closeRatingBreakdownModal();
@@ -3162,7 +3274,9 @@
  action: 'lib_delete',
  row: target.row,
  origTitle: target.title,
- origAuthor: target.author
+ origAuthor: target.author,
+ origIsbn: target.isbn,
+ origIsEbook: isOwnedEbook(target)
  });
  if (res && res.status === 'ok') {
  showToast('시트에서 삭제되었습니다.', 'success');
@@ -3246,7 +3360,7 @@
  const bIsbn = normalizeIsbn(b.isbn);
  const normTitle = normalizeBookTitle(b.title);
  const normAuthor = String(b.author || '').toLowerCase().replace(/[\s·・.,]+/g, '');
- const hay = `${b.title || ''} ${b.author || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${getOwnedMemo(b)} ${b.review || ''}`.toLowerCase();
+ const hay = `${b.title || ''} ${b.author || ''} ${b.translator || ''} ${b.tags || ''} ${b.publisher || ''} ${getOwnedSeries(b)} ${getOwnedMemo(b)} ${b.review || ''} ${getOwnedSource(b)}`.toLowerCase();
  const hayCompact = hay.replace(/\s+/g, '');
 
  let score = 0;
@@ -3306,12 +3420,45 @@
  }
  }
 
- function loadCachedOwnedBooks() {
+ function saveOwnedBooksToCache(books) {
+ if (!Array.isArray(books)) return;
+ AllBooksIDB.set('myOwnedBooksCache', books).then(ok => {
+ if (ok) {
+ try { localStorage.removeItem('myOwnedBooksCache'); } catch (e) {}
+ } else {
+ // IndexedDB 미지원 환경 폴백: 용량 초과 방지를 위해 긴 줄거리 제외 후 저장
  try {
- const cached = JSON.parse(localStorage.getItem('myOwnedBooksCache'));
- if (Array.isArray(cached) && cached.length > 0) {
- myOwnedBooks = cached;
+ const slim = books.map(b => ({ ...b, description: b.description ? String(b.description).slice(0, 160) : '' }));
+ localStorage.setItem('myOwnedBooksCache', JSON.stringify(slim));
+ } catch (e) {}
+ }
+ });
+ }
+
+ async function loadCachedOwnedBooks() {
+ try {
+ const idbCached = await AllBooksIDB.get('myOwnedBooksCache');
+ if (Array.isArray(idbCached) && idbCached.length > 0) {
+ if (myOwnedBooks.length === 0) {
+ myOwnedBooks = idbCached;
  rebuildOwnedBooksIndex();
+ renderHomeReadingDashboard();
+ refreshOwnedUIEverywhere();
+ }
+ return;
+ }
+ const legacyRaw = localStorage.getItem('myOwnedBooksCache');
+ if (legacyRaw) {
+ const legacy = JSON.parse(legacyRaw);
+ if (Array.isArray(legacy) && legacy.length > 0) {
+ if (myOwnedBooks.length === 0) {
+ myOwnedBooks = legacy;
+ rebuildOwnedBooksIndex();
+ renderHomeReadingDashboard();
+ refreshOwnedUIEverywhere();
+ }
+ saveOwnedBooksToCache(legacy);
+ }
  }
  } catch (e) {}
  }
@@ -3428,8 +3575,8 @@
  /* =========================================================
  * 통합 구글 시트 동기화 (북마크 + 전체_도서_리스트 + PIN 보호)
  * ========================================================= */
- async function syncAllFromSheet(showFeedback = false) {
- const url = getUnifiedApiUrl();
+ async function syncAllFromSheet(showFeedback = false, _retryAfterPin = false) {
+ const url = buildSheetGetUrl();
  const statusEl = document.getElementById('myLibSyncStatus');
  if (!url) return;
 
@@ -3438,10 +3585,25 @@
  const res = await fetch(url);
  const data = await res.json();
 
+ if (data && data.status === 'unauthorized') {
+ if (statusEl) statusEl.innerText = 'PIN 인증 필요';
+ if (!_retryAfterPin) {
+ const entered = await openPinPromptModal(
+ getSheetWritePin()
+ ? '입력된 PIN이 일치하지 않습니다. 올바른 PIN을 다시 입력해 주세요.'
+ : '내 서재를 불러오려면 설정된 PIN을 입력해 주세요. (한 번 입력하면 이 기기에 저장됩니다)'
+ );
+ if (entered) return syncAllFromSheet(showFeedback, true);
+ } else if (showFeedback) {
+ showToast('🔒 PIN이 일치하지 않습니다. 설정(⚙️)에서 확인해 주세요.', 'error');
+ }
+ return;
+ }
+
  if (data.status === 'ok') {
  if (Array.isArray(data.bookmarks)) {
  const merged = mergeBookmarksWithMeta(data.bookmarks);
- localStorage.setItem('myBookmarks', JSON.stringify(merged));
+ try { localStorage.setItem('myBookmarks', JSON.stringify(merged)); } catch (e) {}
  loadBookmarks();
  refreshCurrentBookBookmarkUI();
  }
@@ -3452,7 +3614,7 @@
 
  if (Array.isArray(data.books)) {
  myOwnedBooks = data.books;
- localStorage.setItem('myOwnedBooksCache', JSON.stringify(myOwnedBooks));
+ saveOwnedBooksToCache(myOwnedBooks);
  rebuildOwnedBooksIndex();
  if (statusEl) statusEl.innerText = `동기화 완료 (${myOwnedBooks.length}권)`;
  if (showFeedback) showToast(`내 서재 ${myOwnedBooks.length}권 동기화 완료`, 'success');
@@ -3555,16 +3717,46 @@
 
  if (Array.isArray(data.bookmarks)) {
  const merged = mergeBookmarksWithMeta(data.bookmarks);
- localStorage.setItem('myBookmarks', JSON.stringify(merged));
+ try { localStorage.setItem('myBookmarks', JSON.stringify(merged)); } catch (e) {}
  loadBookmarks(false);
  refreshCurrentBookBookmarkUI();
  }
  if (data.syncState) {
  applyRemoteSyncState(data.syncState);
  }
+
+ let booksMutated = false;
  if (Array.isArray(data.books)) {
  myOwnedBooks = data.books;
- localStorage.setItem('myOwnedBooksCache', JSON.stringify(myOwnedBooks));
+ booksMutated = true;
+ } else {
+ if (data.addedBook) {
+ myOwnedBooks.push(data.addedBook);
+ booksMutated = true;
+ }
+ if (data.updatedBook) {
+ const idx = myOwnedBooks.findIndex(b => b.row === data.updatedBook.row);
+ if (idx > -1) myOwnedBooks[idx] = data.updatedBook;
+ else myOwnedBooks.push(data.updatedBook);
+ booksMutated = true;
+ }
+ if (Array.isArray(data.updatedBooks) && data.updatedBooks.length > 0) {
+ data.updatedBooks.forEach(ub => {
+ const idx = myOwnedBooks.findIndex(b => b.row === ub.row);
+ if (idx > -1) myOwnedBooks[idx] = ub;
+ });
+ booksMutated = true;
+ }
+ if (typeof data.deletedRow === 'number' && data.deletedRow >= 2) {
+ myOwnedBooks = myOwnedBooks
+ .filter(b => b.row !== data.deletedRow)
+ .map(b => (b.row > data.deletedRow ? { ...b, row: b.row - 1 } : b));
+ booksMutated = true;
+ }
+ }
+
+ if (booksMutated) {
+ saveOwnedBooksToCache(myOwnedBooks);
  rebuildOwnedBooksIndex();
  refreshOwnedUIEverywhere();
  }
@@ -3668,6 +3860,19 @@
  dash.classList.remove('hidden');
  const stats = computeLibraryStats();
 
+ const subStrip = document.getElementById('homeSubStrip');
+ if (subStrip) {
+ const curYear = new Date().getFullYear();
+ const pills = [];
+ pills.push(`<button type="button" class="home-sub-pill" onclick="openMyLibraryThisYearDone()" title="올해 완독한 도서 보기">📅 ${curYear} 완독 <strong>${stats.doneThisYear}권</strong></button>`);
+ if (stats.topReadingTag) {
+ const safeTag = escapeHtml(stats.topReadingTag);
+ pills.push(`<button type="button" class="home-sub-pill" onclick="openMyLibraryByTag('${safeTag}')" title="읽는 중 최다 태그 도서 보기">🔥 요즘 읽는 분야 <strong>#${safeTag}</strong></button>`);
+ }
+ subStrip.innerHTML = pills.join('');
+ subStrip.classList.remove('hidden');
+ }
+
  document.getElementById('homeKpiStrip').innerHTML = `
  <div class="home-kpi-card" onclick="openMyLibraryModal(false, 'all')">
  <span class="home-kpi-label">📚 전체 도서</span>
@@ -3747,6 +3952,17 @@
  function toggleHomeBorrowedExpand() {
  isHomeBorrowedExpanded = !isHomeBorrowedExpanded;
  renderHomeReadingDashboard();
+ }
+
+ function openMyLibraryThisYearDone() {
+ const sortEl = document.getElementById('myLibSortSelect');
+ if (sortEl) sortEl.value = 'finishDate';
+ openMyLibraryModal(false, '완독');
+ }
+
+ function openMyLibraryByTag(tag) {
+ openMyLibraryModal(false, '읽는 중');
+ if (tag) setMyLibTagFilter(tag);
  }
 
  function pickRandomUnreadBook() {
@@ -4871,6 +5087,11 @@
  deleteBtn.classList.add('hidden');
  }
 
+ const syncCb = document.getElementById('syncSiblingsCheckbox');
+ if (syncCb) syncCb.checked = true;
+ updateSyncSiblingsCheckboxUI();
+ ownedModalInitialSnapshot = getOwnedModalFormSnapshot();
+
  document.getElementById('ownedEditModalOverlay').classList.add('open');
  pushModalHistory('ownedEdit', !!ctx.replaceHistory);
  refreshIcons(document.getElementById('ownedEditModalOverlay'));
@@ -4880,10 +5101,111 @@
  }
  }
 
- function closeOwnedEditModal() {
+ let ownedModalInitialSnapshot = '';
+
+ function findSiblingOwnedBooks(book, excludeRow = null) {
+ if (!book || myOwnedBooks.length === 0) return [];
+ const normTitle = normalizeBookTitle(book.title);
+ if (!normTitle) return [];
+ const authorStr = String(book.author || '').trim();
+ return myOwnedBooks.filter(b => {
+ if (excludeRow !== null && b.row === excludeRow) return false;
+ if (normalizeBookTitle(b.title) !== normTitle) return false;
+ if (authorStr && b.author && !hasAuthorOverlap(authorStr, b.author)) return false;
+ return true;
+ });
+ }
+
+ function updateSyncSiblingsCheckboxUI() {
+ const rowEl = document.getElementById('syncSiblingsCheckRow');
+ const labelEl = document.getElementById('syncSiblingsLabel');
+ const cbEl = document.getElementById('syncSiblingsCheckbox');
+ if (!rowEl || !labelEl || !cbEl) return;
+ const titleVal = (document.getElementById('ownedInputTitle')?.value || '').trim();
+ const authorVal = (document.getElementById('ownedInputAuthor')?.value || '').trim();
+ const excludeRow = activeOwnedEditContext?.mode === 'edit' ? activeOwnedEditContext.book.row : null;
+ const siblings = findSiblingOwnedBooks({ title: titleVal, author: authorVal }, excludeRow);
+ if (siblings.length === 0) {
+ rowEl.classList.add('hidden');
+ return;
+ }
+ const hasEbook = siblings.some(s => isOwnedEbook(s));
+ const hasPaper = siblings.some(s => !isOwnedEbook(s));
+ const kindHint = (hasEbook && hasPaper) ? '종이책·e-book' : (hasEbook ? 'e-book' : '종이책/중복');
+ labelEl.innerText = `같은 제목 도서 ${siblings.length}권(${kindHint})에도 평점·한줄평·메모 함께 동기화`;
+ rowEl.classList.remove('hidden');
+ }
+
+ function getOwnedModalFormSnapshot() {
+ return JSON.stringify({
+ title: (document.getElementById('ownedInputTitle')?.value || '').trim(),
+ author: (document.getElementById('ownedInputAuthor')?.value || '').trim(),
+ translator: (document.getElementById('ownedInputTranslator')?.value || '').trim(),
+ isbn: normalizeIsbn(document.getElementById('ownedInputIsbn')?.value || ''),
+ dueDate: (document.getElementById('ownedInputDueDate')?.value || '').trim(),
+ source: (document.getElementById('ownedInputSource')?.value || '').trim(),
+ status: selectedOwnedStatus,
+ rating: selectedOwnedRating,
+ startDate: (document.getElementById('ownedInputStartDate')?.value || '').trim(),
+ finishDate: (document.getElementById('ownedInputFinishDate')?.value || '').trim(),
+ review: (document.getElementById('ownedInputReview')?.value || '').trim(),
+ tags: ownedEditTagsList.join(','),
+ series: (document.getElementById('ownedInputSeries')?.value || '').trim(),
+ vol: (document.getElementById('ownedInputVol')?.value || '').trim(),
+ publisher: (document.getElementById('ownedInputPublisher')?.value || '').trim(),
+ memo: (document.getElementById('ownedInputMemo')?.value || '').trim(),
+ isEbook: selectedOwnedIsEbook,
+ isBorrowed: selectedOwnedIsBorrowed,
+ isSold: selectedOwnedIsSold,
+ cover: currentModalCoverUrl || ''
+ });
+ }
+
+ function isOwnedModalDirty() {
+ if (!activeOwnedEditContext || !ownedModalInitialSnapshot) return false;
+ return getOwnedModalFormSnapshot() !== ownedModalInitialSnapshot;
+ }
+
+ function openDirtyConfirmModal() {
+ const el = document.getElementById('dirtyConfirmModalOverlay');
+ if (!el) return;
+ el.classList.add('open');
+ pushModalHistory('dirtyConfirm');
+ }
+
+ function cancelDirtyConfirmModal() {
+ const el = document.getElementById('dirtyConfirmModalOverlay');
+ if (el) el.classList.remove('open');
+ popModalHistory('dirtyConfirm');
+ }
+
+ function discardAndCloseOwnedEditModal() {
+ const el = document.getElementById('dirtyConfirmModalOverlay');
+ if (el) el.classList.remove('open');
+ popModalHistory('dirtyConfirm', true);
+ closeOwnedEditModal(true);
+ }
+
+ function saveAndCloseOwnedEditModal() {
+ const el = document.getElementById('dirtyConfirmModalOverlay');
+ if (el) el.classList.remove('open');
+ popModalHistory('dirtyConfirm', true);
+ saveOwnedBookFromModal();
+ }
+
+ function closeOwnedEditModal(force = false) {
+ if (!force && activeOwnedEditContext && isOwnedModalDirty()) {
+ // 안드로이드 뒤로가기로 popstate가 이미 발생했다면 모달 히스토리를 유지한 채 확인창 표시
+ if (isHandlingPopState) {
+ pushModalHistory('ownedEdit', false);
+ }
+ openDirtyConfirmModal();
+ return;
+ }
  document.getElementById('ownedEditModalOverlay').classList.remove('open');
  popModalHistory('ownedEdit');
  activeOwnedEditContext = null;
+ ownedModalInitialSnapshot = '';
  }
 
  function selectOwnedStatus(statusVal, autoDate = true) {
@@ -5014,7 +5336,19 @@
  btn.className = 'owned-source-icon-btn' + (currentVal === name ? ' active' : '');
  btn.title = name;
  btn.onclick = () => selectOwnedSourceOption(name);
- btn.innerHTML = `<img class="owned-source-icon-img" src="${escapeHtml(meta.icon)}" alt="${escapeHtml(meta.short)}" onerror="this.src=makeAppBadgeSvg('#64748b','#ffffff','${escapeHtml(meta.short.slice(0,2))}')"><span class="owned-source-icon-label">${escapeHtml(meta.short)}</span>`;
+ const img = document.createElement('img');
+ img.className = 'owned-source-icon-img';
+ img.src = meta.icon;
+ img.alt = meta.short;
+ img.onerror = function () {
+ this.onerror = null;
+ this.src = makeAppBadgeSvg('#64748b', '#ffffff', meta.short.slice(0, 2));
+ };
+ const lbl = document.createElement('span');
+ lbl.className = 'owned-source-icon-label';
+ lbl.textContent = meta.short;
+ btn.appendChild(img);
+ btn.appendChild(lbl);
  gridEl.appendChild(btn);
  });
 
@@ -5332,9 +5666,7 @@
  const cacheKey = primaryAuthor.toLowerCase();
  let books = getApiCache('kakaoAuthor', cacheKey, API_CACHE_TTL_MS);
  if (!Array.isArray(books)) {
- const sheetUrl = getUnifiedApiUrl();
- const sep = sheetUrl.includes('?') ? '&' : '?';
- const res = await fetch(`${sheetUrl}${sep}action=authorBooks&author=${encodeURIComponent(primaryAuthor)}`);
+ const res = await fetch(buildSheetGetUrl({ action: 'authorBooks', author: primaryAuthor }));
  if (!res.ok) throw new Error(`HTTP ${res.status}`);
  const data = await res.json();
  if (!data || !Array.isArray(data.books)) {
@@ -5603,6 +5935,7 @@
  if (fetchedCover) saveBookCoverCache(fetchKey, fetchedCover);
 
  if (isSameModalOpen) {
+ const wasDirtyBeforeAutoFill = isOwnedModalDirty();
  if (proxyBook.url) currentModalKakaoUrl = proxyBook.url;
  if (proxyBook.authorBio) {
  currentModalAuthorBio = stripHtmlText(proxyBook.authorBio).slice(0, 1200);
@@ -5623,6 +5956,8 @@
  if (trEl && !trEl.value.trim()) trEl.value = fetchedTranslator;
  }
  renderOwnedMetaPlotBox();
+ // 자동 메타 보강만으로 isDirty가 오작동하지 않도록 스냅샷 갱신
+ if (!wasDirtyBeforeAutoFill) ownedModalInitialSnapshot = getOwnedModalFormSnapshot();
  }
 
  // 로컬 메모리(myOwnedBooks)에도 즉시 반영
@@ -5641,6 +5976,8 @@
  row: book.row,
  origTitle: book.title,
  origAuthor: book.author,
+ origIsbn: book.isbn,
+ origIsEbook: isOwnedEbook(book),
  cover: fetchedCover,
  pubYear: fetchedPubYear,
  description: fetchedDesc,
@@ -5757,6 +6094,7 @@
  function handleOwnedTitleInput() {
  renderOwnedMetaPlotBox();
  renderRecommendedTagPicks();
+ updateSyncSiblingsCheckboxUI();
  if (ownedTitleSearchTimer) clearTimeout(ownedTitleSearchTimer);
  const title = (document.getElementById('ownedInputTitle')?.value || '').trim();
  if (!title || title.length < 2) {
@@ -5790,9 +6128,7 @@
  const cacheKey = title.toLowerCase();
  let books = getApiCache('kakaoCand', cacheKey, API_CACHE_TTL_MS);
  if (!Array.isArray(books)) {
- const sheetUrl = getUnifiedApiUrl();
- const sep = sheetUrl.includes('?') ? '&' : '?';
- const res = await fetch(`${sheetUrl}${sep}action=searchBooks&query=${encodeURIComponent(title)}`);
+ const res = await fetch(buildSheetGetUrl({ action: 'searchBooks', query: title }));
  if (!res.ok) throw new Error(`HTTP ${res.status}`);
  const data = await res.json();
  if (!data || !Array.isArray(data.books)) {
@@ -6151,6 +6487,10 @@
  setOwnedEbookFlag(bookPayload, selectedOwnedIsEbook);
  setOwnedBorrowFlag(bookPayload, selectedOwnedIsBorrowed);
 
+ const syncRowEl = document.getElementById('syncSiblingsCheckRow');
+ const syncCbEl = document.getElementById('syncSiblingsCheckbox');
+ const shouldSyncSiblings = !!(syncRowEl && !syncRowEl.classList.contains('hidden') && syncCbEl && syncCbEl.checked);
+
  try {
  let res;
  if (activeOwnedEditContext.fromBookmarkIsbn) {
@@ -6159,6 +6499,7 @@
  action: 'moveBookmarkToLibrary',
  isbn: activeOwnedEditContext.fromBookmarkIsbn,
  removeBookmark: removeBm,
+ syncSiblings: shouldSyncSiblings,
  book: bookPayload
  });
  if (res && res.status === 'duplicate') {
@@ -6168,6 +6509,7 @@
  isbn: activeOwnedEditContext.fromBookmarkIsbn,
  removeBookmark: removeBm,
  force: true,
+ syncSiblings: shouldSyncSiblings,
  book: bookPayload
  });
  } else {
@@ -6181,12 +6523,16 @@
  row: activeOwnedEditContext.book.row,
  origTitle: activeOwnedEditContext.book.title,
  origAuthor: activeOwnedEditContext.book.author,
+ origIsbn: activeOwnedEditContext.book.isbn,
+ origIsEbook: isOwnedEbook(activeOwnedEditContext.book),
+ syncSiblings: shouldSyncSiblings,
  book: bookPayload
  });
  } else {
  res = await sendSheetPost({
  target: 'library',
  action: 'lib_add',
+ syncSiblings: shouldSyncSiblings,
  book: bookPayload
  });
  if (res && res.status === 'duplicate') {
@@ -6195,6 +6541,7 @@
  target: 'library',
  action: 'lib_add',
  force: true,
+ syncSiblings: shouldSyncSiblings,
  book: bookPayload
  });
  } else {
@@ -6204,8 +6551,9 @@
  }
 
  if (res && res.status === 'ok') {
- closeOwnedEditModal();
- showToast('저장했습니다.', 'success');
+ const syncedCnt = Array.isArray(res.updatedBooks) ? res.updatedBooks.length : 0;
+ closeOwnedEditModal(true);
+ showToast(syncedCnt > 0 ? `저장했습니다. (같은 책 ${syncedCnt}권에도 평점·한줄평·메모 동기화)` : '저장했습니다.', 'success');
  } else if (res && res.status !== 'unauthorized') {
  showToast(res.message || '시트 저장 중 오류가 발생했습니다.', 'error');
  }
@@ -6229,10 +6577,12 @@
  action: 'lib_delete',
  row: target.row,
  origTitle: target.title,
- origAuthor: target.author
+ origAuthor: target.author,
+ origIsbn: target.isbn,
+ origIsEbook: isOwnedEbook(target)
  });
  if (res && res.status === 'ok') {
- closeOwnedEditModal();
+ closeOwnedEditModal(true);
  showToast('내 서재에서 삭제되었습니다.', 'success');
  } else if (res && res.status !== 'unauthorized') {
  showToast(res.message || '삭제 중 오류가 발생했습니다.', 'error');
@@ -6384,7 +6734,8 @@
  closeMyLibraryModal,
  closeRatingBreakdownModal,
  closeOwnedEditModal,
- closePinPromptModal
+ closePinPromptModal,
+ cancelDirtyConfirmModal
  };
  document.querySelectorAll('.memo-modal-overlay[data-close-fn]').forEach(overlay => {
  overlay.addEventListener('pointerdown', (e) => {
@@ -7485,12 +7836,14 @@
  : '<span class="fav-lib-sub">클릭 시 도서관 자료검색 바로 이동</span>';
 
  html += `
- <li class="${itemClass}" onclick="window.open('${targetUrl}', '_blank', 'noopener')">
+ <li class="${itemClass}">
+ <a href="${escapeHtml(targetUrl)}" target="_blank" rel="noopener" class="library-item-link">
  <div class="fav-lib-wrap">
  <span class="${textClass}"><i data-lucide="${iconName}" size="14"></i> ${escapeHtml(lib.name)}</span>
  ${subTextHtml}
  </div>
  ${badgeHtml}
+ </a>
  </li>
  `;
  });
@@ -7573,21 +7926,13 @@
  }
  }
 
- window.onload = function () {
+ window.onload = async function () {
  renderApiUsagePill();
 
- loadCachedOwnedBooks();
  loadBookmarks(false);
+ await loadCachedOwnedBooks();
  renderHomeReadingDashboard();
  syncAllFromSheet(false);
-
- if (!getSheetWritePin()) {
- setTimeout(() => {
- if (!getSheetWritePin() && openModalStack.length === 0) {
- openPinPromptModal();
- }
- }, 350);
- }
  };
 
  if ('serviceWorker' in navigator) {

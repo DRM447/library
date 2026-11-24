@@ -1,4 +1,4 @@
-const CACHE_NAME = 'allbooks-cache-v75';
+const CACHE_NAME = 'allbooks-cache-v76';
 const CORE_URLS = [
   './all_books.html',
   './manifest.json',
@@ -10,7 +10,10 @@ const CORE_URLS = [
   './ewha_font.ttf'
 ];
 
+const LUCIDE_CDN_URL = 'https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js';
+
 const OPTIONAL_ASSETS = [
+  LUCIDE_CDN_URL,
   './yongsan_logo.svg',
   './mapo_logo.svg',
   './SeoulEdu_logo.svg',
@@ -50,10 +53,11 @@ self.addEventListener('fetch', event => {
 
   const requestUrl = new URL(event.request.url);
   const isSameOrigin = requestUrl.origin === self.location.origin;
+  const isAllowedCdn = event.request.url === LUCIDE_CDN_URL;
 
-  if (!isSameOrigin) return;
+  if (!isSameOrigin && !isAllowedCdn) return;
 
-  const isDynamicCore = (
+  const isDynamicCore = isSameOrigin && (
     requestUrl.pathname.endsWith('/all_books.html') ||
     requestUrl.pathname.endsWith('/manifest.json') ||
     requestUrl.pathname.endsWith('/')
@@ -69,7 +73,18 @@ self.addEventListener('fetch', event => {
           }
           return response;
         })
-        .catch(() => caches.match(event.request))
+        .catch(async () => {
+          const exact = await caches.match(event.request);
+          if (exact) return exact;
+          if (requestUrl.pathname.endsWith('/')) {
+            const fallbackHtml = await caches.match('./all_books.html');
+            if (fallbackHtml) return fallbackHtml;
+          }
+          return new Response('오프라인 상태입니다.', {
+            status: 503,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+          });
+        })
     );
     return;
   }
@@ -77,13 +92,15 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
-      return fetch(event.request).then(response => {
-        if (response && response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      });
+      return fetch(event.request)
+        .then(response => {
+          if (response && (response.ok || response.type === 'opaque')) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => new Response('', { status: 503, statusText: 'Offline' }));
     })
   );
 });

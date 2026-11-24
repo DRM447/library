@@ -829,10 +829,16 @@
  }
  .star-btn.active { color: #f59e0b; }
  .star-btn:active { transform: scale(1.15); }
- .quick-tag-picks { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+ .quick-tag-picks {
+ display: flex; flex-wrap: nowrap; gap: 5px; margin-top: 5px;
+ overflow-x: auto; padding-bottom: 2px;
+ scrollbar-width: none; -ms-overflow-style: none;
+ }
+ .quick-tag-picks::-webkit-scrollbar { display: none; }
  .quick-tag-pick {
- font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px;
+ font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px;
  background: #f3f4f6; border: 1px solid var(--border); color: #4b5563; cursor: pointer; font-family: inherit;
+ flex-shrink: 0; white-space: nowrap;
  }
  .checkbox-row {
  display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 700;
@@ -1046,19 +1052,26 @@
  display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px;
  }
  .owned-meta-plot-body {
- margin-top: 8px; line-height: 1.5; color: #4b5563; word-break: break-word;
- max-height: 150px; overflow-y: auto; white-space: pre-wrap;
+ margin-top: 8px; line-height: 1.55; color: #4b5563; word-break: break-word;
+ white-space: pre-wrap;
  }
- .owned-plot-more-link {
- color: var(--primary); font-weight: 700; text-decoration: none;
- margin-left: 4px; white-space: nowrap;
+ .owned-plot-title-link {
+ color: #334155; font-weight: 800; text-decoration: none;
+ border-bottom: 1px dashed #94a3b8; padding-bottom: 1px;
+ transition: color 0.14s, border-color 0.14s;
  }
- .owned-plot-more-link:hover { text-decoration: underline; }
+ .owned-plot-title-link:hover { color: var(--primary); border-bottom-color: var(--primary); }
+ .owned-plot-toggle-btn {
+ background: none; border: none; color: #6b7280;
+ font-size: 11.5px; font-weight: 700; font-family: inherit;
+ cursor: pointer; padding: 0 2px; margin-left: 3px; white-space: nowrap;
+ }
+ .owned-plot-toggle-btn:hover { color: #374151; text-decoration: underline; }
  .owned-title-store-links {
  display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
  }
  .owned-title-store-icon {
- width: 26px; height: 26px; border-radius: 7px;
+ width: 21px; height: 21px; border-radius: 6px;
  border: 1px solid #cbd5e1; background: #ffffff;
  display: inline-flex; align-items: center; justify-content: center;
  text-decoration: none; flex-shrink: 0;
@@ -1067,7 +1080,41 @@
  .owned-title-store-icon:hover { background: #eef2ff; border-color: #a5b4fc; }
  .owned-title-store-icon:active { transform: scale(0.93); }
  .owned-title-store-icon img {
- width: 15px; height: 15px; border-radius: 2px; object-fit: contain; display: block;
+ width: 13px; height: 13px; border-radius: 2px; object-fit: contain; display: block;
+ }
+ .owned-mode-bar {
+ display: flex; align-items: center; gap: 6px; margin-top: 7px; flex-wrap: nowrap;
+ }
+ .owned-seg-group {
+ display: inline-flex; align-items: center; gap: 2px; padding: 2px;
+ border-radius: 999px; background: #eef2f6; border: 1px solid #e2e8f0;
+ }
+ .owned-seg-btn {
+ border: none; background: transparent; color: #4b5563;
+ font-size: 11px; font-weight: 800; padding: 4px 9px; border-radius: 999px;
+ cursor: pointer; font-family: inherit; white-space: nowrap;
+ transition: all 0.15s ease;
+ }
+ .owned-seg-btn:active { transform: scale(0.94); }
+ .owned-seg-btn.is-owned-on {
+ background: #059669; color: #ffffff; box-shadow: 0 1px 3px rgba(5, 150, 105, 0.28);
+ }
+ .owned-seg-btn.is-borrow-on {
+ background: #0284c7; color: #ffffff; box-shadow: 0 1px 3px rgba(2, 132, 199, 0.28);
+ }
+ .owned-seg-btn.is-sold-on {
+ background: #d97706; color: #ffffff; box-shadow: 0 1px 3px rgba(217, 119, 6, 0.28);
+ }
+ .owned-ebook-pill {
+ padding: 4px 10px; border-radius: 999px;
+ border: 1px solid #ddd6fe; background: #faf5ff; color: #6d28d9;
+ font-size: 11px; font-weight: 800; font-family: inherit;
+ cursor: pointer; white-space: nowrap; transition: all 0.15s ease;
+ }
+ .owned-ebook-pill:active { transform: scale(0.94); }
+ .owned-ebook-pill.is-ebook-on {
+ background: #7c3aed; border-color: #7c3aed; color: #ffffff;
+ box-shadow: 0 1px 3px rgba(124, 58, 237, 0.3);
  }
  .owned-meta-ext-links {
  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; padding-top: 8px;
@@ -1474,7 +1521,7 @@
  <button type="button" class="mylib-ghost-icon-btn" onclick="closePinPromptModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="18"></i></button>
  </div>
  <p id="pinPromptDesc" style="font-size:12.5px; color:var(--sec-text); margin:0 0 12px 0; line-height:1.45;">도서 추가·수정·삭제를 위해 설정된 쓰기 PIN을 입력해 주세요. (한 번 입력하면 이 기기에 저장됩니다)</p>
- <input type="password" id="pinPromptInput" class="form-input" inputmode="numeric" autocomplete="off" placeholder="PIN 숫자 입력" onkeydown="if(event.key==='Enter') submitPinPromptModal()">
+ <input type="password" id="pinPromptInput" class="form-input" inputmode="numeric" autocomplete="new-password" data-lpignore="true" placeholder="PIN 숫자 입력" onkeydown="if(event.key==='Enter') submitPinPromptModal()">
  <div class="memo-modal-actions" style="margin-top:14px;">
  <button type="button" class="memo-btn memo-btn-cancel" onclick="closePinPromptModal()">나중에</button>
  <button type="button" class="memo-btn memo-btn-save green" onclick="submitPinPromptModal()">확인</button>
@@ -1543,12 +1590,12 @@
  <div id="myLibSetupBox" class="mylib-setup-box hidden">
  <div><b>전체_도서_리스트(1)</b> 통합 Apps Script URL 및 쓰기 보호 PIN을 설정합니다.</div>
  <div class="mylib-setup-row">
- <input type="url" id="myLibUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+ <input type="text" id="myLibUrlInput" autocomplete="off" data-lpignore="true" spellcheck="false" placeholder="https://script.google.com/macros/s/.../exec">
  <button class="memo-btn memo-btn-save green" style="padding:7px 12px; font-size:12px;" onclick="saveCustomSheetUrl()">URL 저장</button>
  <button class="memo-btn memo-btn-cancel" style="padding:7px 10px; font-size:12px;" onclick="resetCustomSheetUrl()">기본값</button>
  </div>
  <div class="mylib-setup-row">
- <input type="password" id="myLibPinInput" placeholder="시트 쓰기 보호 PIN (Code.gs의 WRITE_PIN과 동일, 선택)">
+ <input type="password" id="myLibPinInput" autocomplete="new-password" data-lpignore="true" placeholder="시트 쓰기 보호 PIN (Code.gs의 WRITE_PIN과 동일, 선택)">
  <button class="memo-btn memo-btn-save" style="padding:7px 12px; font-size:12px;" onclick="saveSheetWritePin()">PIN 저장</button>
  </div>
  </div>
@@ -1639,7 +1686,12 @@
  <div id="ownedEditModalOverlay" class="memo-modal-overlay" style="z-index: 2100;" data-close-fn="closeOwnedEditModal">
  <div class="memo-modal-box">
  <div class="owned-edit-top-bar" style="align-items:center;">
+ <div style="display:flex; align-items:center; gap:5px; min-width:0;">
  <h3 class="memo-modal-title" id="ownedEditModalTitle" style="margin:0;">내 서재에 책 추가</h3>
+ <button type="button" id="ownedMetaRefreshBtn" class="mylib-ghost-icon-btn" style="width:24px; height:24px; border-radius:6px; flex-shrink:0;" onclick="refreshOwnedBookMetaNow()" title="카카오·국립중앙도서관에서 도서 정보 새로고침 (정보나루 API 미사용)" aria-label="도서 정보 새로고침">
+ <i data-lucide="refresh-cw" size="13"></i>
+ </button>
+ </div>
  <button type="button" class="mylib-ghost-icon-btn" onclick="closeOwnedEditModal()" title="닫기" aria-label="닫기">
  <i data-lucide="x" size="18"></i>
  </button>
@@ -1662,24 +1714,27 @@
  </div>
  <div class="owned-edit-cover-right">
  <div class="form-field" style="margin-bottom:0;">
- <label class="form-label" for="ownedInputTitle">
- <span>책 제목 *</span>
- <span class="title-toggle-group">
- <button type="button" id="ownedOwnToggleBtn" class="mini-pill-toggle is-owned-on" role="radio" aria-checked="true" title="소장" onclick="selectOwnedOwnershipMode('owned')">소장</button>
- <button type="button" id="ownedBorrowToggleBtn" class="mini-pill-toggle" role="radio" aria-checked="false" title="도서관 대여" onclick="selectOwnedOwnershipMode('borrowed')">대여</button>
- <button type="button" id="ownedSoldToggleBtn" class="mini-pill-toggle" role="radio" aria-checked="false" title="판매 완료" onclick="selectOwnedOwnershipMode('sold')">판매</button>
- <button type="button" id="ownedEbookToggleBtn" class="mini-pill-toggle" role="switch" aria-checked="false" title="e-book 여부" onclick="toggleOwnedEbookSwitch()">e-book</button>
- </span>
- </label>
- <div style="display:flex; align-items:center; gap:5px;">
- <input type="text" id="ownedInputTitle" class="form-input" style="flex:1; min-width:0;" placeholder="책 제목" oninput="renderOwnedMetaPlotBox()" onblur="triggerAutoFillOwnedMeta()">
+ <label class="form-label" for="ownedInputTitle" style="justify-content:flex-start; gap:6px;">
+ <span style="white-space:nowrap;">책 제목 *</span>
  <span id="ownedTitleStoreLinks" class="owned-title-store-links hidden">
  <a id="ownedKyoboIconLink" href="#" target="_blank" rel="noopener" class="owned-title-store-icon" title="교보문고에서 보기" aria-label="교보문고에서 보기"><img src="https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32" alt="교보문고"></a>
  <a id="ownedAladinIconLink" href="#" target="_blank" rel="noopener" class="owned-title-store-icon" title="알라딘에서 보기" aria-label="알라딘에서 보기"><img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" alt="알라딘"></a>
  </span>
- <button type="button" class="icon-square-btn" style="width:34px; height:34px; padding:0; flex-shrink:0; background:#eef2ff; border-color:#c7d2fe; color:#4338ca;" onclick="openBarcodeScanner('addModal')" title="ISBN 바코드 스캔" aria-label="ISBN 바코드 스캔">
- <i data-lucide="scan-barcode" size="17"></i>
+ </label>
+ <div style="display:flex; align-items:stretch; gap:6px;">
+ <input type="text" id="ownedInputTitle" class="form-input" style="flex:1; min-width:0; height:38px; padding:0 11px;" placeholder="책 제목" oninput="renderOwnedMetaPlotBox()" onblur="triggerAutoFillOwnedMeta()">
+ <button type="button" class="icon-square-btn" style="width:38px; height:38px; padding:0; flex-shrink:0; background:#eef2ff; border-color:#c7d2fe; color:#4338ca;" onclick="openBarcodeScanner('addModal')" title="ISBN 바코드 스캔" aria-label="ISBN 바코드 스캔">
+ <i data-lucide="scan-barcode" size="18"></i>
  </button>
+ </div>
+ <div class="owned-mode-bar">
+ <div class="owned-seg-group" role="radiogroup" aria-label="소장 형태">
+ <button type="button" id="ownedOwnToggleBtn" class="owned-seg-btn is-owned-on" role="radio" aria-checked="true" title="소장" onclick="selectOwnedOwnershipMode('owned')">소장</button>
+ <button type="button" id="ownedBorrowToggleBtn" class="owned-seg-btn" role="radio" aria-checked="false" title="도서관 대여" onclick="selectOwnedOwnershipMode('borrowed')">대여</button>
+ <button type="button" id="ownedSoldToggleBtn" class="owned-seg-btn" role="radio" aria-checked="false" title="판매 완료" onclick="selectOwnedOwnershipMode('sold')">판매</button>
+ </div>
+ <span class="mylib-filter-sep" aria-hidden="true"></span>
+ <button type="button" id="ownedEbookToggleBtn" class="owned-ebook-pill" role="switch" aria-checked="false" title="e-book 여부" onclick="toggleOwnedEbookSwitch()">e-book</button>
  </div>
  </div>
  </div>
@@ -1706,10 +1761,7 @@
 
  <div id="ownedMetaPlotBox" class="owned-meta-plot-box hidden">
  <div class="owned-meta-plot-header">
- <span id="ownedMetaPlotHeading" class="owned-meta-plot-heading">도서 상세 정보</span>
- <button type="button" id="ownedMetaRefreshBtn" class="mylib-ghost-icon-btn" style="width:16px; height:16px; border-radius:5px; margin-top:-3px; margin-right:-2px; flex-shrink:0;" onclick="refreshOwnedBookMetaNow()" title="카카오·국립중앙도서관에서 도서 정보 새로고침 (정보나루 API 미사용)" aria-label="도서 정보 새로고침">
- <i data-lucide="refresh-cw" size="9"></i>
- </button>
+ <span id="ownedMetaPlotHeading" class="owned-meta-plot-heading">책소개</span>
  </div>
  <div id="ownedIsbnEditRow" class="hidden" style="display:flex; gap:6px; align-items:center; margin-top:8px;">
  <input type="text" id="ownedInputIsbn" class="form-input" style="padding:7px 10px; font-size:12.5px;" placeholder="ISBN (10 또는 13자리)" oninput="renderOwnedMetaPlotBox()" onblur="triggerAutoFillOwnedMeta()">
@@ -2107,6 +2159,7 @@
  let currentModalVol = '';
  let currentModalLoanStats = '';
  let currentModalKakaoUrl = '';
+ let isOwnedPlotExpanded = false;
  let modalAuthorOtherBooksLoadedFor = '';
  let modalAuthorOtherBooksList = [];
  let currentRandomPick = null;
@@ -4627,6 +4680,7 @@
  currentModalVol = String(b.vol || '').trim();
  currentModalLoanStats = String(b.loanStats || '').trim();
  currentModalKakaoUrl = '';
+ isOwnedPlotExpanded = false;
  resetOwnedAuthorOtherBooksUI(b.author || '');
  toggleOwnedIsbnEditor(false);
  renderOwnedMetaPlotBox();
@@ -4862,6 +4916,11 @@
  return parts.join(' · ');
  }
 
+ function toggleOwnedPlotExpand() {
+ isOwnedPlotExpanded = !isOwnedPlotExpanded;
+ renderOwnedMetaPlotBox();
+ }
+
  function toggleOwnedIsbnEditor(forceOpen) {
  const row = document.getElementById('ownedIsbnEditRow');
  if (!row) return;
@@ -4886,11 +4945,18 @@
  const pubVal = (document.getElementById('ownedInputPublisher')?.value || '').trim();
  const isbnVal = normalizeIsbn(document.getElementById('ownedInputIsbn')?.value || '');
 
+ const titleVal = (document.getElementById('ownedInputTitle')?.value || '').trim();
+ const qKey = isbnVal || extractMainTitleForSearch(titleVal) || titleVal;
+ const daumUrl = qKey ? (currentModalKakaoUrl || `https://search.daum.net/search?w=book&q=${encodeURIComponent(qKey)}`) : '';
+
+ const titleLabelHtml = daumUrl
+ ? `<a href="${escapeHtml(daumUrl)}" target="_blank" rel="noopener" class="owned-plot-title-link" title="카카오 도서 검색으로 이동">책소개</a>`
+ : '<span>책소개</span>';
  const pubYearBadgeHtml = currentModalPubYear
  ? `<span class="owned-meta-inline-badge">${escapeHtml(formatPubYearText(currentModalPubYear))}</span>`
  : '';
  const isbnBadgeHtml = `<button type="button" class="owned-meta-inline-badge" style="border:1px solid #cbd5e1; background:#ffffff; cursor:pointer; font-family:inherit;" onclick="toggleOwnedIsbnEditor()" title="터치하여 ISBN 수정">${isbnVal ? `ISBN ${escapeHtml(isbnVal)}` : 'ISBN 입력'}</button>`;
- heading.innerHTML = `<span>도서 상세 정보</span>${pubYearBadgeHtml}${isbnBadgeHtml}`;
+ heading.innerHTML = `${titleLabelHtml}${pubYearBadgeHtml}${isbnBadgeHtml}`;
 
  const KDC_MAJOR_MAP = {
  '0': '총류', '1': '철학', '2': '종교', '3': '사회과학', '4': '자연과학',
@@ -4917,13 +4983,15 @@
  metaEl.innerHTML = badges.join('');
  metaEl.classList.toggle('hidden', badges.length === 0);
 
- const titleVal = (document.getElementById('ownedInputTitle')?.value || '').trim();
- const qKey = isbnVal || extractMainTitleForSearch(titleVal) || titleVal;
  const descText = cleanDesc || '등록된 줄거리 정보가 없습니다.';
-
- if (qKey) {
- const daumUrl = currentModalKakaoUrl || `https://search.daum.net/search?w=book&q=${encodeURIComponent(qKey)}`;
- body.innerHTML = `${escapeHtml(descText)} <a href="${escapeHtml(daumUrl)}" target="_blank" rel="noopener" class="owned-plot-more-link">자세히</a>`;
+ const PLOT_PREVIEW_LIMIT = 115;
+ if (descText.length > PLOT_PREVIEW_LIMIT) {
+ if (!isOwnedPlotExpanded) {
+ const previewText = descText.slice(0, PLOT_PREVIEW_LIMIT).replace(/[\s.…]+$/, '');
+ body.innerHTML = `${escapeHtml(previewText)}...<button type="button" class="owned-plot-toggle-btn" onclick="toggleOwnedPlotExpand()">더보기</button>`;
+ } else {
+ body.innerHTML = `${escapeHtml(descText)} <button type="button" class="owned-plot-toggle-btn" onclick="toggleOwnedPlotExpand()">접기</button>`;
+ }
  } else {
  body.innerText = descText;
  }

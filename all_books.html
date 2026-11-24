@@ -1513,7 +1513,131 @@
  .toast-undo-btn:active { background: rgba(255, 255, 255, 0.35); }
  .toast-banner.error { background: rgba(185, 28, 28, 0.94); }
  .toast-banner.success { background: rgba(5, 150, 105, 0.95); }
- </style>
+ 
+ /* ··· 팝오버 / 하단 바텀시트 / 멀티 셀렉트 UI */
+ .mylib-card-more-btn {
+   width: 26px; height: 26px; border-radius: 7px; border: none;
+   background: transparent; color: #64748b; cursor: pointer;
+   display: inline-flex; align-items: center; justify-content: center;
+   flex-shrink: 0; padding: 0; transition: background-color 0.14s, color 0.14s;
+ }
+ .mylib-card-more-btn:hover, .mylib-card-more-btn:active { background: #f1f5f9; color: #0f172a; }
+ .mylib-item-right-ctrl {
+   display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0;
+ }
+ .quick-popover-backdrop {
+   position: fixed; inset: 0; z-index: 2450; background: transparent;
+ }
+ .quick-popover-menu {
+   position: fixed; z-index: 2460; min-width: 196px; max-width: 240px;
+   background: #ffffff; border: 1px solid #e2e8f0; border-radius: 13px;
+   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16), 0 2px 6px rgba(15, 23, 42, 0.08);
+   padding: 8px; display: flex; flex-direction: column; gap: 6px;
+ }
+ .quick-popover-section-label {
+   font-size: 10.5px; font-weight: 800; color: #94a3b8; padding: 2px 4px 0 4px;
+ }
+ .quick-popover-status-grid {
+   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px;
+ }
+ .quick-status-btn {
+   border: 1px solid #e2e8f0; background: #f8fafc; color: #334155;
+   border-radius: 8px; padding: 6px 4px; font-size: 11.5px; font-weight: 700;
+   cursor: pointer; font-family: inherit; transition: all 0.12s;
+ }
+ .quick-status-btn:active { transform: scale(0.96); }
+ .quick-status-btn.active { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; }
+ .quick-status-btn.active-done { border-color: #dc2626; background: #fef2f2; color: #b91c1c; }
+ .quick-popover-divider { height: 1px; background: #f1f5f9; margin: 2px 0; }
+ .quick-popover-item {
+   width: 100%; border: none; background: transparent; color: #1e293b;
+   border-radius: 8px; padding: 8px 9px; font-size: 12.5px; font-weight: 700;
+   display: flex; align-items: center; gap: 8px; cursor: pointer; text-align: left;
+   font-family: inherit;
+ }
+ .quick-popover-item:hover, .quick-popover-item:active { background: #f1f5f9; }
+ .quick-popover-item.danger { color: #dc2626; }
+ .quick-popover-item.danger:hover, .quick-popover-item.danger:active { background: #fef2f2; }
+
+ /* 하단 바텀시트 (내 서재 상단 관리 메뉴) */
+ .bottom-sheet-overlay {
+   position: fixed; inset: 0; z-index: 2400;
+   background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(2px);
+   display: flex; align-items: flex-end; justify-content: center;
+   opacity: 0; pointer-events: none; transition: opacity 0.18s ease;
+ }
+ .bottom-sheet-overlay.open { opacity: 1; pointer-events: auto; }
+ .bottom-sheet-box {
+   width: 100%; max-width: 520px; background: #ffffff;
+   border-radius: 20px 20px 0 0; padding: 10px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+   box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.18);
+   transform: translateY(24px); transition: transform 0.2s ease;
+ }
+ .bottom-sheet-overlay.open .bottom-sheet-box { transform: translateY(0); }
+ .bottom-sheet-handle {
+   width: 38px; height: 4px; border-radius: 999px; background: #cbd5e1;
+   margin: 0 auto 12px auto;
+ }
+ .bottom-sheet-title {
+   font-size: 14px; font-weight: 800; color: #0f172a; margin: 0 0 10px 4px;
+ }
+ .bottom-sheet-list { display: flex; flex-direction: column; gap: 4px; }
+ .bottom-sheet-item {
+   width: 100%; border: none; background: #f8fafc; color: #1e293b;
+   border-radius: 12px; padding: 12px 14px; font-size: 13.5px; font-weight: 700;
+   display: flex; align-items: center; justify-content: space-between; gap: 10px;
+   cursor: pointer; font-family: inherit; transition: background-color 0.12s;
+ }
+ .bottom-sheet-item:hover, .bottom-sheet-item:active { background: #eef2ff; color: #1d4ed8; }
+ .bottom-sheet-item-left { display: inline-flex; align-items: center; gap: 10px; }
+ .bottom-sheet-badge {
+   font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 999px;
+   background: #fee2e2; color: #b91c1c;
+ }
+
+ /* 멀티 셀렉트 모드 */
+ .mylib-item.is-selected {
+   border-color: #2563eb !important; background: #eff6ff !important;
+   box-shadow: 0 0 0 1.5px rgba(37, 99, 235, 0.25);
+ }
+ .mylib-select-check {
+   width: 20px; height: 20px; border-radius: 50%; border: 2px solid #cbd5e1;
+   background: #ffffff; display: inline-flex; align-items: center; justify-content: center;
+   font-size: 11px; font-weight: 900; color: transparent; flex-shrink: 0;
+   transition: all 0.14s;
+ }
+ .mylib-item.is-selected .mylib-select-check {
+   border-color: #2563eb; background: #2563eb; color: #ffffff;
+ }
+ .mylib-multiselect-bar {
+   position: sticky; bottom: 0; z-index: 30;
+   background: #0f172a; color: #ffffff; border-radius: 14px;
+   padding: 10px 12px; margin-top: 8px;
+   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
+   display: flex; flex-direction: column; gap: 8px;
+ }
+ .mylib-multiselect-top {
+   display: flex; align-items: center; justify-content: space-between; gap: 8px;
+   font-size: 12.5px; font-weight: 800;
+ }
+ .mylib-multiselect-top-btns { display: inline-flex; align-items: center; gap: 6px; }
+ .mylib-ms-ghost-btn {
+   border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.08);
+   color: #e2e8f0; border-radius: 7px; padding: 4px 8px; font-size: 11.5px; font-weight: 700;
+   cursor: pointer; font-family: inherit;
+ }
+ .mylib-multiselect-actions {
+   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+ }
+ .mylib-ms-action-btn {
+   flex: 1; min-width: 58px; border: none; border-radius: 8px; padding: 7px 6px;
+   font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;
+   background: rgba(255,255,255,0.14); color: #ffffff;
+ }
+ .mylib-ms-action-btn:active { transform: scale(0.97); }
+ .mylib-ms-action-btn.danger { background: #dc2626; color: #ffffff; }
+
+</style>
 </head>
 <body>
 
@@ -1841,15 +1965,9 @@
  <h3 class="mylib-header-title"><i data-lucide="library" size="18"></i> 내 서재</h3>
  <div id="myLibSubSummary" class="mylib-sub-summary hidden"></div>
  <div class="mylib-header-actions" style="gap:2px;">
- <button type="button" class="mylib-ghost-icon-btn" onclick="syncAllFromSheet(true)" title="시트 새로고침" aria-label="시트 새로고침">
- <i data-lucide="refresh-cw" size="15"></i>
- </button>
- <button type="button" class="mylib-ghost-icon-btn" id="myLibDupFilterBtn" data-status="duplicates" onclick="setMyLibStatusFilter('duplicates')" title="중복 확인" aria-label="중복 확인">
- <i data-lucide="alert-triangle" size="16"></i>
+ <button type="button" class="mylib-ghost-icon-btn" id="myLibDupFilterBtn" onclick="openMyLibManageSheet()" title="서재 관리 메뉴" aria-label="서재 관리 메뉴">
+ <i data-lucide="more-horizontal" size="18"></i>
  <span id="myLibDupDot" class="mylib-dup-dot hidden">0</span>
- </button>
- <button type="button" class="mylib-ghost-icon-btn" onclick="toggleMyLibSetupBox()" title="환경설정 (시트 URL · PIN)" aria-label="환경설정">
- <i data-lucide="settings" size="16"></i>
  </button>
  <button type="button" class="mylib-ghost-icon-btn" onclick="closeMyLibraryModal()" title="닫기" aria-label="닫기">
  <i data-lucide="x" size="18"></i>
@@ -1961,6 +2079,21 @@
  </div>
 
  <div id="myLibListContainer" class="mylib-list" style="padding-bottom: 72px;"></div>
+ <div id="myLibMultiSelectBar" class="mylib-multiselect-bar hidden">
+ <div class="mylib-multiselect-top">
+ <span id="myLibMultiSelectCount">0권 선택됨</span>
+ <div class="mylib-multiselect-top-btns">
+ <button type="button" class="mylib-ms-ghost-btn" id="myLibSelectAllBtn" onclick="toggleSelectAllMyLib()">전체선택</button>
+ <button type="button" class="mylib-ms-ghost-btn" onclick="exitMyLibMultiSelectMode()">취소</button>
+ </div>
+ </div>
+ <div class="mylib-multiselect-actions">
+ <button type="button" class="mylib-ms-action-btn" onclick="batchUpdateSelectedStatus('예정')">예정</button>
+ <button type="button" class="mylib-ms-action-btn" onclick="batchUpdateSelectedStatus('읽는 중')">읽는 중</button>
+ <button type="button" class="mylib-ms-action-btn" onclick="batchUpdateSelectedStatus('완독')">완독</button>
+ <button type="button" class="mylib-ms-action-btn danger" onclick="batchDeleteSelectedBooks()">삭제</button>
+ </div>
+ </div>
  </div>
 
  <div id="myLibFabStack" class="mylib-fab-stack">
@@ -2006,9 +2139,14 @@
  <div class="memo-modal-box">
  <div class="owned-edit-top-bar" style="align-items:center;">
  <h3 class="memo-modal-title" id="ownedEditModalTitle" style="margin:0;">내 서재에 책 추가</h3>
+ <div style="display:inline-flex; align-items:center; gap:2px;">
+ <button type="button" id="ownedEditMoreBtn" class="mylib-ghost-icon-btn" onclick="openOwnedEditMorePopover(event)" title="더보기 메뉴" aria-label="더보기 메뉴">
+ <i data-lucide="more-horizontal" size="18"></i>
+ </button>
  <button type="button" class="mylib-ghost-icon-btn" onclick="closeOwnedEditModal()" title="닫기" aria-label="닫기">
  <i data-lucide="x" size="18"></i>
  </button>
+ </div>
  </div>
 
  <label id="removeBookmarkCheckRow" class="checkbox-row hidden">
@@ -2216,6 +2354,37 @@
  </div>
  </div>
  </div>
+
+ 
+ <!-- 내 서재 관리 하단 바텀시트 -->
+ <div id="myLibManageSheetOverlay" class="bottom-sheet-overlay" onclick="if(event.target===this) closeMyLibManageSheet()">
+ <div class="bottom-sheet-box">
+ <div class="bottom-sheet-handle"></div>
+ <h4 class="bottom-sheet-title">내 서재 관리</h4>
+ <div class="bottom-sheet-list">
+ <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); setMyLibStatusFilter('duplicates');">
+ <span class="bottom-sheet-item-left"><i data-lucide="alert-triangle" size="17"></i><span>중복 도서 확인</span></span>
+ <span id="manageSheetDupBadge" class="bottom-sheet-badge hidden">0</span>
+ </button>
+ <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); enterMyLibMultiSelectMode();">
+ <span class="bottom-sheet-item-left"><i data-lucide="check-square" size="17"></i><span>다중 선택 모드 (일괄 변경 · 삭제)</span></span>
+ </button>
+ <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); syncAllFromSheet(true);">
+ <span class="bottom-sheet-item-left"><i data-lucide="refresh-cw" size="17"></i><span>캐시 새로고침 (시트 동기화)</span></span>
+ </button>
+ <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); openGoogleSheetDirect();">
+ <span class="bottom-sheet-item-left"><i data-lucide="external-link" size="17"></i><span>구글 시트 바로 열기</span></span>
+ </button>
+ <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); toggleMyLibSetupBox();">
+ <span class="bottom-sheet-item-left"><i data-lucide="settings" size="17"></i><span>환경설정 (시트 URL · PIN)</span></span>
+ </button>
+ </div>
+ </div>
+ </div>
+
+ <!-- 공용 퀵 액션 팝오버 (카드 ··· / 상세 모달 ···) -->
+ <div id="quickPopoverBackdrop" class="quick-popover-backdrop hidden" onclick="closeQuickPopover()"></div>
+ <div id="quickPopoverMenu" class="quick-popover-menu hidden" onclick="event.stopPropagation()"></div>
 
  <script>
  const TRASH_ICON_SVG_14 = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>';
@@ -4755,6 +4924,13 @@
  }
 
  function closeMyLibraryModal() {
+ closeQuickPopover();
+ closeMyLibManageSheet();
+ if (myLibMultiSelectMode) {
+   myLibMultiSelectMode = false;
+   myLibSelectedRows.clear();
+   updateMyLibMultiSelectBar();
+ }
  toggleMyLibFabMenu(false);
  document.getElementById('myLibModalOverlay').classList.remove('open');
  popModalHistory('myLib');
@@ -5333,7 +5509,7 @@
 
  return `
  ${groupHeaderHtml}
- <div class="mylib-item ${cardStateCls}" onclick="openOwnedEditModalByIndex(${idx})">
+ <div class="mylib-item ${cardStateCls} ${myLibMultiSelectMode && myLibSelectedRows.has(b.row) ? 'is-selected' : ''}" data-book-idx="${idx}" onclick="handleMyLibCardClick(event, ${idx})" onpointerdown="handleMyLibCardPointerDown(event, ${idx})" onpointermove="handleMyLibCardPointerMove(event)" onpointerup="cancelMyLibCardLongPress()" onpointercancel="cancelMyLibCardLongPress()" oncontextmenu="if(myLibMultiSelectMode) event.preventDefault();">
  <div class="mylib-item-row">
  ${thumbHtml}
  <div class="mylib-item-body">
@@ -5344,7 +5520,9 @@
  </div>
  ${myLibDuplicatesMode
  ? `<div class="owned-mini-actions" onclick="event.stopPropagation()"><button class="owned-chip-btn danger icon-trash-btn" onclick="quickDeleteOwnedByIndex(${idx})" title="삭제" aria-label="삭제">${TRASH_ICON_SVG_14}</button></div>`
- : (ratingShort ? `<span class="mylib-card-heart-rating">${ratingShort}</span>` : '')}
+ : (myLibMultiSelectMode
+   ? `<span class="mylib-select-check" aria-hidden="true">✓</span>`
+   : `<div class="mylib-item-right-ctrl" onclick="event.stopPropagation()">${ratingShort ? `<span class="mylib-card-heart-rating">${ratingShort}</span>` : ''}<button type="button" class="mylib-card-more-btn" onclick="openCardQuickActionPopover(event, ${idx})" title="빠른 작업" aria-label="빠른 작업"><i data-lucide="more-horizontal" size="16"></i></button></div>`)}
  </div>
  ${b.review ? `<div class="mylib-item-review">💬 ${escapeHtml(b.review)}</div>` : ''}
  <div class="mylib-item-badges">
@@ -5368,6 +5546,282 @@
  }
  listEl.innerHTML = html;
  refreshIcons();
+ }
+
+ 
+ const DEFAULT_GOOGLE_SHEET_VIEW_URL = 'https://docs.google.com/spreadsheets/d/1yIJUUF9n1tenlcBfPTN02q2KqJg1AyBMgrBeFcAUJwY/edit';
+ let myLibMultiSelectMode = false;
+ let myLibSelectedRows = new Set();
+ let myLibLongPressTimer = null;
+ let myLibLongPressStartX = 0;
+ let myLibLongPressStartY = 0;
+ let myLibLongPressTriggered = false;
+
+ function openMyLibManageSheet() {
+   closeQuickPopover();
+   const overlay = document.getElementById('myLibManageSheetOverlay');
+   if (!overlay) return;
+   const dupCount = getDuplicateOwnedBookSet().size;
+   const badge = document.getElementById('manageSheetDupBadge');
+   if (badge) {
+     badge.textContent = String(dupCount);
+     badge.classList.toggle('hidden', dupCount === 0);
+   }
+   overlay.classList.add('open');
+   refreshIcons();
+ }
+
+ function closeMyLibManageSheet() {
+   document.getElementById('myLibManageSheetOverlay')?.classList.remove('open');
+ }
+
+ function openGoogleSheetDirect() {
+   window.open(DEFAULT_GOOGLE_SHEET_VIEW_URL, '_blank', 'noopener');
+ }
+
+ function positionQuickPopover(anchorEl) {
+   const menu = document.getElementById('quickPopoverMenu');
+   if (!menu || !anchorEl) return;
+   const rect = anchorEl.getBoundingClientRect();
+   menu.style.visibility = 'hidden';
+   menu.classList.remove('hidden');
+   const mw = menu.offsetWidth || 200;
+   const mh = menu.offsetHeight || 140;
+   let left = rect.right - mw;
+   if (left < 10) left = 10;
+   if (left + mw > window.innerWidth - 10) left = window.innerWidth - mw - 10;
+   let top = rect.bottom + 6;
+   if (top + mh > window.innerHeight - 12) {
+     top = Math.max(10, rect.top - mh - 6);
+   }
+   menu.style.left = left + 'px';
+   menu.style.top = top + 'px';
+   menu.style.visibility = 'visible';
+ }
+
+ function closeQuickPopover() {
+   document.getElementById('quickPopoverBackdrop')?.classList.add('hidden');
+   document.getElementById('quickPopoverMenu')?.classList.add('hidden');
+ }
+
+ function openCardQuickActionPopover(ev, idx) {
+   ev.stopPropagation();
+   const b = myOwnedBooks[idx];
+   if (!b) return;
+   const menu = document.getElementById('quickPopoverMenu');
+   const backdrop = document.getElementById('quickPopoverBackdrop');
+   if (!menu || !backdrop) return;
+   const curSt = normalizeReadingStatus(b.status);
+   const statuses = ['예정', '읽는 중', '완독', '중단'];
+   const statusBtns = statuses.map(st => {
+     const isAct = curSt === st;
+     const cls = isAct ? (st === '완독' ? 'active-done' : 'active') : '';
+     return `<button type="button" class="quick-status-btn ${cls}" onclick="quickChangeOwnedStatus(${idx}, '${st}')">${st}</button>`;
+   }).join('');
+   menu.innerHTML = `
+     <div class="quick-popover-section-label">독서 상태 변경</div>
+     <div class="quick-popover-status-grid">${statusBtns}</div>
+     <div class="quick-popover-divider"></div>
+     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); quickDeleteOwnedByIndex(${idx});">
+       <i data-lucide="trash-2" size="15"></i><span>이 책 삭제</span>
+     </button>
+   `;
+   backdrop.classList.remove('hidden');
+   positionQuickPopover(ev.currentTarget);
+   refreshIcons();
+ }
+
+ function openOwnedEditMorePopover(ev) {
+   ev.stopPropagation();
+   const menu = document.getElementById('quickPopoverMenu');
+   const backdrop = document.getElementById('quickPopoverBackdrop');
+   if (!menu || !backdrop) return;
+   const isEdit = activeOwnedEditContext && activeOwnedEditContext.mode === 'edit';
+   menu.innerHTML = `
+     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); runModalMetaApiRefetch();">
+       <i data-lucide="refresh-cw" size="15"></i><span>도서 정보 API 재조회</span>
+     </button>
+     ${isEdit ? `<div class="quick-popover-divider"></div>
+     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); deleteOwnedBookFromModal();">
+       <i data-lucide="trash-2" size="15"></i><span>이 책 삭제</span>
+     </button>` : ''}
+   `;
+   backdrop.classList.remove('hidden');
+   positionQuickPopover(ev.currentTarget);
+   refreshIcons();
+ }
+
+ async function runModalMetaApiRefetch() {
+   showToast('도서 정보를 API에서 다시 불러오는 중...', 'info');
+   lastAutoFillQueryKey = '';
+   await autoFillOwnedBookMeta('', false, true);
+ }
+
+ async function quickChangeOwnedStatus(idx, newStatus) {
+   closeQuickPopover();
+   const b = myOwnedBooks[idx];
+   if (!b) return;
+   const today = getTodayDateStr();
+   const updatedBook = { ...b, status: newStatus };
+   if (newStatus === '읽는 중' && !updatedBook.startDate) updatedBook.startDate = today;
+   if (newStatus === '완독' && !updatedBook.finishDate) updatedBook.finishDate = today;
+   try {
+     const res = await sendSheetPost({
+       target: 'library',
+       action: 'lib_update',
+       row: b.row,
+       origTitle: b.title,
+       origAuthor: b.author,
+       book: updatedBook
+     });
+     if (res && res.status === 'ok') {
+       showToast(`'${formatOwnedTitle(b)}' 상태를 '${newStatus}'(으)로 변경했어요.`, 'success');
+     }
+   } catch (e) {
+     showToast('상태 변경에 실패했습니다.', 'error');
+   }
+ }
+
+ function handleMyLibCardPointerDown(ev, idx) {
+   if (myLibDuplicatesMode || myLibMultiSelectMode) return;
+   if (ev.target.closest('button')) return;
+   myLibLongPressTriggered = false;
+   myLibLongPressStartX = ev.clientX;
+   myLibLongPressStartY = ev.clientY;
+   cancelMyLibCardLongPress();
+   myLibLongPressTimer = setTimeout(() => {
+     myLibLongPressTriggered = true;
+     const b = myOwnedBooks[idx];
+     if (!b) return;
+     if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) {} }
+     enterMyLibMultiSelectMode(b.row);
+   }, 480);
+ }
+
+ function handleMyLibCardPointerMove(ev) {
+   if (!myLibLongPressTimer) return;
+   if (Math.hypot(ev.clientX - myLibLongPressStartX, ev.clientY - myLibLongPressStartY) > 10) {
+     cancelMyLibCardLongPress();
+   }
+ }
+
+ function cancelMyLibCardLongPress() {
+   if (myLibLongPressTimer) {
+     clearTimeout(myLibLongPressTimer);
+     myLibLongPressTimer = null;
+   }
+ }
+
+ function handleMyLibCardClick(ev, idx) {
+   if (myLibLongPressTriggered) {
+     myLibLongPressTriggered = false;
+     return;
+   }
+   if (myLibMultiSelectMode) {
+     const b = myOwnedBooks[idx];
+     if (!b) return;
+     if (myLibSelectedRows.has(b.row)) myLibSelectedRows.delete(b.row);
+     else myLibSelectedRows.add(b.row);
+     updateMyLibMultiSelectBar();
+     renderMyLibraryList(false);
+     return;
+   }
+   openOwnedEditModalByIndex(idx);
+ }
+
+ function enterMyLibMultiSelectMode(initialRow) {
+   myLibDuplicatesMode = false;
+   myLibMultiSelectMode = true;
+   myLibSelectedRows.clear();
+   if (initialRow !== undefined && initialRow !== null) myLibSelectedRows.add(initialRow);
+   updateMyLibMultiSelectBar();
+   renderMyLibraryList(false);
+ }
+
+ function exitMyLibMultiSelectMode() {
+   myLibMultiSelectMode = false;
+   myLibSelectedRows.clear();
+   updateMyLibMultiSelectBar();
+   renderMyLibraryList(false);
+ }
+
+ function updateMyLibMultiSelectBar() {
+   const bar = document.getElementById('myLibMultiSelectBar');
+   const cntEl = document.getElementById('myLibMultiSelectCount');
+   const allBtn = document.getElementById('myLibSelectAllBtn');
+   const fab = document.getElementById('myLibFabStack');
+   if (fab) fab.classList.toggle('hidden', myLibMultiSelectMode);
+   if (!bar) return;
+   bar.classList.toggle('hidden', !myLibMultiSelectMode);
+   if (cntEl) cntEl.textContent = `${myLibSelectedRows.size}권 선택됨`;
+   if (allBtn) {
+     const visibleCards = document.querySelectorAll('#myLibListContainer .mylib-item[data-book-idx]');
+     const allSelected = visibleCards.length > 0 && myLibSelectedRows.size >= visibleCards.length;
+     allBtn.textContent = allSelected ? '전체해제' : '전체선택';
+   }
+ }
+
+ function toggleSelectAllMyLib() {
+   const cards = Array.from(document.querySelectorAll('#myLibListContainer .mylib-item[data-book-idx]'));
+   const visibleRows = cards.map(el => myOwnedBooks[Number(el.getAttribute('data-book-idx'))]?.row).filter(r => r !== undefined);
+   const allSelected = visibleRows.length > 0 && visibleRows.every(r => myLibSelectedRows.has(r));
+   if (allSelected) {
+     myLibSelectedRows.clear();
+   } else {
+     visibleRows.forEach(r => myLibSelectedRows.add(r));
+   }
+   updateMyLibMultiSelectBar();
+   renderMyLibraryList(false);
+ }
+
+ async function batchUpdateSelectedStatus(newStatus) {
+   const targets = myOwnedBooks.filter(b => myLibSelectedRows.has(b.row));
+   if (targets.length === 0) { showToast('선택된 책이 없어요.', 'info'); return; }
+   const today = getTodayDateStr();
+   let okCount = 0;
+   showToast(`${targets.length}권의 상태를 '${newStatus}'(으)로 변경 중...`, 'info');
+   for (const b of targets) {
+     const updatedBook = { ...b, status: newStatus };
+     if (newStatus === '읽는 중' && !updatedBook.startDate) updatedBook.startDate = today;
+     if (newStatus === '완독' && !updatedBook.finishDate) updatedBook.finishDate = today;
+     try {
+       const res = await sendSheetPost({
+         target: 'library',
+         action: 'lib_update',
+         row: b.row,
+         origTitle: b.title,
+         origAuthor: b.author,
+         book: updatedBook
+       });
+       if (res && res.status === 'ok') okCount++;
+     } catch (e) {}
+   }
+   exitMyLibMultiSelectMode();
+   showToast(`${okCount}권을 '${newStatus}'(으)로 변경했어요.`, 'success');
+ }
+
+ async function batchDeleteSelectedBooks() {
+   const targets = myOwnedBooks.filter(b => myLibSelectedRows.has(b.row)).sort((a, b) => (Number(b.row) || 0) - (Number(a.row) || 0));
+   if (targets.length === 0) { showToast('선택된 책이 없어요.', 'info'); return; }
+   if (!confirm(`선택한 ${targets.length}권을 내 서재 시트에서 삭제할까요?`)) return;
+   let okCount = 0;
+   showToast(`${targets.length}권 삭제 중...`, 'info');
+   for (const target of targets) {
+     try {
+       const res = await sendSheetPost({
+         target: 'library',
+         action: 'lib_delete',
+         row: target.row,
+         origTitle: target.title,
+         origAuthor: target.author,
+         origIsbn: target.isbn,
+         origIsEbook: isOwnedEbook(target)
+       });
+       if (res && res.status === 'ok') okCount++;
+     } catch (e) {}
+   }
+   exitMyLibMultiSelectMode();
+   showToast(`${okCount}권을 삭제했어요.`, 'success');
  }
 
  function loadMoreMyLibrary() {

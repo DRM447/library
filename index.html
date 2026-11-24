@@ -883,7 +883,7 @@
  background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12.5px; color: #374151;
  }
  .owned-meta-plot-header {
- display: flex; align-items: center; justify-content: space-between; gap: 6px;
+ display: flex; align-items: flex-start; justify-content: space-between; gap: 6px;
  font-weight: 800; color: #334155;
  }
  .owned-meta-plot-heading {
@@ -1048,6 +1048,26 @@
  .owned-meta-plot-body {
  margin-top: 8px; line-height: 1.5; color: #4b5563; word-break: break-word;
  max-height: 150px; overflow-y: auto; white-space: pre-wrap;
+ }
+ .owned-plot-more-link {
+ color: var(--primary); font-weight: 700; text-decoration: none;
+ margin-left: 4px; white-space: nowrap;
+ }
+ .owned-plot-more-link:hover { text-decoration: underline; }
+ .owned-title-store-links {
+ display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+ }
+ .owned-title-store-icon {
+ width: 26px; height: 26px; border-radius: 7px;
+ border: 1px solid #cbd5e1; background: #ffffff;
+ display: inline-flex; align-items: center; justify-content: center;
+ text-decoration: none; flex-shrink: 0;
+ transition: background-color 0.14s, border-color 0.14s, transform 0.1s;
+ }
+ .owned-title-store-icon:hover { background: #eef2ff; border-color: #a5b4fc; }
+ .owned-title-store-icon:active { transform: scale(0.93); }
+ .owned-title-store-icon img {
+ width: 15px; height: 15px; border-radius: 2px; object-fit: contain; display: block;
  }
  .owned-meta-ext-links {
  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; padding-top: 8px;
@@ -1651,10 +1671,14 @@
  <button type="button" id="ownedEbookToggleBtn" class="mini-pill-toggle" role="switch" aria-checked="false" title="e-book 여부" onclick="toggleOwnedEbookSwitch()">e-book</button>
  </span>
  </label>
- <div style="display:flex; align-items:center; gap:6px;">
- <input type="text" id="ownedInputTitle" class="form-input" style="flex:1; min-width:0;" placeholder="책 제목" onblur="triggerAutoFillOwnedMeta()">
- <button type="button" class="icon-square-btn" style="width:38px; height:38px; padding:0; flex-shrink:0; background:#eef2ff; border-color:#c7d2fe; color:#4338ca;" onclick="openBarcodeScanner('addModal')" title="ISBN 바코드 스캔" aria-label="ISBN 바코드 스캔">
- <i data-lucide="scan-barcode" size="18"></i>
+ <div style="display:flex; align-items:center; gap:5px;">
+ <input type="text" id="ownedInputTitle" class="form-input" style="flex:1; min-width:0;" placeholder="책 제목" oninput="renderOwnedMetaPlotBox()" onblur="triggerAutoFillOwnedMeta()">
+ <span id="ownedTitleStoreLinks" class="owned-title-store-links hidden">
+ <a id="ownedKyoboIconLink" href="#" target="_blank" rel="noopener" class="owned-title-store-icon" title="교보문고에서 보기" aria-label="교보문고에서 보기"><img src="https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32" alt="교보문고"></a>
+ <a id="ownedAladinIconLink" href="#" target="_blank" rel="noopener" class="owned-title-store-icon" title="알라딘에서 보기" aria-label="알라딘에서 보기"><img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" alt="알라딘"></a>
+ </span>
+ <button type="button" class="icon-square-btn" style="width:34px; height:34px; padding:0; flex-shrink:0; background:#eef2ff; border-color:#c7d2fe; color:#4338ca;" onclick="openBarcodeScanner('addModal')" title="ISBN 바코드 스캔" aria-label="ISBN 바코드 스캔">
+ <i data-lucide="scan-barcode" size="17"></i>
  </button>
  </div>
  </div>
@@ -1683,8 +1707,8 @@
  <div id="ownedMetaPlotBox" class="owned-meta-plot-box hidden">
  <div class="owned-meta-plot-header">
  <span id="ownedMetaPlotHeading" class="owned-meta-plot-heading">도서 상세 정보</span>
- <button type="button" id="ownedMetaRefreshBtn" class="mylib-ghost-icon-btn" style="width:20px; height:20px; flex-shrink:0;" onclick="refreshOwnedBookMetaNow()" title="카카오·국립중앙도서관에서 도서 정보 새로고침 (정보나루 API 미사용)" aria-label="도서 정보 새로고침">
- <i data-lucide="refresh-cw" size="10"></i>
+ <button type="button" id="ownedMetaRefreshBtn" class="mylib-ghost-icon-btn" style="width:16px; height:16px; border-radius:5px; margin-top:-3px; margin-right:-2px; flex-shrink:0;" onclick="refreshOwnedBookMetaNow()" title="카카오·국립중앙도서관에서 도서 정보 새로고침 (정보나루 API 미사용)" aria-label="도서 정보 새로고침">
+ <i data-lucide="refresh-cw" size="9"></i>
  </button>
  </div>
  <div id="ownedIsbnEditRow" class="hidden" style="display:flex; gap:6px; align-items:center; margin-top:8px;">
@@ -1693,7 +1717,6 @@
  </div>
  <div id="ownedMetaPlotMeta" class="owned-meta-plot-meta"></div>
  <div id="ownedMetaPlotBody" class="owned-meta-plot-body"></div>
- <div id="ownedMetaExtLinks" class="owned-meta-ext-links"></div>
  </div>
 
  <div id="ownedDueDateField" class="due-date-row hidden">
@@ -4864,7 +4887,7 @@
  const isbnVal = normalizeIsbn(document.getElementById('ownedInputIsbn')?.value || '');
 
  const pubYearBadgeHtml = currentModalPubYear
- ? `<span class="owned-meta-inline-badge">출간연도 ${escapeHtml(formatPubYearText(currentModalPubYear))}</span>`
+ ? `<span class="owned-meta-inline-badge">${escapeHtml(formatPubYearText(currentModalPubYear))}</span>`
  : '';
  const isbnBadgeHtml = `<button type="button" class="owned-meta-inline-badge" style="border:1px solid #cbd5e1; background:#ffffff; cursor:pointer; font-family:inherit;" onclick="toggleOwnedIsbnEditor()" title="터치하여 ISBN 수정">${isbnVal ? `ISBN ${escapeHtml(isbnVal)}` : 'ISBN 입력'}</button>`;
  heading.innerHTML = `<span>도서 상세 정보</span>${pubYearBadgeHtml}${isbnBadgeHtml}`;
@@ -4889,29 +4912,32 @@
  } else if (volHash) {
  badges.push(`<span class="mylib-badge series">${escapeHtml(volHash)}</span>`);
  }
- if (pubVal) badges.push(`<span class="mylib-badge">${escapeHtml(pubVal)}</span>`);
  if (cleanCategory) badges.push(`<span class="mylib-badge">🏷️ ${escapeHtml(cleanCategory)}</span>`);
  if (currentModalLoanStats) badges.push(`<span class="mylib-badge status-reading">📊 ${escapeHtml(currentModalLoanStats)}</span>`);
  metaEl.innerHTML = badges.join('');
  metaEl.classList.toggle('hidden', badges.length === 0);
 
- body.innerText = cleanDesc || '등록된 줄거리 정보가 없습니다.';
-
- const extEl = document.getElementById('ownedMetaExtLinks');
- if (extEl) {
  const titleVal = (document.getElementById('ownedInputTitle')?.value || '').trim();
  const qKey = isbnVal || extractMainTitleForSearch(titleVal) || titleVal;
+ const descText = cleanDesc || '등록된 줄거리 정보가 없습니다.';
+
  if (qKey) {
  const daumUrl = currentModalKakaoUrl || `https://search.daum.net/search?w=book&q=${encodeURIComponent(qKey)}`;
- const aladinUrl = `https://www.aladin.co.kr/m/msearch.aspx?SearchWord=${encodeURIComponent(qKey)}&SearchTarget=All&start=h_keyword`;
- extEl.innerHTML = `
- <a href="${escapeHtml(daumUrl)}" target="_blank" rel="noopener" class="owned-ext-link-pill">📘 다음 책 (목차·서평)</a>
- <a href="${escapeHtml(aladinUrl)}" target="_blank" rel="noopener" class="owned-ext-link-pill">📖 알라딘 상세</a>
- `;
- extEl.classList.remove('hidden');
+ body.innerHTML = `${escapeHtml(descText)} <a href="${escapeHtml(daumUrl)}" target="_blank" rel="noopener" class="owned-plot-more-link">자세히</a>`;
  } else {
- extEl.innerHTML = '';
- extEl.classList.add('hidden');
+ body.innerText = descText;
+ }
+
+ const storeLinksEl = document.getElementById('ownedTitleStoreLinks');
+ const kyoboLinkEl = document.getElementById('ownedKyoboIconLink');
+ const aladinLinkEl = document.getElementById('ownedAladinIconLink');
+ if (storeLinksEl && kyoboLinkEl && aladinLinkEl) {
+ if (qKey) {
+ kyoboLinkEl.href = `https://search.kyobobook.co.kr/search?keyword=${encodeURIComponent(qKey)}`;
+ aladinLinkEl.href = `https://www.aladin.co.kr/m/msearch.aspx?SearchWord=${encodeURIComponent(qKey)}&SearchTarget=All&start=h_keyword`;
+ storeLinksEl.classList.remove('hidden');
+ } else {
+ storeLinksEl.classList.add('hidden');
  }
  }
 

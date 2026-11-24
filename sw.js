@@ -1,4 +1,4 @@
-const CACHE_NAME = 'allbooks-cache-v78';
+const CACHE_NAME = 'allbooks-cache-v79';
 const CORE_URLS = [
   './all_books.html',
   './manifest.json',
@@ -6,8 +6,7 @@ const CORE_URLS = [
   './icon-192.png',
   './icon-512.png',
   './icon-maskable-512.png',
-  './apple-touch-icon.png',
-  './ewha_font.ttf'
+  './apple-touch-icon.png'
 ];
 
 const LUCIDE_CDN_URL = 'https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js';

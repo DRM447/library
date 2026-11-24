@@ -14,13 +14,6 @@
  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
 
  <style>
- @font-face {
- font-family: 'EwhaFont';
- src: url('ewha_font.ttf') format('truetype');
- font-weight: normal;
- font-style: normal;
- }
-
  :root {
  --primary: #4f46e5;
  --primary-hover: #4338ca;
@@ -45,7 +38,7 @@
  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
  body {
- font-family: 'EwhaFont', -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+ font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
  background-color: var(--bg);
  color: var(--text);
  margin: 0;
@@ -278,24 +271,54 @@
  .recent-tags-header .section-title { margin-bottom: 0; font-size: 15px; color: var(--text); }
  .delete-all-btn { background: #f1f5f9; border: 1px solid #e2e8f0; color: #64748b; font-size: 12px; font-weight: 700; cursor: pointer; padding: 6px 8px; border-radius: 8px; transition: all 0.16s; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; }
  .delete-all-btn:hover, .delete-all-btn:active { background: #fff1f2; border-color: #fecdd3; color: #e11d48; }
- .is-ebook-cover {
- border: 1.5px solid #8b5cf6 !important;
- box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.55), 0 0 10px rgba(124, 58, 237, 0.42), inset 0 0 6px rgba(196, 181, 253, 0.3) !important;
+ /* 독서 상태별 표지 테두리 (예정: 회색빛 / 읽는 중: 파란빛 / 완독: 검정 / 중단: 빨강) */
+ .cover-status-planned {
+ border: 1.6px solid #94a3b8 !important;
+ box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.48), 0 0 9px rgba(100, 116, 139, 0.34), inset 0 0 5px rgba(226, 232, 240, 0.28) !important;
  }
- .cover-done-obi,
- .cover-reading-obi,
- .cover-planned-obi,
- .cover-sold-obi {
- position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);
- color: #ffffff; font-size: 11px; font-weight: 900; text-align: center;
- letter-spacing: 2px; line-height: 1.25; padding: 6px 0;
+ .cover-status-reading {
+ border: 1.6px solid #3b82f6 !important;
+ box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.58), 0 0 11px rgba(37, 99, 235, 0.44), inset 0 0 6px rgba(191, 219, 254, 0.32) !important;
+ }
+ .cover-status-done {
+ border: 2px solid #18181b !important;
+ box-shadow: 0 0 0 1px rgba(24, 24, 27, 0.22) !important;
+ }
+ .cover-status-stop {
+ border: 2px solid #dc2626 !important;
+ box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35), 0 0 8px rgba(220, 38, 38, 0.26) !important;
+ }
+
+ /* 표지 하단 에디토리얼 띠지 (소장 / 대여 / 판매) */
+ .cover-own-obi {
+ position: absolute; left: 0; right: 0; bottom: 0;
+ color: #ffffff; font-size: 9.5px; font-weight: 700; text-align: center;
+ letter-spacing: 1.6px; line-height: 1.25; padding: 3.5px 0;
  pointer-events: none; z-index: 2;
- box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
+ backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+ border-top: 1px solid rgba(255, 255, 255, 0.2);
  }
- .cover-done-obi { background: rgba(220, 38, 38, 0.9); }
- .cover-reading-obi { background: rgba(37, 99, 235, 0.88); }
- .cover-planned-obi { background: rgba(217, 119, 6, 0.88); }
- .cover-sold-obi { background: rgba(71, 85, 105, 0.9); }
+ .cover-own-obi.owned { background: rgba(15, 118, 110, 0.78); }
+ .cover-own-obi.borrowed { background: rgba(30, 64, 175, 0.76); }
+ .cover-own-obi.sold { background: rgba(68, 64, 60, 0.82); }
+
+ /* 표지 좌측 상단 원형 형태 딱지 (종이책: '종' / e-book: 'E') */
+ .cover-format-dot {
+ position: absolute; top: 4px; left: 4px; z-index: 3;
+ width: 18px; height: 18px; border-radius: 50%;
+ display: inline-flex; align-items: center; justify-content: center;
+ font-size: 9.5px; font-weight: 800; line-height: 1;
+ pointer-events: none;
+ box-shadow: 0 1px 4px rgba(15, 23, 42, 0.28);
+ }
+ .cover-format-dot.paper {
+ background: rgba(255, 255, 255, 0.94); color: #334155;
+ border: 1px solid rgba(15, 23, 42, 0.16);
+ }
+ .cover-format-dot.ebook {
+ background: rgba(109, 40, 217, 0.92); color: #ffffff;
+ border: 1px solid rgba(255, 255, 255, 0.35);
+ }
  .recent-tags { display: flex; flex-wrap: wrap; gap: 8px; }
  .recent-tag {
  background-color: var(--tag-bg); color: var(--tag-text); padding: 8px 14px; border-radius: 20px;
@@ -2156,9 +2179,8 @@
 
  <div class="owned-edit-cover-wrap">
  <div id="ownedCoverCol" class="owned-cover-col" onclick="triggerOwnedCoverUpload()" title="터치하여 표지 이미지 첨부 또는 변경">
- <span id="ownedCoverStateBadge" class="cover-badge owned" style="top:3px; left:3px; font-size:9px; padding:1px 5px;">소장</span>
- <div id="ownedCoverSoldObi" class="cover-sold-obi hidden">판매</div>
- <div id="ownedCoverStatusObi" class="cover-done-obi hidden"></div>
+ <span id="ownedCoverStateBadge" class="cover-format-dot paper">종</span>
+ <div id="ownedCoverOwnObi" class="cover-own-obi owned">소장</div>
  <img id="ownedEditCoverImg" class="owned-edit-cover hidden" src="" alt="책 표지" onerror="handleOwnedCoverError()">
  <div class="owned-cover-placeholder">
  <i data-lucide="image-plus" size="18"></i>
@@ -3118,37 +3140,59 @@
  return s;
  }
 
- function getCoverStatusObiHtml(book) {
+ function getCoverStatusBorderCls(book) {
  if (!book) return '';
- if (isOwnedSold(book)) return '<div class="cover-sold-obi">판매</div>';
  const st = normalizeReadingStatus(book.status);
- if (st === '완독') return '<div class="cover-done-obi">완독</div>';
- if (st === '읽는 중') return '<div class="cover-reading-obi">읽는 중</div>';
- if (st === '예정') return '<div class="cover-planned-obi">예정</div>';
+ if (st === '예정') return 'cover-status-planned';
+ if (st === '읽는 중') return 'cover-status-reading';
+ if (st === '완독') return 'cover-status-done';
+ if (st === '중단' || st === '중지') return 'cover-status-stop';
  return '';
  }
 
- function updateOwnedModalCoverStatusObi() {
- const obiEl = document.getElementById('ownedCoverStatusObi');
- if (!obiEl) return;
- if (selectedOwnedIsSold) {
- obiEl.className = 'cover-done-obi hidden';
- obiEl.textContent = '';
- return;
+ function getCoverOwnershipObiHtml(book) {
+ if (!book) return '';
+ if (isOwnedSold(book)) return '<div class="cover-own-obi sold">판매</div>';
+ if (isOwnedBorrowed(book)) return '<div class="cover-own-obi borrowed">대여</div>';
+ return '<div class="cover-own-obi owned">소장</div>';
  }
+
+ function getCoverFormatDotHtml(book) {
+ if (!book) return '';
+ const ebook = isOwnedEbook(book);
+ return ebook
+ ? '<span class="cover-format-dot ebook" aria-label="e-book">E</span>'
+ : '<span class="cover-format-dot paper" aria-label="종이책">종</span>';
+ }
+
+ function updateOwnedModalCoverVisuals() {
+ const colEl = document.getElementById('ownedCoverCol');
+ if (colEl) {
+ colEl.classList.remove('cover-status-planned', 'cover-status-reading', 'cover-status-done', 'cover-status-stop');
  const st = normalizeReadingStatus(selectedOwnedStatus);
- if (st === '완독') {
- obiEl.className = 'cover-done-obi';
- obiEl.textContent = '완독';
- } else if (st === '읽는 중') {
- obiEl.className = 'cover-reading-obi';
- obiEl.textContent = '읽는 중';
- } else if (st === '예정') {
- obiEl.className = 'cover-planned-obi';
- obiEl.textContent = '예정';
+ if (st === '예정') colEl.classList.add('cover-status-planned');
+ else if (st === '읽는 중') colEl.classList.add('cover-status-reading');
+ else if (st === '완독') colEl.classList.add('cover-status-done');
+ else if (st === '중단' || st === '중지') colEl.classList.add('cover-status-stop');
+ }
+ const fmtBadge = document.getElementById('ownedCoverStateBadge');
+ if (fmtBadge) {
+ fmtBadge.className = 'cover-format-dot ' + (selectedOwnedIsEbook ? 'ebook' : 'paper');
+ fmtBadge.removeAttribute('style');
+ fmtBadge.textContent = selectedOwnedIsEbook ? 'E' : '종';
+ }
+ const obiEl = document.getElementById('ownedCoverOwnObi');
+ if (obiEl) {
+ if (selectedOwnedIsSold) {
+ obiEl.className = 'cover-own-obi sold';
+ obiEl.textContent = '판매';
+ } else if (selectedOwnedIsBorrowed) {
+ obiEl.className = 'cover-own-obi borrowed';
+ obiEl.textContent = '대여';
  } else {
- obiEl.className = 'cover-done-obi hidden';
- obiEl.textContent = '';
+ obiEl.className = 'cover-own-obi owned';
+ obiEl.textContent = '소장';
+ }
  }
  }
 
@@ -4360,7 +4404,7 @@
  const metaParts = [srcHtml, escapeHtml(formatAuthorWithSuffix(b.author)), st ? escapeHtml(st) : ''].filter(Boolean);
  return `
  <div class="owned-mini-row clickable" onclick="openOwnedEditModalByIndex(${idx})">
- <img class="home-borrow-thumb ${isOwnedEbook(b) ? 'is-ebook-cover' : ''}" src="${escapeHtml(thumbUrl)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG">
+ <img class="home-borrow-thumb ${getCoverStatusBorderCls(b)}" src="${escapeHtml(thumbUrl)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG">
  <div class="owned-mini-info">
  <p class="owned-mini-title">${escapeHtml(formatOwnedTitle(b))} ${dueBadge}</p>
  <p class="owned-mini-meta">${metaParts.join(' · ')}</p>
@@ -4443,15 +4487,12 @@
  .map(t => `<span class="mylib-badge">#${escapeHtml(t)}</span>`).join('');
 
  const randomThumbUrl = getOwnedBookThumbUrl(b);
- const randomOwnBadgeHtml = isOwnedBorrowed(b)
- ? '<span class="cover-badge borrowed" style="top:3px; left:3px; font-size:9px; padding:1px 5px;">대여</span>'
- : '<span class="cover-badge owned" style="top:3px; left:3px; font-size:9px; padding:1px 5px;">소장</span>';
  container.innerHTML = `
  ${undoBarHtml}
  <div class="random-pick-box clickable" onclick="openOwnedEditModalByIndex(${idx})">
- <div class="random-pick-thumb-wrap ${ebook ? 'is-ebook-cover' : ''}">
- ${randomOwnBadgeHtml}
- ${getCoverStatusObiHtml(b)}
+ <div class="random-pick-thumb-wrap ${getCoverStatusBorderCls(b)}">
+ ${getCoverFormatDotHtml(b)}
+ ${getCoverOwnershipObiHtml(b)}
  <img class="random-pick-thumb" src="${escapeHtml(randomThumbUrl)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG">
  </div>
  <div class="random-pick-body">
@@ -4693,7 +4734,7 @@
  bar.classList.remove('hidden');
  if (addBtn) addBtn.classList.add('hidden');
  const owned = matched.owned;
- document.getElementById('mainBookCover')?.classList.toggle('is-ebook-cover', isOwnedEbook(owned));
+ const mbc = document.getElementById('mainBookCover'); if (mbc) { mbc.classList.remove('cover-status-planned', 'cover-status-reading', 'cover-status-done', 'cover-status-stop'); const stCls = getCoverStatusBorderCls(owned); if (stCls) mbc.classList.add(stCls); }
  const ebook = isOwnedEbook(owned);
  const borrowed = isOwnedBorrowed(owned);
  const sold = isOwnedSold(owned);
@@ -4731,7 +4772,7 @@
  bar.onclick = null;
  bar.innerHTML = '';
  if (addBtn) addBtn.classList.remove('hidden');
- document.getElementById('mainBookCover')?.classList.remove('is-ebook-cover');
+ document.getElementById('mainBookCover')?.classList.remove('cover-status-planned', 'cover-status-reading', 'cover-status-done', 'cover-status-stop');
  }
  }
 
@@ -5476,8 +5517,11 @@
  return '';
  };
  const srcColorCls = getSourceBadgeCls(srcText, isOwnedBorrowed(b));
+ const sourceBadgeHtml = srcText
+ ? `<span class="mylib-badge ${srcColorCls || (isOwnedBorrowed(b) ? 'src-other-lib' : 'ebook')}">${escapeHtml(srcText)}</span>`
+ : '';
  const dueBadgeHtml = getDueDateBadgeHtml(b);
- const tagBadges = dueBadgeHtml + rawTags.slice(0, 3)
+ const tagBadges = sourceBadgeHtml + dueBadgeHtml + rawTags.slice(0, 3)
  .map(t => `<span class="mylib-badge">#${escapeHtml(t)}</span>`).join('');
 
  let groupHeaderHtml = '';
@@ -5498,13 +5542,10 @@
  }
 
  const thumbUrl = getOwnedBookThumbUrl(b, listCoverCache);
- const coverStateBadge = isOwnedSold(b)
- ? '<span class="cover-badge sold" style="top:3px; left:3px; font-size:8.5px; padding:1px 4px;">판매</span>'
- : (isOwnedBorrowed(b)
- ? '<span class="cover-badge borrowed" style="top:3px; left:3px; font-size:8.5px; padding:1px 4px;">대여</span>'
- : '<span class="cover-badge owned" style="top:3px; left:3px; font-size:8.5px; padding:1px 4px;">소장</span>');
- const doneObiHtml = getCoverStatusObiHtml(b);
- const thumbHtml = `<div class="mylib-item-thumb-wrap ${ebook ? 'is-ebook-cover' : ''}">${coverStateBadge}${doneObiHtml}<img class="mylib-item-thumb" src="${escapeHtml(thumbUrl)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG"></div>`;
+ const formatDotHtml = getCoverFormatDotHtml(b);
+ const ownObiHtml = getCoverOwnershipObiHtml(b);
+ const statusBorderCls = getCoverStatusBorderCls(b);
+ const thumbHtml = `<div class="mylib-item-thumb-wrap ${statusBorderCls}">${formatDotHtml}${ownObiHtml}<img class="mylib-item-thumb" src="${escapeHtml(thumbUrl)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG"></div>`;
  const cardStateCls = myLibDuplicatesMode ? 'is-dup' : (statusVal === '완독' ? 'is-done' : '');
 
  return `
@@ -5526,7 +5567,7 @@
  </div>
  ${b.review ? `<div class="mylib-item-review">💬 ${escapeHtml(b.review)}</div>` : ''}
  <div class="mylib-item-badges">
- ${(statusVal && statusVal !== '완독') ? `<span class="mylib-badge ${statusCls}">${escapeHtml(statusVal)}</span>` : ''}
+ 
  ${formatReadingPeriod(b.startDate, b.finishDate) ? `<span class="mylib-badge date">📅 ${escapeHtml(formatReadingPeriod(b.startDate, b.finishDate))}</span>` : ''}
  ${formatSeriesBadgeText(b) ? `<span class="mylib-badge series">${escapeHtml(formatSeriesBadgeText(b))}</span>` : ''}
  ${tagBadges}
@@ -6072,7 +6113,7 @@
  }
  }
  updateDueDateFieldVisibility();
- updateOwnedModalCoverStatusObi();
+ updateOwnedModalCoverVisuals();
  }
 
  function selectOwnedRating(starVal, allowToggleReset = true) {
@@ -6244,12 +6285,13 @@
  if (ebBtn) {
  ebBtn.classList.toggle('active-ebook', selectedOwnedIsEbook);
  ebBtn.setAttribute('aria-checked', selectedOwnedIsEbook ? 'true' : 'false');
+ updateOwnedModalCoverVisuals();
  }
  if (ppBtn) {
  ppBtn.classList.toggle('active-paper', !selectedOwnedIsEbook);
  ppBtn.setAttribute('aria-checked', !selectedOwnedIsEbook ? 'true' : 'false');
  }
- document.getElementById('ownedCoverCol')?.classList.toggle('is-ebook-cover', selectedOwnedIsEbook);
+ updateOwnedModalCoverVisuals();
  refreshOwnedModeDependentFields();
  }
 
@@ -6274,22 +6316,7 @@
  soldBtn.classList.toggle('active-sold', selectedOwnedIsSold);
  soldBtn.setAttribute('aria-checked', selectedOwnedIsSold ? 'true' : 'false');
  }
- document.getElementById('ownedCoverSoldObi')?.classList.toggle('hidden', !selectedOwnedIsSold);
- updateOwnedModalCoverStatusObi();
- const badge = document.getElementById('ownedCoverStateBadge');
- if (badge) {
- badge.classList.remove('owned', 'borrowed', 'sold');
- if (selectedOwnedIsSold) {
- badge.classList.add('sold');
- badge.textContent = '판매';
- } else if (selectedOwnedIsBorrowed) {
- badge.classList.add('borrowed');
- badge.textContent = '대여';
- } else {
- badge.classList.add('owned');
- badge.textContent = '소장';
- }
- }
+ updateOwnedModalCoverVisuals();
  }
 
  function selectOwnedOwnershipMode(mode) {
@@ -7710,21 +7737,13 @@
  const yearEsc = escapeHtml(yearDisplay);
 
  const ownedMatch = findOwnedMatch(book);
- let badgeHtml = '';
- if (ownedMatch) {
- const ebook = isOwnedEbook(ownedMatch.owned);
- const borrowed = isOwnedBorrowed(ownedMatch.owned);
- const sold = isOwnedSold(ownedMatch.owned);
- if (sold) badgeHtml = `<span class="cover-badge sold">판매</span>`;
- else if (borrowed) badgeHtml = `<span class="cover-badge borrowed">대여</span>`;
- else badgeHtml = `<span class="cover-badge ${ebook ? 'ebook' : 'owned'}">${ebook ? 'e-book 보유' : '보유 중'}</span>`;
- }
+ const ownedObj = ownedMatch ? ownedMatch.owned : null;
 
  listHtml += `
  <div class="search-result-item" id="book-item-${index}" onclick="selectBook(${index})">
- <div class="cover-wrap ${ownedMatch && isOwnedEbook(ownedMatch.owned) ? 'is-ebook-cover' : ''}" style="border-radius:8px; overflow:hidden;">
- ${badgeHtml}
- ${ownedMatch ? getCoverStatusObiHtml(ownedMatch.owned) : ''}
+ <div class="cover-wrap ${ownedObj ? getCoverStatusBorderCls(ownedObj) : ''}" style="border-radius:8px; overflow:hidden;">
+ ${ownedObj ? getCoverFormatDotHtml(ownedObj) : ''}
+ ${ownedObj ? getCoverOwnershipObiHtml(ownedObj) : ''}
  <img src="${escapeHtml(normalizeCoverUrl(book.bookImageURL))}" onerror="this.onerror=null;this.src=NO_COVER_SVG">
  </div>
  <p class="result-title" title="${titleEsc}">${titleEsc}</p>
@@ -8248,7 +8267,7 @@
  let isEbookOwned = false;
  if (ownedMatch) {
  isEbookOwned = isOwnedEbook(ownedMatch.owned);
- if (isEbookOwned) coverWrap.classList.add('is-ebook-cover');
+ 
  const ownBadge = document.createElement('span');
  ownBadge.className = `cover-badge ${isEbookOwned ? 'ebook' : 'owned'}`;
  ownBadge.innerText = isEbookOwned ? 'e-book 보유' : '보유 중';

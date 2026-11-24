@@ -1023,6 +1023,44 @@
  margin-top: 8px; line-height: 1.5; color: #4b5563; word-break: break-word;
  max-height: 150px; overflow-y: auto; white-space: pre-wrap;
  }
+ .owned-meta-ext-links {
+ display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; padding-top: 8px;
+ border-top: 1px dashed #e2e8f0;
+ }
+ .owned-ext-link-pill {
+ display: inline-flex; align-items: center; gap: 4px;
+ padding: 4px 9px; border-radius: 999px;
+ background: #ffffff; border: 1px solid #cbd5e1; color: #334155;
+ font-size: 11px; font-weight: 700; text-decoration: none;
+ transition: background-color 0.14s, border-color 0.14s;
+ }
+ .owned-ext-link-pill:hover { background: #eef2ff; border-color: #a5b4fc; color: #4338ca; }
+ .owned-author-other-box {
+ margin-bottom: 11px; padding: 9px 11px; border-radius: 11px;
+ background: #f8fafc; border: 1px solid #e2e8f0;
+ }
+ .owned-author-other-box > summary {
+ display: flex; align-items: center; justify-content: space-between; gap: 8px;
+ font-size: 12px; font-weight: 800; color: #334155; cursor: pointer; list-style: none; outline: none;
+ }
+ .owned-author-other-box > summary::-webkit-details-marker { display: none; }
+ .owned-author-other-scroll {
+ display: flex; gap: 9px; overflow-x: auto; padding: 9px 2px 4px 2px;
+ }
+ .owned-author-other-card {
+ width: 72px; min-width: 72px; flex-shrink: 0; text-align: center; cursor: pointer; position: relative;
+ }
+ .owned-author-other-card img {
+ width: 72px; height: 104px; object-fit: cover; border-radius: 6px;
+ border: 1px solid var(--border); background: #f1f5f9; display: block; margin-bottom: 4px;
+ }
+ .owned-author-other-card p {
+ margin: 0; font-size: 10.5px; font-weight: 700; color: var(--text);
+ white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+ }
+ .owned-author-other-card .yr {
+ font-size: 9.5px; font-weight: 500; color: var(--sec-text); margin-top: 1px;
+ }
 
  .title-toggle-group {
  display: inline-flex; align-items: center; gap: 5px; margin-left: auto; flex-shrink: 0;
@@ -1600,6 +1638,9 @@
  <div id="ownedMetaPlotBox" class="owned-meta-plot-box hidden">
  <div class="owned-meta-plot-header">
  <span id="ownedMetaPlotHeading">📖 도서 상세 정보</span>
+ <button type="button" id="ownedMetaRefreshBtn" class="mylib-ghost-icon-btn" style="width:24px; height:24px;" onclick="refreshOwnedBookMetaNow()" title="카카오·국립중앙도서관에서 도서 정보 새로고침 (정보나루 API 미사용)" aria-label="도서 정보 새로고침">
+ <i data-lucide="refresh-cw" size="13"></i>
+ </button>
  </div>
  <div id="ownedIsbnEditRow" class="hidden" style="display:flex; gap:6px; align-items:center; margin-top:8px;">
  <input type="text" id="ownedInputIsbn" class="form-input" style="padding:7px 10px; font-size:12.5px;" placeholder="ISBN (10 또는 13자리)" oninput="renderOwnedMetaPlotBox()" onblur="triggerAutoFillOwnedMeta()">
@@ -1607,7 +1648,16 @@
  </div>
  <div id="ownedMetaPlotMeta" class="owned-meta-plot-meta"></div>
  <div id="ownedMetaPlotBody" class="owned-meta-plot-body"></div>
+ <div id="ownedMetaExtLinks" class="owned-meta-ext-links"></div>
  </div>
+
+ <details id="ownedAuthorOtherBooksDetails" class="owned-author-other-box hidden" ontoggle="handleOwnedAuthorOtherBooksToggle(this)">
+ <summary>
+ <span id="ownedAuthorOtherBooksTitle">✍️ 작가의 다른 책</span>
+ <span class="owned-search-toggle" style="padding:2px 8px; font-size:10.5px;"></span>
+ </summary>
+ <div id="ownedAuthorOtherBooksList" class="owned-author-other-scroll"></div>
+ </details>
 
  <div id="ownedDueDateField" class="due-date-row hidden">
  <label for="ownedInputDueDate" style="font-size:12px; font-weight:800; color:#0369a1; white-space:nowrap;">📅 반납 예정일</label>
@@ -1843,19 +1893,21 @@
  return data;
  }
 
- async function lookupBookViaSheetProxy(isbn, title, author) {
+ async function lookupBookViaSheetProxy(isbn, title, author, forceRefresh = false) {
  const cleanIsbn = normalizeIsbn(isbn);
  const cleanTitle = String(title || '').trim();
  const cacheKey = cleanIsbn
  ? `isbn:${cleanIsbn}`
  : `title:${cleanTitle.toLowerCase()}|${String(author || '').trim().toLowerCase()}`;
- if (!cleanIsbn && !cleanTitle) return null;
+ if (!cleanIsbn && !cleanTitle) return { ok: true, book: null };
 
+ if (!forceRefresh) {
  const cached = getApiCache('proxyBook', cacheKey, API_CACHE_TTL_MS);
- if (cached !== null) return cached.book || null;
+ if (cached !== null) return { ok: true, book: cached.book || null, cached: true };
+ }
 
  const sheetUrl = getUnifiedApiUrl();
- if (!sheetUrl) return null;
+ if (!sheetUrl) return { ok: false, error: '시트 URL이 설정되지 않았습니다.' };
  const sep = sheetUrl.includes('?') ? '&' : '?';
  const params = new URLSearchParams({ action: 'lookupBook' });
  if (cleanIsbn) params.set('isbn', cleanIsbn);
@@ -1864,15 +1916,17 @@
 
  try {
  const res = await fetch(`${sheetUrl}${sep}${params.toString()}`);
- if (!res.ok) return null;
+ if (!res.ok) return { ok: false, error: `서버 응답 오류 (HTTP ${res.status})` };
  const data = await res.json();
- if (!data || !('source' in data)) return null;
+ if (!data || !('source' in data)) {
+ return { ok: false, error: 'Code.gs를 최신 버전으로 재배포해 주세요.' };
+ }
  if (data.book) {
  setApiCache('proxyBook', cacheKey, { book: data.book }, 500);
  }
- return data.book || null;
+ return { ok: true, book: data.book || null, source: data.source };
  } catch (e) {
- return null;
+ return { ok: false, error: '네트워크 연결 또는 Apps Script 응답 오류입니다.' };
  }
  }
 
@@ -1992,6 +2046,9 @@
  let currentModalKdc = '';
  let currentModalVol = '';
  let currentModalLoanStats = '';
+ let currentModalKakaoUrl = '';
+ let modalAuthorOtherBooksLoadedFor = '';
+ let modalAuthorOtherBooksList = [];
  let currentRandomPick = null;
  let isHomeBorrowedExpanded = false;
  let lastStartReadingUndo = null;
@@ -4504,6 +4561,8 @@
  currentModalKdc = String(b.kdc || '').trim();
  currentModalVol = String(b.vol || '').trim();
  currentModalLoanStats = String(b.loanStats || '').trim();
+ currentModalKakaoUrl = '';
+ resetOwnedAuthorOtherBooksUI(b.author || '');
  toggleOwnedIsbnEditor(false);
  renderOwnedMetaPlotBox();
  loadOwnedEditCover(b);
@@ -4765,7 +4824,136 @@
  metaEl.innerHTML = badges.join('');
 
  body.innerText = cleanDesc || '등록된 줄거리 정보가 없습니다.';
+
+ const extEl = document.getElementById('ownedMetaExtLinks');
+ if (extEl) {
+ const titleVal = (document.getElementById('ownedInputTitle')?.value || '').trim();
+ const qKey = isbnVal || extractMainTitleForSearch(titleVal) || titleVal;
+ if (qKey) {
+ const daumUrl = currentModalKakaoUrl || `https://search.daum.net/search?w=book&q=${encodeURIComponent(qKey)}`;
+ const aladinUrl = `https://www.aladin.co.kr/m/msearch.aspx?SearchWord=${encodeURIComponent(qKey)}&SearchTarget=All&start=h_keyword`;
+ extEl.innerHTML = `
+ <a href="${escapeHtml(daumUrl)}" target="_blank" rel="noopener" class="owned-ext-link-pill">📘 다음 책 (목차·서평)</a>
+ <a href="${escapeHtml(aladinUrl)}" target="_blank" rel="noopener" class="owned-ext-link-pill">📖 알라딘 상세</a>
+ `;
+ extEl.classList.remove('hidden');
+ } else {
+ extEl.innerHTML = '';
+ extEl.classList.add('hidden');
+ }
+ }
+
  box.classList.remove('hidden');
+ }
+
+ function getPrimaryAuthorForModal(authorRaw) {
+ const people = extractPersonRoleEntries(authorRaw || '', '저자');
+ const primary = people.find(p => p.role === '저자') || people[0];
+ return primary?.name || String(authorRaw || '').split(/[,;\/]/)[0].trim();
+ }
+
+ function resetOwnedAuthorOtherBooksUI(authorRaw) {
+ const detailsEl = document.getElementById('ownedAuthorOtherBooksDetails');
+ const titleEl = document.getElementById('ownedAuthorOtherBooksTitle');
+ const listEl = document.getElementById('ownedAuthorOtherBooksList');
+ if (!detailsEl || !titleEl || !listEl) return;
+
+ modalAuthorOtherBooksLoadedFor = '';
+ modalAuthorOtherBooksList = [];
+ detailsEl.open = false;
+
+ const primaryAuthor = getPrimaryAuthorForModal(authorRaw);
+ if (!primaryAuthor || primaryAuthor === '저자 미상') {
+ detailsEl.classList.add('hidden');
+ listEl.innerHTML = '';
+ return;
+ }
+
+ titleEl.innerText = `✍️ ${primaryAuthor}의 다른 책`;
+ listEl.innerHTML = '';
+ detailsEl.classList.remove('hidden');
+ }
+
+ async function handleOwnedAuthorOtherBooksToggle(detailsEl) {
+ if (!detailsEl || !detailsEl.open) return;
+ const authorRaw = document.getElementById('ownedInputAuthor')?.value || activeOwnedEditContext?.book?.author || '';
+ const primaryAuthor = getPrimaryAuthorForModal(authorRaw);
+ if (!primaryAuthor || modalAuthorOtherBooksLoadedFor === primaryAuthor) return;
+
+ const listEl = document.getElementById('ownedAuthorOtherBooksList');
+ if (!listEl) return;
+ listEl.innerHTML = '<div style="font-size:12px; color:var(--sec-text); padding:10px 4px;">카카오에서 작가의 다른 책을 불러오는 중입니다...</div>';
+
+ try {
+ const cacheKey = primaryAuthor.toLowerCase();
+ let books = getApiCache('kakaoAuthor', cacheKey, API_CACHE_TTL_MS);
+ if (!Array.isArray(books)) {
+ const sheetUrl = getUnifiedApiUrl();
+ const sep = sheetUrl.includes('?') ? '&' : '?';
+ const res = await fetch(`${sheetUrl}${sep}action=authorBooks&author=${encodeURIComponent(primaryAuthor)}`);
+ if (!res.ok) throw new Error(`HTTP ${res.status}`);
+ const data = await res.json();
+ if (!data || !Array.isArray(data.books)) {
+ listEl.innerHTML = '<div style="font-size:12px; color:var(--sec-text); padding:10px 4px;">Code.gs를 최신 버전으로 재배포하면 작가의 다른 책을 볼 수 있습니다.</div>';
+ return;
+ }
+ books = data.books;
+ setApiCache('kakaoAuthor', cacheKey, books, 250);
+ }
+
+ const curTitleNorm = normalizeBookTitle(document.getElementById('ownedInputTitle')?.value || '');
+ const curIsbn = normalizeIsbn(document.getElementById('ownedInputIsbn')?.value || '');
+ const filtered = books.filter(b => {
+ if (curIsbn && b.isbn && normalizeIsbn(b.isbn) === curIsbn) return false;
+ if (curTitleNorm && normalizeBookTitle(b.title) === curTitleNorm) return false;
+ return true;
+ });
+
+ modalAuthorOtherBooksLoadedFor = primaryAuthor;
+ modalAuthorOtherBooksList = filtered;
+
+ if (filtered.length === 0) {
+ listEl.innerHTML = '<div style="font-size:12px; color:var(--sec-text); padding:10px 4px;">다른 등록 도서가 없습니다.</div>';
+ return;
+ }
+
+ listEl.innerHTML = filtered.map((b, idx) => {
+ const ownedMatch = findOwnedMatch({ bookname: b.title, authors: b.author, isbn13: b.isbn });
+ let badgeHtml = '';
+ if (ownedMatch) {
+ const eb = isOwnedEbook(ownedMatch.owned);
+ badgeHtml = `<span class="cover-badge ${eb ? 'ebook' : 'owned'}" style="font-size:9px; padding:1px 4px;">${eb ? 'e-book' : '보유'}</span>`;
+ }
+ return `
+ <div class="owned-author-other-card" onclick="openModalAuthorOtherBook(${idx})" title="${escapeHtml(b.title)}">
+ ${badgeHtml}
+ <img src="${escapeHtml(normalizeCoverUrl(b.cover))}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG">
+ <p>${escapeHtml(b.title)}</p>
+ <p class="yr">${b.pubYear ? escapeHtml(b.pubYear) + '년' : ''}</p>
+ </div>
+ `;
+ }).join('');
+ } catch (e) {
+ listEl.innerHTML = '<div style="font-size:12px; color:#b91c1c; padding:10px 4px;">작가의 다른 책을 불러오지 못했습니다.</div>';
+ }
+ }
+
+ function openModalAuthorOtherBook(idx) {
+ const b = modalAuthorOtherBooksList[idx];
+ if (!b) return;
+ const ownedMatch = findOwnedMatch({ bookname: b.title, authors: b.author, isbn13: b.isbn });
+ if (ownedMatch) {
+ const ownedIdx = myOwnedBooks.indexOf(ownedMatch.owned);
+ if (ownedIdx > -1) {
+ openOwnedEditModalByIndex(ownedIdx);
+ return;
+ }
+ }
+ closeOwnedEditModal();
+ closeMyLibraryModal();
+ const kw = extractMainTitleForSearch(b.title) || b.title;
+ document.getElementById('searchInput').value = kw;
+ executeSearch(kw);
  }
 
  function setOwnedCoverDisplay(url) {
@@ -4828,116 +5016,79 @@
  try { localStorage.setItem('autoMetaFetchedKeys', JSON.stringify(map)); } catch (e) {}
  }
 
- async function autoFetchMissingBookMetaOnEditOpen(book) {
+ async function refreshOwnedBookMetaNow() {
+ if (!activeOwnedEditContext) return;
+ lastAutoFillQueryKey = '';
+ await autoFillOwnedBookMeta('', false, true);
+ }
+
+ async function autoFetchMissingBookMetaOnEditOpen(book, forceRefresh = false) {
  if (!book || !activeOwnedEditContext || activeOwnedEditContext.mode !== 'edit') return;
 
  const hasSheetCover = !!String(book.cover || '').trim();
  const hasSheetDesc = !!String(book.description || '').trim();
  const hasSheetPubYear = !!String(book.pubYear || '').trim();
  const hasSheetKdc = !!String(book.kdc || '').trim();
- const hasSheetLoanStats = !!String(book.loanStats || '').trim();
  const hasSheetTranslator = !!String(book.translator || '').trim();
 
- // 이미 구글 시트에 표지·줄거리·KDC 중 하나라도 저장돼 있으면 모달 열기 시 자동 API 재호출 스킵 (수동 ✨ 버튼으로 언제든 보강 가능)
- if (hasSheetCover || hasSheetDesc || hasSheetKdc) return;
+ // 이미 시트에 표지와 줄거리가 모두 저장돼 있으면 요청 0회
+ if (!forceRefresh && hasSheetCover && hasSheetDesc) return;
 
  const isbn = normalizeIsbn(book.isbn);
  const title = String(book.title || '').trim();
  const fetchKey = isbn || normalizeBookTitle(title);
  if (!fetchKey) return;
 
- const triedMap = getAutoMetaFetchedKeys();
- // 30일 이내에 이미 조회 시도한 도서는 결과 유무와 관계없이 자동 재호출 차단 (API 낭비 방지)
- if (triedMap[fetchKey] && Date.now() - triedMap[fetchKey] < 30 * 24 * 60 * 60 * 1000) return;
-
  const targetRow = book.row;
- if (!currentModalCoverUrl) setOwnedCoverDisplay('');
- const plotBox = document.getElementById('ownedMetaPlotBox');
- const plotHeading = document.getElementById('ownedMetaPlotHeading');
- const plotBody = document.getElementById('ownedMetaPlotBody');
- if (plotBox && plotBox.classList.contains('hidden')) {
- plotBox.classList.remove('hidden');
- if (plotHeading) plotHeading.innerText = '📖 도서 상세 정보 불러오는 중...';
- if (plotBody) plotBody.innerText = '정보나루에서 표지·줄거리·분류·대출 통계를 조회하고 있습니다.';
- }
-
  try {
- let doc = null;
- let dtlData = null;
-
- // 0) 카카오(1순위) + 국립중앙도서관(2순위) 서버 프록시 우선 조회 (정보나루 API 절약)
- const proxyBook = await lookupBookViaSheetProxy(isbn.length >= 10 ? isbn : '', isbn.length >= 10 ? '' : title, book.author || '');
- if (proxyBook) {
- doc = {
- bookname: proxyBook.title || book.title || '',
- authors: proxyBook.author || book.author || '',
- translator: proxyBook.translator || '',
- publisher: proxyBook.publisher || book.publisher || '',
- isbn13: proxyBook.isbn || isbn,
- publication_year: proxyBook.pubYear || '',
- bookImageURL: proxyBook.cover || '',
- description: proxyBook.description || '',
- vol: proxyBook.vol || '',
- class_nm: proxyBook.kdc || ''
- };
- }
-
- // 1) 프록시 미매칭 시 정보나루 폴백 (ISBN 우선, 90일 로컬 캐시)
- if (!doc && isbn.length >= 10) {
- dtlData = await fetchD4lDetailCached(isbn, true).catch(() => null);
- doc = dtlData?.response?.detail?.[0]?.book || null;
- } else if (!doc && title) {
- // 2) ISBN이 비어 있을 때만 제목으로 조회
- const cleanT = title.replace(/^\d{1,3}\s+(?=\D)/, '').replace(/\([^)]*\)/g, '').trim();
- const data = await data4LibFetchJson(`https://data4library.kr/api/srchBooks?authKey=${apiKey}&title=${encodeURIComponent(cleanT)}&pageNo=1&pageSize=5&format=json`).catch(() => null);
- const docs = data?.response?.docs || [];
- const best = (book.author ? docs.find(d => hasAuthorOverlap(d.doc.authors, book.author)) : null) || docs[0];
- doc = best ? best.doc : null;
- const foundIsbn = normalizeIsbn(doc?.isbn13 || doc?.isbn);
- if (foundIsbn.length >= 10 && (!doc?.description || !doc?.class_nm)) {
- dtlData = await fetchD4lDetailCached(foundIsbn, true).catch(() => null);
- const dtlBook = dtlData?.response?.detail?.[0]?.book;
- if (dtlBook) doc = { ...doc, ...dtlBook };
- }
- }
-
- markAutoMetaFetchedKey(fetchKey);
+ // 카카오(1순위) + 국립중앙도서관(2순위)만 조회 — 정보나루 API는 0회!
+ const proxyRes = await lookupBookViaSheetProxy(
+ isbn.length >= 10 ? isbn : '',
+ isbn.length >= 10 ? '' : title,
+ book.author || '',
+ forceRefresh
+ );
+ if (!proxyRes.ok || !proxyRes.book) return;
+ const proxyBook = proxyRes.book;
 
  const isSameModalOpen = activeOwnedEditContext && activeOwnedEditContext.mode === 'edit' && activeOwnedEditContext.book.row === targetRow;
 
- const fetchedCover = doc?.bookImageURL ? normalizeCoverUrl(doc.bookImageURL) : (currentModalCoverUrl || '');
- const fetchedPubYear = String(doc?.publication_year || book.pubYear || '').trim();
- const fetchedDesc = stripHtmlText(doc?.description || book.description || '').slice(0, 600);
- const fetchedKdc = formatKdcFromDoc(doc) || String(book.kdc || '').trim();
- const fetchedVol = String(doc?.vol || book.vol || '').trim();
- const fetchedLoanStats = summarizeLoanInfoFromDtlResponse(dtlData, doc) || String(book.loanStats || '').trim();
- const fetchedTranslator = String(doc?.translator || '').trim() || (doc?.authors ? splitAuthorAndTranslator(doc.authors).translator : '') || String(book.translator || '').trim();
+ const fetchedCover = proxyBook.cover ? normalizeCoverUrl(proxyBook.cover) : (currentModalCoverUrl || '');
+ const fetchedPubYear = String(proxyBook.pubYear || book.pubYear || '').trim();
+ const fetchedDesc = stripHtmlText(proxyBook.description || book.description || '').slice(0, 600);
+ const fetchedKdc = String(proxyBook.kdc || book.kdc || '').trim();
+ const fetchedVol = String(proxyBook.vol || book.vol || '').trim();
+ const fetchedTranslator = String(proxyBook.translator || '').trim() || String(book.translator || '').trim();
 
  if (fetchedCover) saveBookCoverCache(fetchKey, fetchedCover);
 
  if (isSameModalOpen) {
- if (fetchedCover) setOwnedCoverDisplay(fetchedCover);
- else setOwnedCoverDisplay('');
-
- if (fetchedPubYear) currentModalPubYear = fetchedPubYear;
- if (fetchedDesc) currentModalDescription = fetchedDesc;
- if (fetchedKdc) currentModalKdc = fetchedKdc;
- if (fetchedVol) { currentModalVol = fetchedVol; const volEl = document.getElementById('ownedInputVol'); if (volEl && !volEl.value.trim()) volEl.value = fetchedVol; }
- if (fetchedTranslator) { const trEl = document.getElementById('ownedInputTranslator'); if (trEl && !trEl.value.trim()) trEl.value = fetchedTranslator; }
- if (fetchedLoanStats) currentModalLoanStats = fetchedLoanStats;
+ if (proxyBook.url) currentModalKakaoUrl = proxyBook.url;
+ if (fetchedCover && !currentModalCoverUrl) setOwnedCoverDisplay(fetchedCover);
+ if (fetchedPubYear && !currentModalPubYear) currentModalPubYear = fetchedPubYear;
+ if (fetchedDesc && !currentModalDescription) currentModalDescription = fetchedDesc;
+ if (fetchedKdc && !currentModalKdc) currentModalKdc = fetchedKdc;
+ if (fetchedVol && !currentModalVol) {
+ currentModalVol = fetchedVol;
+ const volEl = document.getElementById('ownedInputVol');
+ if (volEl && !volEl.value.trim()) volEl.value = fetchedVol;
+ }
+ if (fetchedTranslator) {
+ const trEl = document.getElementById('ownedInputTranslator');
+ if (trEl && !trEl.value.trim()) trEl.value = fetchedTranslator;
+ }
  renderOwnedMetaPlotBox();
  }
 
- // 로컬 메모리(myLibraryBooks)에도 즉시 반영해 새로고침 전 재클릭 시 API 중복 호출 차단
+ // 로컬 메모리(myOwnedBooks)에도 즉시 반영
  if (fetchedCover && !book.cover) book.cover = fetchedCover;
  if (fetchedPubYear && !book.pubYear) book.pubYear = fetchedPubYear;
  if (fetchedDesc && !book.description) book.description = fetchedDesc;
  if (fetchedKdc && !book.kdc) book.kdc = fetchedKdc;
  if (fetchedVol && !book.vol) book.vol = fetchedVol;
  if (fetchedTranslator && !book.translator) book.translator = fetchedTranslator;
- if (fetchedLoanStats && !book.loanStats) book.loanStats = fetchedLoanStats;
 
- const needSheetSave = (fetchedCover && !hasSheetCover) || (fetchedPubYear && !hasSheetPubYear) || (fetchedDesc && !hasSheetDesc) || (fetchedKdc && !hasSheetKdc) || (fetchedLoanStats && !hasSheetLoanStats) || (fetchedTranslator && !hasSheetTranslator);
+ const needSheetSave = (fetchedCover && !hasSheetCover) || (fetchedPubYear && !hasSheetPubYear) || (fetchedDesc && !hasSheetDesc) || (fetchedKdc && !hasSheetKdc) || (fetchedTranslator && !hasSheetTranslator);
  if (needSheetSave) {
  sendSheetPost({
  target: 'library',
@@ -4951,15 +5102,10 @@
  kdc: fetchedKdc,
  vol: fetchedVol,
  translator: fetchedTranslator,
- loanStats: fetchedLoanStats
+ loanStats: book.loanStats || ''
  }).catch(() => {});
  }
- } catch (e) {
- if (activeOwnedEditContext && activeOwnedEditContext.book.row === targetRow) {
- if (!currentModalCoverUrl) setOwnedCoverDisplay('');
- renderOwnedMetaPlotBox();
- }
- }
+ } catch (e) {}
  }
 
  /* 스페이스바/쉼표/엔터 기반 태그 칩 에디터 */
@@ -5068,33 +5214,56 @@
  autoFillOwnedBookMeta(isbnVal, false, false);
  }
 
- async function autoFillOwnedBookMeta(forcedIsbn = '', silent = false, isManual = false) {
+ async function autoFillOwnedBookMeta(forcedIsbn = '', silent = false, forceRefresh = false) {
  const rawIsbn = String(forcedIsbn || document.getElementById('ownedInputIsbn')?.value || '').trim();
  const isbnVal = normalizeIsbn(rawIsbn);
  const title = (document.getElementById('ownedInputTitle')?.value || '').trim();
  const author = (document.getElementById('ownedInputAuthor')?.value || '').trim();
 
  if (!rawIsbn && !title) {
- if (isManual && !silent) showToast('ISBN 또는 책 제목을 먼저 입력해 주세요.', 'error');
+ if (forceRefresh && !silent) showToast('ISBN 또는 책 제목을 먼저 입력해 주세요.', 'error');
  return;
  }
 
- // ISBN 칸에 값이 들어있는데 10/13자리 숫자가 아니면 명확히 안내
  if (rawIsbn && isbnVal.length !== 10 && isbnVal.length !== 13) {
  if (!silent) showToast(`ISBN 형식을 확인해 주세요. (현재 숫자 ${isbnVal.length}자리 · 10 또는 13자리 필요)`, 'error');
  return;
  }
 
- // 포커스 이동으로 자동 조회 시작
+ const refreshBtn = document.getElementById('ownedMetaRefreshBtn');
+ if (refreshBtn) { refreshBtn.disabled = true; refreshBtn.style.opacity = '0.45'; }
 
  try {
- let doc = null;
- let dtlData = null;
+ // 카카오(1순위) + 국립중앙도서관(2순위)만 조회 (정보나루 API 0회)
+ const proxyRes = await lookupBookViaSheetProxy(
+ rawIsbn ? isbnVal : '',
+ rawIsbn ? '' : title,
+ author,
+ forceRefresh
+ );
 
- // 1) 카카오(1순위) + 국립중앙도서관(2순위) 서버 프록시 조회 (정보나루 API 0회 소모)
- const proxyBook = await lookupBookViaSheetProxy(rawIsbn ? isbnVal : '', rawIsbn ? '' : title, author);
- if (proxyBook) {
- doc = {
+ if (!proxyRes.ok) {
+ if (!silent) showToast(`도서 조회 실패: ${proxyRes.error}`, 'error');
+ return;
+ }
+
+ const proxyBook = proxyRes.book;
+ if (!proxyBook) {
+ if (!silent) {
+ showToast(
+ rawIsbn
+ ? `카카오·국립중앙도서관에서 ISBN(${isbnVal})을 찾지 못했습니다.`
+ : `카카오·국립중앙도서관에서 '${title}' 정보를 찾지 못했습니다.`,
+ 'error'
+ );
+ }
+ return;
+ }
+
+ if (!activeOwnedEditContext) return;
+
+ if (proxyBook.url) currentModalKakaoUrl = proxyBook.url;
+ const doc = {
  bookname: proxyBook.title || '',
  authors: proxyBook.author || '',
  translator: proxyBook.translator || '',
@@ -5107,61 +5276,6 @@
  vol: proxyBook.vol || '',
  kdcRaw: proxyBook.kdc || ''
  };
- }
-
- // 2) 프록시에서 못 찾았거나 구버전 Code.gs인 경우 기존 정보나루 API로 폴백
- if (!doc && rawIsbn) {
- dtlData = await fetchD4lDetailCached(isbnVal, true);
- doc = dtlData?.response?.detail?.[0]?.book || null;
- if (!doc) {
- if (!silent) {
- showToast(`ISBN(${isbnVal})을 찾지 못했습니다. 오타를 확인하거나 ISBN을 비우고 제목으로 조회해 보세요.`, 'error');
- }
- return;
- }
- } else if (!doc && !rawIsbn) {
- const lowTitle = title.toLowerCase();
- const spacelessTitle = lowTitle.replace(/\s+/g, '');
- const cached = getApiCache('search', `v2:${spacelessTitle}`, API_CACHE_TTL_MS)
- || getApiCache('search', `v2:${lowTitle}`, API_CACHE_TTL_MS)
- || getApiCache('search', lowTitle, API_CACHE_TTL_MS);
- if (Array.isArray(cached) && cached.length > 0) {
- doc = author ? (cached.find(d => hasAuthorOverlap(d.authors, author)) || null) : cached[0];
- }
-
- if (!doc) {
- const cleanTitle = title.replace(/^\d{1,3}\s+(?=\D)/, '').replace(/\([^)]*\)/g, '').trim();
- let data = await data4LibFetchJson(`https://data4library.kr/api/srchBooks?authKey=${apiKey}&title=${encodeURIComponent(cleanTitle)}&pageNo=1&pageSize=10&format=json`);
- if (data?.response?.error) throw new Error(String(data.response.error));
- let docs = data?.response?.docs || [];
- if (docs.length === 0) {
- data = await data4LibFetchJson(`https://data4library.kr/api/srchBooks?authKey=${apiKey}&keyword=${encodeURIComponent(cleanTitle)}&pageNo=1&pageSize=10&format=json`);
- if (data?.response?.error) throw new Error(String(data.response.error));
- docs = data?.response?.docs || [];
- }
- if (docs.length > 0) {
- setApiCache('search', `v2:${spacelessTitle || lowTitle}`, docs.map(d => compactBookDoc(d.doc)), 250);
- const best = author ? (docs.find(d => hasAuthorOverlap(d.doc.authors, author)) || null) : docs[0];
- doc = best ? best.doc : null;
- }
- }
-
- if (!doc) {
- if (!silent) {
- showToast(`'${title}'에 대한 도서 정보를 찾지 못했습니다.`, 'error');
- }
- return;
- }
-
- const resolvedIsbn = normalizeIsbn(doc?.isbn13 || doc?.isbn);
- if (resolvedIsbn.length >= 10 && (!doc.description || !doc.class_nm)) {
- dtlData = await fetchD4lDetailCached(resolvedIsbn, true).catch(() => null);
- const dtlBook = dtlData?.response?.detail?.[0]?.book;
- if (dtlBook) doc = { ...doc, ...dtlBook };
- }
- }
-
- if (!activeOwnedEditContext) return;
 
  const filledLabels = [];
  if (doc.bookname && !document.getElementById('ownedInputTitle').value.trim()) {
@@ -5172,6 +5286,7 @@
  const parsedPeople = splitAuthorAndTranslator(doc.authors || '');
  if (parsedPeople.author && !document.getElementById('ownedInputAuthor').value.trim()) {
  document.getElementById('ownedInputAuthor').value = parsedPeople.author;
+ resetOwnedAuthorOtherBooksUI(parsedPeople.author);
  filledLabels.push('저자');
  }
  const trEl = document.getElementById('ownedInputTranslator');
@@ -5203,17 +5318,16 @@
  filledLabels.push('태그');
  }
  }
- if (doc.publication_year && !currentModalPubYear) {
+ if (doc.publication_year && (!currentModalPubYear || forceRefresh)) {
+ if (!currentModalPubYear) filledLabels.push('출간연도');
  currentModalPubYear = String(doc.publication_year).trim();
- filledLabels.push('출간연도');
  }
- if (doc.description && !currentModalDescription) {
+ if (doc.description && (!currentModalDescription || forceRefresh)) {
+ if (!currentModalDescription) filledLabels.push('줄거리');
  currentModalDescription = stripHtmlText(doc.description).slice(0, 600);
- filledLabels.push('줄거리');
  }
- const kdcStr = doc.kdcRaw || formatKdcFromDoc(doc);
- if (kdcStr && !currentModalKdc) {
- currentModalKdc = kdcStr;
+ if (doc.kdcRaw && !currentModalKdc) {
+ currentModalKdc = doc.kdcRaw;
  filledLabels.push('분류');
  }
  if (doc.vol && !currentModalVol) {
@@ -5222,31 +5336,24 @@
  if (volEl && !volEl.value.trim()) volEl.value = currentModalVol;
  filledLabels.push('권수');
  }
- const loanStatsStr = summarizeLoanInfoFromDtlResponse(dtlData, doc);
- if (loanStatsStr && !currentModalLoanStats) {
- currentModalLoanStats = loanStatsStr;
- }
  renderOwnedMetaPlotBox();
- if (doc.bookImageURL && !currentModalCoverUrl) {
+ if (doc.bookImageURL && (!currentModalCoverUrl || forceRefresh)) {
+ if (!currentModalCoverUrl) filledLabels.push('표지');
  setOwnedCoverDisplay(doc.bookImageURL);
  saveBookCoverCache(normalizeIsbn(doc.isbn13 || doc.isbn) || normalizeBookTitle(doc.bookname), doc.bookImageURL);
- filledLabels.push('표지');
  }
  if (filledLabels.length > 0 && !silent) {
  const summary = filledLabels.slice(0, 4).join('·') + (filledLabels.length > 4 ? ` 외 ${filledLabels.length - 4}건` : '');
- showToast(`${summary} 자동 채움 완료`, 'success');
+ showToast(`${summary} ${forceRefresh ? '새로고침' : '자동 채움'} 완료`, 'success');
+ } else if (forceRefresh && !silent) {
+ showToast('최신 도서 정보를 확인했습니다.', 'success');
  }
  } catch (e) {
  if (!silent) {
- const msg = String(e?.message || '').trim();
- if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed')) {
- showToast('자동 채우기 실패: 네트워크 연결 또는 정보나루 서버 응답 오류입니다.', 'error');
- } else if (msg) {
- showToast(`자동 채우기 실패: ${msg}`, 'error');
- } else {
- showToast('자동 채우기 중 알 수 없는 오류가 발생했습니다.', 'error');
+ showToast('도서 정보 조회 중 오류가 발생했습니다.', 'error');
  }
- }
+ } finally {
+ if (refreshBtn) { refreshBtn.disabled = false; refreshBtn.style.opacity = ''; }
  }
  }
 

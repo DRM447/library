@@ -675,7 +675,7 @@
  }
  .memo-modal-overlay.open { display: flex; }
  body:has(.memo-modal-overlay.open) { overflow: hidden; }
- body:has(.memo-modal-overlay.open) > :not(.memo-modal-overlay):not(.toast-banner) {
+ body:has(.memo-modal-overlay.open) > :not(.memo-modal-overlay):not(.toast-banner):not(.bottom-sheet-overlay):not(.quick-popover-backdrop):not(.quick-popover-menu) {
  pointer-events: none !important;
  }
  .memo-modal-box {

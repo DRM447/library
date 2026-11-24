@@ -2662,8 +2662,17 @@
  if (clean && !isEbookTagToken(clean) && !tags.includes(clean)) tags.push(clean);
  };
 
- const classNm = String(doc.class_nm || '').trim();
- const classNo = String(doc.class_no || '').trim();
+ let classNm = String(doc.class_nm || '').trim();
+ let classNo = String(doc.class_no || '').trim();
+ const kdcRaw = String(doc.kdcRaw || doc.kdc || '').trim();
+ if (!classNo && kdcRaw) {
+ const mNo = kdcRaw.match(/(?:KDC\s*)?([0-9]+(?:\.[0-9]+)?)/i);
+ if (mNo) classNo = mNo[1];
+ }
+ if (!classNm && kdcRaw) {
+ const stripped = kdcRaw.replace(/^(?:KDC\s*)?[0-9]+(?:\.[0-9]+)?\s*(?:[·•:|\-/]\s*)?/i, '').trim();
+ if (stripped) classNm = stripped;
+ }
  const parts = classNm ? classNm.split(/[>/·]/).map(s => s.trim()).filter(Boolean) : [];
  const top = parts[0] || '';
  const sub = parts[1] || '';
@@ -2707,6 +2716,31 @@
  pushTag('역사');
  } else if (top.includes('총류') || classNo.startsWith('0')) {
  pushTag('인문학');
+ }
+
+ // KDC 분류 정보가 없을 때 제목·줄거리·출판사 키워드로 보조 태그 추론
+ if (tags.length === 0) {
+ const text = `${doc.bookname || doc.title || ''} ${doc.description || ''} ${doc.publisher || ''}`.toLowerCase();
+ const rules = [
+ { re: /(장편소설|단편소설|연작소설|소설집|추리소설|미스터리|스릴러|판타지|sf\b|과학소설|시집|문학상|작품집)/i, add: ['문학'] },
+ { re: /(에세이|산문집|수필|일기|회고록|자서전)/i, add: ['에세이'] },
+ { re: /(물리학|양자역학|상대성이론|천문학|우주론|블랙홀|생물학|진화론|유전자|뇌과학|화학|수학|과학자|과학책)/i, add: ['과학'] },
+ { re: /(철학|윤리학|인문학|사상사|미학|논리학|고전)/i, add: ['인문학', '철학'] },
+ { re: /(역사|세계사|한국사|근현대사|문명사|제국|전쟁사)/i, add: ['인문학', '역사'] },
+ { re: /(심리학|정신분석|트라우마|인지심리|상담)/i, add: ['인문학', '심리학'] },
+ { re: /(사회학|정치|경제학|자본주의|민주주의|페미니즘|젠더|여성학|불평등|노동|법학|사회과학)/i, add: ['사회과학'] },
+ { re: /(미술|예술|음악|영화|건축|디자인|사진집)/i, add: ['예술'] },
+ { re: /(자기계발|습관|공부법|시간관리|생산성)/i, add: ['자기계발'] }
+ ];
+ rules.forEach(rule => {
+ if (rule.re.test(text)) rule.add.forEach(pushTag);
+ });
+ if (tags.includes('문학')) {
+ if (/(일본|나오키|아쿠타가와|무라카미|히가시노|도쿄)/.test(text)) pushTag('일본문학');
+ else if (/(한국|창비|문학과지성사|이상문학상|현대문학)/.test(text)) pushTag('한국문학');
+ if (/(sf\b|공상과학|우주|로봇|디스토피아)/i.test(text)) pushTag('SF');
+ else if (/(추리|미스터리|살인|탐정|스릴러)/.test(text)) pushTag('추리·미스터리');
+ }
  }
 
  return tags.slice(0, 4);
@@ -4596,7 +4630,7 @@
  author: parsedPeople.author,
  translator: parsedPeople.translator,
  publisher: currentSelectedBook.publisher || '',
- tags: '', series: '', memo: '', status: '읽을 예정', rating: '',
+ tags: extractTagsFromDoc(currentSelectedBook).join(', '), series: '', memo: '', status: '읽을 예정', rating: '',
  isbn: String(currentSelectedBook.isbn13 || currentSelectedBook.isbn || ''),
  finishDate: '', review: ''
  }

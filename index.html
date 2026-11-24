@@ -1067,6 +1067,18 @@
  cursor: pointer; padding: 0 2px; margin-left: 3px; white-space: nowrap;
  }
  .owned-plot-toggle-btn:hover { color: #374151; text-decoration: underline; }
+ .owned-author-bio-link {
+ font-size: 11px; font-weight: 700; color: #6b7280; text-decoration: none;
+ white-space: nowrap;
+ }
+ .owned-author-bio-link:hover { color: var(--primary); text-decoration: underline; }
+ .owned-author-bio-box {
+ margin-top: 9px; padding-top: 8px; border-top: 1px dashed #e2e8f0;
+ font-size: 12px; color: #4b5563; line-height: 1.5; word-break: break-word;
+ }
+ .owned-author-bio-label {
+ font-size: 11.5px; font-weight: 800; color: #334155; margin-bottom: 4px;
+ }
  .owned-title-store-links {
  display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
  }
@@ -1686,12 +1698,7 @@
  <div id="ownedEditModalOverlay" class="memo-modal-overlay" style="z-index: 2100;" data-close-fn="closeOwnedEditModal">
  <div class="memo-modal-box">
  <div class="owned-edit-top-bar" style="align-items:center;">
- <div style="display:flex; align-items:center; gap:5px; min-width:0;">
  <h3 class="memo-modal-title" id="ownedEditModalTitle" style="margin:0;">내 서재에 책 추가</h3>
- <button type="button" id="ownedMetaRefreshBtn" class="mylib-ghost-icon-btn" style="width:24px; height:24px; border-radius:6px; flex-shrink:0;" onclick="refreshOwnedBookMetaNow()" title="카카오·국립중앙도서관에서 도서 정보 새로고침 (정보나루 API 미사용)" aria-label="도서 정보 새로고침">
- <i data-lucide="refresh-cw" size="13"></i>
- </button>
- </div>
  <button type="button" class="mylib-ghost-icon-btn" onclick="closeOwnedEditModal()" title="닫기" aria-label="닫기">
  <i data-lucide="x" size="18"></i>
  </button>
@@ -1742,8 +1749,11 @@
 
  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
  <div class="form-field">
- <label class="form-label" for="ownedInputAuthor">저자</label>
- <input type="text" id="ownedInputAuthor" class="form-input" placeholder="저자명">
+ <label class="form-label" for="ownedInputAuthor">
+ <span>저자</span>
+ <a id="ownedAuthorBioExtLink" href="#" target="_blank" rel="noopener" class="owned-author-bio-link hidden" title="저자 소개 보기">소개 ↗</a>
+ </label>
+ <input type="text" id="ownedInputAuthor" class="form-input" placeholder="저자명" oninput="renderOwnedMetaPlotBox()">
  </div>
  <div class="form-field">
  <label class="form-label" for="ownedInputTranslator">저자 외</label>
@@ -1762,6 +1772,9 @@
  <div id="ownedMetaPlotBox" class="owned-meta-plot-box hidden">
  <div class="owned-meta-plot-header">
  <span id="ownedMetaPlotHeading" class="owned-meta-plot-heading">책소개</span>
+ <button type="button" id="ownedMetaRefreshBtn" class="mylib-ghost-icon-btn" style="width:18px; height:18px; border-radius:5px; margin-top:-2px; margin-right:-2px; flex-shrink:0;" onclick="refreshOwnedBookMetaNow()" title="카카오·국립중앙도서관에서 도서 정보 새로고침 (정보나루 API 미사용)" aria-label="도서 정보 새로고침">
+ <i data-lucide="refresh-cw" size="10"></i>
+ </button>
  </div>
  <div id="ownedIsbnEditRow" class="hidden" style="display:flex; gap:6px; align-items:center; margin-top:8px;">
  <input type="text" id="ownedInputIsbn" class="form-input" style="padding:7px 10px; font-size:12.5px;" placeholder="ISBN (10 또는 13자리)" oninput="renderOwnedMetaPlotBox()" onblur="triggerAutoFillOwnedMeta()">
@@ -1769,6 +1782,7 @@
  </div>
  <div id="ownedMetaPlotMeta" class="owned-meta-plot-meta"></div>
  <div id="ownedMetaPlotBody" class="owned-meta-plot-body"></div>
+ <div id="ownedAuthorBioBox" class="owned-author-bio-box hidden"></div>
  </div>
 
  <div id="ownedDueDateField" class="due-date-row hidden">
@@ -2160,6 +2174,7 @@
  let currentModalLoanStats = '';
  let currentModalKakaoUrl = '';
  let isOwnedPlotExpanded = false;
+ let currentModalAuthorBio = '';
  let modalAuthorOtherBooksLoadedFor = '';
  let modalAuthorOtherBooksList = [];
  let currentRandomPick = null;
@@ -2432,6 +2447,23 @@
  function formatAuthorText(author) {
  const cleaned = String(author || '').replace(/^\s*(지은이|저자)\s*[:：]\s*/i, '').trim();
  return cleaned || '저자 미상';
+ }
+
+ function formatAutoTranslatorText(raw) {
+ let s = String(raw || '').trim();
+ if (!s) return '';
+ s = s
+ .replace(/\s*\(옮긴이\)/g, ' 옮김')
+ .replace(/\s*\(감수자?\)/g, ' 감수')
+ .replace(/\s*\(엮은이\)/g, ' 엮음')
+ .replace(/\s*\(편집자?\)/g, ' 편집')
+ .replace(/,\s*/g, ', ')
+ .replace(/\s+/g, ' ')
+ .trim();
+ if (!/(?:옮김|감수|편집|엮음|그림|기획|해설)$/.test(s)) {
+ s += ' 옮김';
+ }
+ return s;
  }
 
  function formatAuthorWithSuffix(author) {
@@ -4715,6 +4747,7 @@
  currentModalLoanStats = String(b.loanStats || '').trim();
  currentModalKakaoUrl = '';
  isOwnedPlotExpanded = false;
+ currentModalAuthorBio = '';
  resetOwnedAuthorOtherBooksUI(b.author || '');
  toggleOwnedIsbnEditor(false);
  renderOwnedMetaPlotBox();
@@ -5000,9 +5033,9 @@
  let cleanCategory = rawKdcStr
  .replace(/^(?:KDC\s*)?[0-9]+(?:\.[0-9]+)?\s*(?:[·•:|\-/]\s*)?/i, '')
  .trim();
- if (!cleanCategory && rawKdcStr) {
- const mDigit = rawKdcStr.match(/^(?:KDC\s*)?([0-9])/i);
- if (mDigit && KDC_MAJOR_MAP[mDigit[1]]) cleanCategory = KDC_MAJOR_MAP[mDigit[1]];
+ if (!cleanCategory || !/[가-힣a-zA-Z]/.test(cleanCategory)) {
+ const mDigit = rawKdcStr.match(/([0-9])/);
+ cleanCategory = (mDigit && KDC_MAJOR_MAP[mDigit[1]]) ? KDC_MAJOR_MAP[mDigit[1]] : '';
  }
  const badges = [];
  if (seriesVal && volHash) {
@@ -5019,15 +5052,44 @@
 
  const descText = cleanDesc || '등록된 줄거리 정보가 없습니다.';
  const PLOT_PREVIEW_LIMIT = 115;
+ const isTruncatedBySource = /([.]{3}|…)\s*$/.test(descText);
+ const fullLinkHtml = (daumUrl && isTruncatedBySource)
+ ? ` <a href="${escapeHtml(daumUrl)}" target="_blank" rel="noopener" class="owned-author-bio-link" style="margin-left:3px;">전문 보기 ↗</a>`
+ : '';
+
  if (descText.length > PLOT_PREVIEW_LIMIT) {
  if (!isOwnedPlotExpanded) {
  const previewText = descText.slice(0, PLOT_PREVIEW_LIMIT).replace(/[\s.…]+$/, '');
  body.innerHTML = `${escapeHtml(previewText)}...<button type="button" class="owned-plot-toggle-btn" onclick="toggleOwnedPlotExpand()">더보기</button>`;
  } else {
- body.innerHTML = `${escapeHtml(descText)} <button type="button" class="owned-plot-toggle-btn" onclick="toggleOwnedPlotExpand()">접기</button>`;
+ body.innerHTML = `${escapeHtml(descText)}${fullLinkHtml} <button type="button" class="owned-plot-toggle-btn" onclick="toggleOwnedPlotExpand()">접기</button>`;
  }
  } else {
- body.innerText = descText;
+ body.innerHTML = `${escapeHtml(descText)}${fullLinkHtml}`;
+ }
+
+ // 저자 소개 링크 및 추출된 저자 소개 표시
+ const authorInputVal = (document.getElementById('ownedInputAuthor')?.value || '').trim();
+ const primaryAuthorName = getPrimaryAuthorForModal(authorInputVal);
+ const authorBioLinkEl = document.getElementById('ownedAuthorBioExtLink');
+ if (authorBioLinkEl) {
+ if (primaryAuthorName && primaryAuthorName !== '저자 미상') {
+ authorBioLinkEl.href = `https://search.daum.net/search?w=tot&q=${encodeURIComponent(primaryAuthorName + ' 작가')}`;
+ authorBioLinkEl.classList.remove('hidden');
+ } else {
+ authorBioLinkEl.classList.add('hidden');
+ }
+ }
+ const authorBioBox = document.getElementById('ownedAuthorBioBox');
+ if (authorBioBox) {
+ const cleanBio = stripHtmlText(currentModalAuthorBio);
+ if (cleanBio) {
+ authorBioBox.innerHTML = `<div class="owned-author-bio-label">저자소개</div><div>${escapeHtml(cleanBio)}</div>`;
+ authorBioBox.classList.remove('hidden');
+ } else {
+ authorBioBox.innerHTML = '';
+ authorBioBox.classList.add('hidden');
+ }
  }
 
  const storeLinksEl = document.getElementById('ownedTitleStoreLinks');
@@ -5332,15 +5394,16 @@
 
  const fetchedCover = proxyBook.cover ? normalizeCoverUrl(proxyBook.cover) : (currentModalCoverUrl || '');
  const fetchedPubYear = String(proxyBook.pubYear || book.pubYear || '').trim();
- const fetchedDesc = stripHtmlText(proxyBook.description || book.description || '').slice(0, 600);
+ const fetchedDesc = stripHtmlText(proxyBook.description || book.description || '').slice(0, 2500);
  const fetchedKdc = String(proxyBook.kdc || book.kdc || '').trim();
  const fetchedVol = String(proxyBook.vol || book.vol || '').trim();
- const fetchedTranslator = String(proxyBook.translator || '').trim() || String(book.translator || '').trim();
+ const fetchedTranslator = formatAutoTranslatorText(proxyBook.translator) || String(book.translator || '').trim();
 
  if (fetchedCover) saveBookCoverCache(fetchKey, fetchedCover);
 
  if (isSameModalOpen) {
  if (proxyBook.url) currentModalKakaoUrl = proxyBook.url;
+ if (proxyBook.authorBio) currentModalAuthorBio = stripHtmlText(proxyBook.authorBio).slice(0, 1200);
  if (fetchedCover && !currentModalCoverUrl) setOwnedCoverDisplay(fetchedCover);
  if (fetchedPubYear && !currentModalPubYear) currentModalPubYear = fetchedPubYear;
  if (fetchedDesc && !currentModalDescription) currentModalDescription = fetchedDesc;
@@ -5540,6 +5603,7 @@
  if (!activeOwnedEditContext) return;
 
  if (proxyBook.url) currentModalKakaoUrl = proxyBook.url;
+ if (proxyBook.authorBio) currentModalAuthorBio = stripHtmlText(proxyBook.authorBio).slice(0, 1200);
  const doc = {
  bookname: proxyBook.title || '',
  authors: proxyBook.author || '',
@@ -5567,7 +5631,7 @@
  filledLabels.push('저자');
  }
  const trEl = document.getElementById('ownedInputTranslator');
- const resolvedTrans = String(doc.translator || '').trim() || parsedPeople.translator;
+ const resolvedTrans = formatAutoTranslatorText(doc.translator) || parsedPeople.translator;
  if (resolvedTrans && trEl && !trEl.value.trim()) {
  trEl.value = resolvedTrans;
  filledLabels.push('저자 외');
@@ -5601,7 +5665,7 @@
  }
  if (doc.description && (!currentModalDescription || forceRefresh)) {
  if (!currentModalDescription) filledLabels.push('줄거리');
- currentModalDescription = stripHtmlText(doc.description).slice(0, 600);
+ currentModalDescription = stripHtmlText(doc.description).slice(0, 2500);
  }
  if (doc.kdcRaw && !currentModalKdc) {
  currentModalKdc = doc.kdcRaw;

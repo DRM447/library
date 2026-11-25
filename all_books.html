@@ -2918,6 +2918,7 @@
  let modalAuthorOtherBooksLoadingFor = '';
  let modalAuthorOtherBooksList = [];
  let currentRandomPick = null;
+ let currentRandomPicks = [];
  let isHomeBorrowedExpanded = false;
  let lastStartReadingUndo = null;
  let lastSkippedDupUndo = null;
@@ -4595,8 +4596,6 @@
  if (tag) setMyLibTagFilter(tag);
  }
 
- let currentRandomPicks = [];
-
  function pickRandomUnreadBook(shuffle = false) {
  const eligible = myOwnedBooks.filter(b => {
  if (isOwnedSold(b) || isOwnedReturned(b)) return false;
@@ -5498,7 +5497,6 @@
  const q = (document.getElementById('myLibSearchInput')?.value || '').trim().toLowerCase();
  const qCompact = q.replace(/\s+/g, '');
  const sortMode = document.getElementById('myLibSortSelect')?.value || 'recent';
- const prioritizePaperBorrowed = (myLibOwnershipFilter === '대여중' || myLibOwnershipFilter === '대여');
  const dupSet = myLibDuplicatesMode ? getDuplicateOwnedBookSet() : null;
 
  let result = myOwnedBooks.filter(b => {
@@ -5680,6 +5678,7 @@
  return;
  }
 
+ const prioritizePaperBorrowed = (myLibOwnershipFilter === '대여중' || myLibOwnershipFilter === '대여');
  if (prioritizePaperBorrowed) {
  filtered.sort((a, b) => {
  const ea = isOwnedEbook(a) ? 1 : 0;
@@ -6279,10 +6278,9 @@
  loadOwnedEditCover(b);
 
  const deleteBtn = document.getElementById('ownedDeleteBtn');
- if (ctx.mode === 'edit') {
- deleteBtn.classList.remove('hidden');
- } else {
- deleteBtn.classList.add('hidden');
+ if (deleteBtn) {
+ if (ctx.mode === 'edit') deleteBtn.classList.remove('hidden');
+ else deleteBtn.classList.add('hidden');
  }
 
  ownedModalInitialSnapshot = getOwnedModalFormSnapshot();

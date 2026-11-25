@@ -1,4 +1,4 @@
-const CACHE_NAME = 'allbooks-cache-v87';
+const CACHE_NAME = 'allbooks-cache-v88';
 const CORE_URLS = [
   './all_books.html',
   './manifest.json',
@@ -12,14 +12,7 @@ const CORE_URLS = [
 const LUCIDE_CDN_URL = 'https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js';
 
 const OPTIONAL_ASSETS = [
-  LUCIDE_CDN_URL,
-  './yongsan_logo.svg',
-  './mapo_logo.svg',
-  './SeoulEdu_logo.svg',
-  './Ewha_logo.svg',
-  './SeoulLibrary_logo.svg',
-  './namsan.png',
-  './yongsan_ggumnamu.jpg'
+  LUCIDE_CDN_URL
 ];
 
 self.addEventListener('install', event => {

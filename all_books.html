@@ -1692,29 +1692,12 @@
    padding: 2px 4px !important; color: #94a3b8 !important; font-size: 11px !important;
    font-weight: 700 !important; cursor: default !important; pointer-events: none !important;
  }
- /* 빨간 사각 이중 테두리 '완독' 고무도장 (첨부 스타일 반영) */
+ /* 첨부된 완료 도장 투명 오버레이 */
  .cover-done-stamp {
-   position: absolute; left: 50%; top: 50%; z-index: 4;
-   width: 82%; max-width: 74px; aspect-ratio: 1.72 / 1;
-   transform: translate(-50%, -50%) rotate(-18deg);
+   position: absolute; inset: 0; z-index: 4;
    pointer-events: none;
-   display: inline-flex; align-items: center; justify-content: center;
-   border: 2.5px solid rgba(200, 30, 30, 0.9);
-   border-radius: 7px; padding: 2px;
-   background: rgba(255, 255, 255, 0.14);
-   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
-   filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.55));
- }
- .cover-done-stamp-inner {
-   width: 100%; height: 100%;
-   border: 1px solid rgba(200, 30, 30, 0.85);
-   border-radius: 4px;
-   display: flex; align-items: center; justify-content: center;
-   color: rgba(200, 30, 30, 0.94);
-   font-size: 13px; font-weight: 900; letter-spacing: 2px; line-height: 1;
-   text-indent: 2px;
-   background-image: radial-gradient(rgba(255,255,255,0.28) 1px, transparent 1px);
-   background-size: 5px 5px;
+   background-image: url("data:image/webp;base64,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");
+   background-size: cover; background-position: center; background-repeat: no-repeat;
  }
  /* 반납 / 판매 동일 붉은색 띠지 + D-day 대여 띠지 */
  .cover-own-obi.red-tag { background: rgba(185, 28, 28, 0.72); }
@@ -1773,6 +1756,29 @@
  .btn-save-slate {
    background: #1e293b !important; color: #ffffff !important;
    border: 1px solid #0f172a !important;
+ }
+
+
+ /* 내 서재 상단 탭 바 (필터 누적이 아닌 단독 탭 전환) */
+ .mylib-stats-slim {
+   display: flex !important; align-items: stretch !important; justify-content: space-between !important;
+   gap: 0 !important; padding: 0 4px !important; margin-bottom: 10px !important;
+   background: transparent !important; border: none !important;
+   border-bottom: 1.5px solid #e2e8f0 !important; border-radius: 0 !important;
+ }
+ .mylib-top-tab {
+   flex: 1; border: none; background: transparent; color: #64748b;
+   padding: 8px 4px 9px 4px; font-size: 12px; font-weight: 700;
+   cursor: pointer; font-family: inherit; white-space: nowrap;
+   position: relative; transition: color 0.14s;
+   display: inline-flex; align-items: center; justify-content: center; gap: 3px;
+ }
+ .mylib-top-tab strong { font-weight: 800; font-size: 11px; color: #94a3b8; }
+ .mylib-top-tab.active { color: #0f172a; font-weight: 800; }
+ .mylib-top-tab.active strong { color: var(--primary); }
+ .mylib-top-tab.active::after {
+   content: ''; position: absolute; left: 8px; right: 8px; bottom: -1.5px;
+   height: 2.5px; border-radius: 999px; background: var(--primary);
  }
 
 </style>
@@ -2144,7 +2150,7 @@
  <div id="myLibFilterDrawer" class="mylib-filter-drawer hidden">
  <div id="myLibStatusFilters">
  <div class="ridi-filter-row">
- <div class="ridi-filter-label">소장</div>
+ <div class="ridi-filter-label">상태</div>
  <div class="ridi-filter-options">
  <button type="button" class="ridi-chip active" data-ownership="all" onclick="setMyLibOwnershipFilter('all')">전체</button>
  <button type="button" class="ridi-chip" data-ownership="소장" onclick="toggleMyLibOwnershipFilter('소장')">소장</button>
@@ -2166,7 +2172,7 @@
  <div class="ridi-filter-options" id="myLibSourceFilters"></div>
  </div>
  <div class="ridi-filter-row">
- <div class="ridi-filter-label">상태</div>
+ <div class="ridi-filter-label">진행도</div>
  <div class="ridi-filter-options">
  <button type="button" class="ridi-chip active" data-status="all" onclick="setMyLibReadingStatusOnly('all')">전체</button>
  <button type="button" class="ridi-chip" data-status="예정" onclick="toggleMyLibReadingStatusFilter('예정')">예정</button>
@@ -2293,7 +2299,7 @@
  <div class="owned-edit-cover-wrap">
  <div id="ownedCoverCol" class="owned-cover-col" onclick="triggerOwnedCoverUpload()" title="터치하여 표지 이미지 첨부 또는 변경">
  <div id="ownedCoverOwnObi" class="cover-own-obi hidden"></div>
- <div id="ownedCoverDoneStamp" class="cover-done-stamp hidden"><span class="cover-done-stamp-inner">완독</span></div>
+ <div id="ownedCoverDoneStamp" class="cover-done-stamp hidden" aria-label="완독"></div>
  <img id="ownedEditCoverImg" class="owned-edit-cover hidden" src="" alt="책 표지" onerror="handleOwnedCoverError()">
  <div class="owned-cover-placeholder">
  <i data-lucide="image-plus" size="18"></i>
@@ -2313,8 +2319,8 @@
  </span>
  </label>
  <div class="owned-title-input-wrap">
- <input type="text" id="ownedInputTitle" class="form-input" style="width:100%; height:38px; padding:0 34px 0 11px;" placeholder="책 제목 입력 (엔터·검색으로 후보 고르기)" oninput="handleOwnedTitleInput()" onkeydown="if(event.key==='Enter'){event.preventDefault(); searchOwnedBookCandidatesNow();}">
- <button type="button" class="owned-title-search-mini" onclick="searchOwnedBookCandidatesNow()" title="제목으로 도서 후보 검색" aria-label="도서 후보 검색">
+ <input type="text" id="ownedInputTitle" class="form-input" style="width:100%; height:38px; padding:0 34px 0 11px;" placeholder="책 제목 입력 (엔터·검색으로 후보 고르기)" oninput="handleOwnedTitleInput()" onkeydown="if(event.key==='Enter'){event.preventDefault(); refetchAndSearchOwnedCandidates();}">
+ <button type="button" class="owned-title-search-mini" onclick="refetchAndSearchOwnedCandidates()" title="제목으로 도서 후보 검색" aria-label="도서 후보 검색">
  <i data-lucide="search" size="15"></i>
  </button>
  </div>
@@ -2380,7 +2386,7 @@
  <!-- 리디북스 필터 스타일 통합 선택 패널 -->
  <div class="owned-ridi-panel">
  <div class="ridi-filter-row">
- <div class="ridi-filter-label">소장</div>
+ <div class="ridi-filter-label">상태</div>
  <div class="ridi-filter-options" role="radiogroup" aria-label="소장 구분">
  <button type="button" id="ownedOwnToggleBtn" class="owned-ridi-chip active-owned" role="radio" aria-checked="true" onclick="selectOwnedOwnershipMode('owned')">소장</button>
  <button type="button" id="ownedBorrowToggleBtn" class="owned-ridi-chip" role="radio" aria-checked="false" onclick="selectOwnedOwnershipMode('borrowed')">대여중</button>
@@ -2408,7 +2414,7 @@
  </div>
  </div>
  <div class="ridi-filter-row">
- <div class="ridi-filter-label">상태</div>
+ <div class="ridi-filter-label">진행도</div>
  <div class="ridi-filter-options" id="ownedStatusGroup">
  <button type="button" class="owned-ridi-chip" data-val="예정" onclick="selectOwnedStatus('예정')">예정</button>
  <button type="button" class="owned-ridi-chip" data-val="읽는 중" onclick="selectOwnedStatus('읽는 중')">읽는 중</button>
@@ -2500,9 +2506,6 @@
  <div class="bottom-sheet-list">
  <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); setMyLibStatusFilter('duplicates');">
  <span class="bottom-sheet-item-left"><i data-lucide="alert-triangle" size="17"></i><span>중복 도서 확인</span><span id="manageSheetDupBadge" class="bottom-sheet-badge hidden">0</span></span>
- </button>
- <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); enterMyLibMultiSelectMode();">
- <span class="bottom-sheet-item-left"><i data-lucide="check-square" size="17"></i><span>다중 선택 → 삭제</span></span>
  </button>
  <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); syncAllFromSheet(true);">
  <span class="bottom-sheet-item-left"><i data-lucide="refresh-cw" size="17"></i><span>시트 동기화</span></span>
@@ -3303,7 +3306,7 @@
  function getCoverDoneStampHtml(book) {
  if (!book) return '';
  return normalizeReadingStatus(book.status) === '완독'
- ? '<div class="cover-done-stamp"><span class="cover-done-stamp-inner">완독</span></div>'
+ ? '<div class="cover-done-stamp" aria-label="완독"></div>'
  : '';
  }
 
@@ -4997,22 +5000,37 @@
  * ========================================================= */
  let selectedRatingBreakdownStar = 'all';
 
+ 
+ function selectMyLibTopTab(tab) {
+   myLibDuplicatesMode = false;
+   myLibFormatFilter = 'all';
+   myLibOwnershipFilter = 'all';
+   myLibReadingStatuses = [];
+   if (tab === 'paper') myLibFormatFilter = 'paper';
+   else if (tab === 'ebook') myLibFormatFilter = 'ebook';
+   else if (tab === 'borrowed') myLibOwnershipFilter = '대여중';
+   else if (tab === 'done') myLibReadingStatuses = ['완독'];
+   applyMyLibFilters();
+ }
+
  function renderMyLibStatsBar() {
  const bar = document.getElementById('myLibStatsBar');
  if (!bar) return;
  const stats = computeLibraryStats();
  const isAll = !myLibDuplicatesMode && myLibReadingStatuses.length === 0 && myLibOwnershipFilter === 'all' && myLibFormatFilter === 'all' && myLibRatingFilter === 'all' && myLibSelectedTags.length === 0 && myLibSelectedSources.length === 0;
  const activeBorrowedCount = myOwnedBooks.filter(b => isOwnedBorrowed(b) && !isOwnedSold(b) && !isOwnedReturned(b)).length;
+ const activeTab = myLibDuplicatesMode ? ''
+ : (myLibOwnershipFilter === '대여중' && myLibFormatFilter === 'all' && myLibReadingStatuses.length === 0) ? 'borrowed'
+ : (myLibFormatFilter === 'paper' && myLibOwnershipFilter === 'all' && myLibReadingStatuses.length === 0) ? 'paper'
+ : (myLibFormatFilter === 'ebook' && myLibOwnershipFilter === 'all' && myLibReadingStatuses.length === 0) ? 'ebook'
+ : (myLibReadingStatuses.length === 1 && myLibReadingStatuses[0] === '완독' && myLibFormatFilter === 'all' && myLibOwnershipFilter === 'all') ? 'done'
+ : (isAll ? 'all' : '');
  bar.innerHTML = `
- <button type="button" class="mylib-stat-inline ${isAll ? 'active-pill' : ''}" onclick="setMyLibStatusFilter('all')" title="전체 도서 보기">전체 <strong>${stats.total}</strong></button>
- <span class="mylib-stat-dot">·</span>
- <button type="button" class="mylib-stat-inline ${(myLibFormatFilter === 'paper' && !myLibDuplicatesMode) ? 'active-pill' : ''}" onclick="toggleMyLibFormatFilter('paper')" title="종이책 필터">종이책 <strong>${stats.paper}</strong></button>
- <span class="mylib-stat-dot">·</span>
- <button type="button" class="mylib-stat-inline ${(myLibFormatFilter === 'ebook' && !myLibDuplicatesMode) ? 'active-pill' : ''}" onclick="toggleMyLibFormatFilter('ebook')" title="e-book 필터">e-book <strong>${stats.ebooks}</strong></button>
- <span class="mylib-stat-dot">·</span>
- <button type="button" class="mylib-stat-inline ${(myLibOwnershipFilter === '대여중' && !myLibDuplicatesMode) ? 'active-pill' : ''}" onclick="toggleMyLibOwnershipFilter('대여중')" title="대여 중인 책 보기">대여중 <strong>${activeBorrowedCount}</strong></button>
- <span class="mylib-stat-dot">·</span>
- <button type="button" class="mylib-stat-inline ${(!myLibDuplicatesMode && myLibReadingStatuses.includes('완독')) ? 'active-pill' : ''}" onclick="toggleMyLibReadingStatusFilter('완독')" title="완독한 책 보기">완독 <strong>${stats.donePct}%</strong></button>
+ <button type="button" class="mylib-top-tab ${activeTab === 'all' ? 'active' : ''}" onclick="selectMyLibTopTab('all')">전체 <strong>${stats.total}</strong></button>
+ <button type="button" class="mylib-top-tab ${activeTab === 'paper' ? 'active' : ''}" onclick="selectMyLibTopTab('paper')">종이책 <strong>${stats.paper}</strong></button>
+ <button type="button" class="mylib-top-tab ${activeTab === 'ebook' ? 'active' : ''}" onclick="selectMyLibTopTab('ebook')">e-book <strong>${stats.ebooks}</strong></button>
+ <button type="button" class="mylib-top-tab ${activeTab === 'borrowed' ? 'active' : ''}" onclick="selectMyLibTopTab('borrowed')">대여중 <strong>${activeBorrowedCount}</strong></button>
+ <button type="button" class="mylib-top-tab ${activeTab === 'done' ? 'active' : ''}" onclick="selectMyLibTopTab('done')">완독 <strong>${stats.donePct}%</strong></button>
  `;
 
  const subEl = document.getElementById('myLibSubSummary');
@@ -7334,6 +7352,14 @@
  searchOwnedBookCandidatesNow(true);
  }, 550);
  }
+ }
+
+  async function refetchAndSearchOwnedCandidates() {
+   lastAutoFillQueryKey = '';
+   try {
+     await autoFillOwnedBookMeta('', true, true);
+   } catch (e) {}
+   searchOwnedBookCandidatesNow();
  }
 
  async function searchOwnedBookCandidatesNow(silent = false) {

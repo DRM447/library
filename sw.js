@@ -1,8 +1,7 @@
-const CACHE_NAME = 'allbooks-cache-v88';
+const CACHE_NAME = 'allbooks-cache-v89';
 const CORE_URLS = [
   './all_books.html',
   './manifest.json',
-  './AllBooks_emblem.svg',
   './icon-192.png',
   './icon-512.png',
   './icon-maskable-512.png',

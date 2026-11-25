@@ -291,16 +291,18 @@
 
  /* 표지 하단 에디토리얼 띠지 (소장 / 대여 / 판매) */
  .cover-own-obi {
- position: absolute; left: 0; right: 0; bottom: 0;
+ position: absolute; left: 0; right: 0; bottom: 8px;
  color: #ffffff; font-size: 9.5px; font-weight: 700; text-align: center;
- letter-spacing: 1.6px; line-height: 1.25; padding: 3.5px 0;
+ letter-spacing: 1.6px; line-height: 1.25; padding: 3px 0;
  pointer-events: none; z-index: 2;
  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
- border-top: 1px solid rgba(255, 255, 255, 0.2);
+ border-top: 1px solid rgba(255, 255, 255, 0.22);
+ border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+ text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
  }
- .cover-own-obi.owned { background: rgba(15, 118, 110, 0.78); }
- .cover-own-obi.borrowed { background: rgba(30, 64, 175, 0.76); }
- .cover-own-obi.sold { background: rgba(68, 64, 60, 0.82); }
+ .cover-own-obi.owned { background: rgba(15, 118, 110, 0.56); }
+ .cover-own-obi.borrowed { background: rgba(30, 64, 175, 0.56); }
+ .cover-own-obi.sold { background: rgba(68, 64, 60, 0.6); }
 
  /* 표지 좌측 상단 원형 형태 딱지 (종이책: '종' / e-book: 'E') */
  .cover-format-dot {
@@ -309,11 +311,11 @@
  display: inline-flex; align-items: center; justify-content: center;
  font-size: 9.5px; font-weight: 800; line-height: 1;
  pointer-events: none;
- box-shadow: 0 1px 4px rgba(15, 23, 42, 0.28);
+ box-shadow: 0 1px 4px rgba(15, 23, 42, 0.26);
  }
  .cover-format-dot.paper {
- background: rgba(255, 255, 255, 0.94); color: #334155;
- border: 1px solid rgba(15, 23, 42, 0.16);
+ background: rgba(247, 241, 225, 0.96); color: #5c4b32;
+ border: 1px solid rgba(180, 155, 110, 0.48);
  }
  .cover-format-dot.ebook {
  background: rgba(109, 40, 217, 0.92); color: #ffffff;
@@ -1660,6 +1662,29 @@
  .mylib-ms-action-btn:active { transform: scale(0.97); }
  .mylib-ms-action-btn.danger { background: #dc2626; color: #ffffff; }
 
+
+ .lib-cache-meta {
+ display: inline-flex; align-items: center; gap: 5px; color: #64748b;
+ }
+ .lib-icon-refresh-btn {
+ border: none; background: transparent; color: #64748b;
+ width: 24px; height: 24px; border-radius: 6px; padding: 0;
+ display: inline-flex; align-items: center; justify-content: center;
+ cursor: pointer; transition: background-color 0.14s, color 0.14s;
+ }
+ .lib-icon-refresh-btn:hover, .lib-icon-refresh-btn:active {
+ background: #f1f5f9; color: #334155;
+ }
+ .lib-card-bottom-action {
+ display: flex; justify-content: flex-end; margin-top: 6px; padding-top: 4px;
+ }
+ .lib-more-inline-btn {
+ border: none; background: transparent; color: #64748b;
+ font-size: 11.5px; font-weight: 700; padding: 2px 4px;
+ cursor: pointer; font-family: inherit; transition: color 0.14s;
+ }
+ .lib-more-inline-btn:hover, .lib-more-inline-btn:active { color: #334155; }
+
 </style>
 </head>
 <body>
@@ -1719,9 +1744,6 @@
  <div class="top-quick-links" aria-label="주요 도서관 및 서점 바로가기">
  <a href="https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchSimple.do" target="_blank" rel="noopener" class="top-quick-btn">
  <img src="yongsan_ggumnamu.jpg" alt=""><span>꿈나무도서관</span>
- </a>
- <a href="https://ahyon.sen.go.kr/ahyon/intro/search/index.do?menu_idx=4" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="Ahyeon.jpg" alt=""><span>아현분관</span>
  </a>
  <a href="https://nslib.sen.go.kr/nslib/intro/search/index.do?menu_idx=4" target="_blank" rel="noopener" class="top-quick-btn">
  <img src="namsan.png" alt=""><span>남산도서관</span>
@@ -1880,7 +1902,7 @@
  <div class="section-title" style="color: var(--primary); align-items: center; justify-content: space-between; gap: 8px;">
  <span style="display:flex; align-items:center; gap:8px; line-height: 1.3; min-width: 0;"><i data-lucide="bell-ring" style="flex-shrink:0;"></i> <span id="libBoxTitle">대출 가능 여부</span></span>
  </div>
- <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">*용산꿈나무 · 청파 · 남산 · 마포아현분관 대출 여부를 확인합니다.</p>
+ <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">*용산꿈나무 · 청파 · 남산도서관 대출 여부를 확인합니다.</p>
  <div id="libraryList" class="library-list"></div>
  </div>
 
@@ -2609,22 +2631,33 @@
  async function fetchD4lDetailCached(isbn13, withLoanInfo = true) {
  const cleanIsbn = normalizeIsbn(isbn13);
  if (cleanIsbn.length < 10) return null;
- const cacheKey = `${cleanIsbn}`;
+ const cacheKey = `k2:${cleanIsbn}`;
  const cached = getApiCache('dtl', cacheKey, API_CACHE_TTL_MS);
- if (cached && (!withLoanInfo || cached.hasLoanInfo)) {
- return cached.payload;
+ if (cached && cached.payload) return cached.payload;
+ const res = await lookupBookViaSheetProxy(cleanIsbn, '', '', false);
+ const bk = res && res.ok ? res.book : null;
+ if (!bk) return null;
+ const authorsFull = [bk.author, bk.translator].filter(Boolean).join(' ; ');
+ const payload = {
+ response: {
+ detail: [{
+ book: {
+ bookname: bk.title || '',
+ authors: authorsFull || bk.author || '',
+ publisher: bk.publisher || '',
+ publication_year: bk.pubYear || '',
+ isbn13: bk.isbn || cleanIsbn,
+ bookImageURL: bk.cover || '',
+ description: bk.description || '',
+ class_nm: bk.kdc || '',
+ vol: bk.vol || '',
+ series: bk.series || ''
  }
- const params = { isbn13: cleanIsbn };
- if (withLoanInfo) params.loaninfoYN = 'Y';
- const data = await data4LibProxyFetch('srchDtlList', params);
- if (data?.response?.error) {
- throw new Error(String(data.response.error));
+ }]
  }
- const bookDoc = data?.response?.detail?.[0]?.book || null;
- if (bookDoc) {
- setApiCache('dtl', cacheKey, { hasLoanInfo: !!withLoanInfo, payload: data }, 500);
- }
- return data;
+ };
+ setApiCache('dtl', cacheKey, { hasLoanInfo: false, payload }, 500);
+ return payload;
  }
 
  async function lookupBookViaSheetProxy(isbn, title, author, forceRefresh = false) {
@@ -2724,8 +2757,7 @@
 
  const DEFAULT_TARGET_LIB_CODES = {
  cheongpa: { libCode: '111120', name: '용산구립 청파도서관', priority: 2, isInterlibrary: true, libKey: 'cheongpa' },
- namsan: { libCode: '111010', name: '서울특별시교육청 남산도서관', priority: 3, isInterlibrary: false, libKey: 'namsan' },
- ahyon: { libCode: '111031', name: '서울특별시교육청 마포평생학습관 아현분관', priority: 4, isInterlibrary: false, libKey: 'ahyon' }
+ namsan: { libCode: '111010', name: '서울특별시교육청 남산도서관', priority: 3, isInterlibrary: false, libKey: 'namsan' }
  };
 
  function getFixedTargetLibCodes() {
@@ -6131,7 +6163,7 @@
 
  const EBOOK_OWNED_SOURCES = ['교보e-book', '알라딘e-book', '리디북스', '북이오', '구글플레이북'];
  const EBOOK_BORROW_SOURCES = ['밀리의서재', '알라딘e-book', '알라딘전자도서관', '교보전자도서관', '예스24전자도서관', '이씨오도서관', '서울도서관통합전자책', '부커스', '북큐브', '에피루스'];
- const OFFLINE_BORROW_SOURCES = ['남산도서관', '청파도서관', '꿈나무도서관', '이화여대도서관', '마포아현분관'];
+ const OFFLINE_BORROW_SOURCES = ['남산도서관', '청파도서관', '꿈나무도서관', '이화여대도서관'];
 
  function makeAppBadgeSvg(bg, fg, text, sub = '') {
  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">` +
@@ -6161,7 +6193,6 @@
  '청파도서관': { short: '청파도서관', icon: 'yongsan_logo.svg' },
  '꿈나무도서관': { short: '꿈나무도서관', icon: 'yongsan_ggumnamu.jpg' },
  '이화여대도서관': { short: '이화여대도서관', icon: 'Ewha_logo.svg' },
- '마포아현분관': { short: '마포아현분관', icon: 'Ahyeon.jpg' },
  '송파도서관': { short: '송파도서관', icon: 'Songpa_logo2.svg' }
  };
 
@@ -7803,36 +7834,45 @@
  const numericIsbn = normalizeIsbn(originalKw);
  const aladinSearchUrl = `https://www.aladin.co.kr/m/msearch.aspx?SearchWord=${encodeURIComponent(originalKw)}&SearchTarget=All&start=h_keyword`;
 
- // 1) 90일 브라우저 캐시 확인 (공백 정규화 키 우선, 기존 키 하위 호환 → API 호출 0회)
- const searchCacheKey = `v2:${(spacelessKw || originalKw).toLowerCase()}`;
- const cachedDocs = getApiCache('search', searchCacheKey, API_CACHE_TTL_MS)
- || getApiCache('search', `v2:${cacheKey}`, API_CACHE_TTL_MS);
+ // 1) 90일 브라우저 캐시 확인 (카카오 기반 v3 키)
+ const searchCacheKey = `v3:${(spacelessKw || originalKw).toLowerCase()}`;
+ const cachedDocs = getApiCache('search', searchCacheKey, API_CACHE_TTL_MS);
  let combinedDocs = [];
 
  if (Array.isArray(cachedDocs)) {
  combinedDocs = cachedDocs.map(doc => ({ doc }));
  } else {
  const seenIsbns = new Set();
- const addDocs = (res) => {
- if (res && res.response && res.response.docs) {
- res.response.docs.forEach(item => {
- const isbn = item.doc.isbn13 || item.doc.isbn;
- if (isbn && !seenIsbns.has(isbn)) {
- seenIsbns.add(isbn);
- combinedDocs.push({ doc: compactBookDoc(item.doc) });
- }
+ const pushKakaoBook = (bk) => {
+ if (!bk || !bk.title) return;
+ const isbn = normalizeIsbn(bk.isbn || '');
+ const dedupKey = isbn || `${bk.title}|${bk.author || ''}`;
+ if (seenIsbns.has(dedupKey)) return;
+ seenIsbns.add(dedupKey);
+ const authorsFull = [bk.author, bk.translator].filter(Boolean).join(' ; ');
+ combinedDocs.push({
+ doc: compactBookDoc({
+ bookname: bk.title || '',
+ authors: authorsFull || bk.author || '',
+ publisher: bk.publisher || '',
+ publication_year: bk.pubYear || '',
+ isbn13: isbn,
+ bookImageURL: bk.cover || '',
+ description: bk.description || '',
+ class_nm: bk.kdc || '',
+ vol: bk.vol || ''
+ })
  });
- }
  };
 
- // ISBN 직접 검색(스캔 포함) 시 공통 상세 캐시(d4lCache_dtl) 우선 활용
+ // ISBN 직접 검색(스캔 포함) 시 카카오+국립중앙도서관 통합 조회
  if (/^\d{10,13}$/.test(numericIsbn)) {
  const dtlRes = await fetchD4lDetailCached(numericIsbn, false).catch(() => null);
  if (seq !== latestSearchSeq) return;
  const dtlBook = dtlRes?.response?.detail?.[0]?.book;
  if (dtlBook) {
  combinedDocs.push({ doc: compactBookDoc(dtlBook) });
- seenIsbns.add(dtlBook.isbn13 || numericIsbn);
+ seenIsbns.add(normalizeIsbn(dtlBook.isbn13 || numericIsbn));
  }
  }
 
@@ -7840,53 +7880,43 @@
  const hasMarcDelimiter = /=|\//.test(originalKw);
  const primaryTitleKw = (hasMarcDelimiter && mainTitleKw.length >= 2) ? mainTitleKw : originalKw;
 
- // 1) 제목(title) 우선 검색 (MARC 병렬서명 기호 '=', '/'가 있으면 본제목으로 바로 조회해 API 낭비 방지)
+ const runKakaoSearch = async (q) => {
+ const reqUrl = buildSheetGetUrl({ action: 'searchBooks', query: q });
+ if (!reqUrl) return [];
+ const res = await fetch(reqUrl);
+ if (!res.ok) return [];
+ const data = await res.json();
+ return Array.isArray(data?.books) ? data.books : [];
+ };
+
  if (combinedDocs.length === 0) {
- const resTitle = await data4LibProxyFetch('srchBooks', { title: primaryTitleKw, pageNo: 1, pageSize: 15 }).catch(() => null);
+ const books1 = await runKakaoSearch(primaryTitleKw).catch(() => []);
  if (seq !== latestSearchSeq) return;
- addDocs(resTitle);
+ books1.forEach(pushKakaoBook);
  }
 
- // 1-b) 부제(:, -, 괄호)가 포함된 풀네임으로 결과가 없으면 본제목만으로 재검색
  if (combinedDocs.length === 0 && mainTitleKw && mainTitleKw !== primaryTitleKw && mainTitleKw.length >= 2) {
- const resMainTitle = await data4LibProxyFetch('srchBooks', { title: mainTitleKw, pageNo: 1, pageSize: 15 }).catch(() => null);
+ const books2 = await runKakaoSearch(mainTitleKw).catch(() => []);
  if (seq !== latestSearchSeq) return;
- addDocs(resMainTitle);
+ books2.forEach(pushKakaoBook);
  }
 
- // 2) 제목 결과가 없으면 저자(author) 검색 시도 (짧은 인명/저자명 검색 대응)
- if (combinedDocs.length === 0 && originalKw.length <= 12) {
- const resAuthor = await data4LibProxyFetch('srchBooks', { author: originalKw, pageNo: 1, pageSize: 15 }).catch(() => null);
- if (seq !== latestSearchSeq) return;
- addDocs(resAuthor);
- }
-
- // 3) 그래도 없으면 띄어쓰기 제거 제목 또는 통합 keyword 보조 조회
- if (combinedDocs.length === 0) {
- const baseForFallback = mainTitleKw || originalKw;
- const spacelessBase = baseForFallback.replace(/\s+/g, '');
- const fallbackParams = (baseForFallback !== spacelessBase)
- ? { title: spacelessBase, pageNo: 1, pageSize: 15 }
- : { keyword: baseForFallback, pageNo: 1, pageSize: 15 };
- const resFallback = await data4LibProxyFetch('srchBooks', fallbackParams).catch(() => null);
- if (seq !== latestSearchSeq) return;
- addDocs(resFallback);
- }
-
- // 검색어-제목/저자 일치도 기준 자동 정렬 (가장 정확한 책이 첫 번째로 선택되도록)
+ // 검색어 일치도 + 종이책 판본 우선 정렬 (도서관 대출 조회 정확도 향상)
  if (combinedDocs.length > 1) {
  const normKw = normalizeBookTitle(originalKw);
  const lowKw = originalKw.toLowerCase();
+ const isLikelyEbookDoc = (d) => /e-?book|전자책|체험판|무료/i.test(String(d.bookname || ''));
  const scoreDoc = (d) => {
  const normT = normalizeBookTitle(d.bookname || '');
  const lowT = String(d.bookname || '').toLowerCase();
  const lowA = String(d.authors || '').toLowerCase();
- if (normKw && normT === normKw) return 0;
- if (normKw && normT.startsWith(normKw)) return 1;
- if (normKw && normT.includes(normKw)) return 2;
- if (lowT.includes(lowKw)) return 3;
- if (lowA.includes(lowKw)) return 4;
- return 5;
+ let base = 5;
+ if (normKw && normT === normKw) base = 0;
+ else if (normKw && normT.startsWith(normKw)) base = 1;
+ else if (normKw && normT.includes(normKw)) base = 2;
+ else if (lowT.includes(lowKw)) base = 3;
+ else if (lowA.includes(lowKw)) base = 4;
+ return base * 2 + (isLikelyEbookDoc(d) ? 1 : 0);
  };
  combinedDocs.sort((a, b) => scoreDoc(a.doc) - scoreDoc(b.doc));
  }
@@ -8562,12 +8592,11 @@
  return `https://search.naver.com/search.naver?query=${encodeURIComponent(libName)}`;
  }
 
- const TARGET_LIB_ORDER = ['dream', 'cheongpa', 'namsan', 'ahyon'];
+ const TARGET_LIB_ORDER = ['dream', 'cheongpa', 'namsan'];
  const TARGET_LIB_LABELS = {
  dream: '용산꿈나무',
  cheongpa: '청파',
- namsan: '남산',
- ahyon: '아현'
+ namsan: '남산'
  };
 
  async function resolveTargetLibraries(isbn) {
@@ -8587,7 +8616,7 @@
  }
 
  const needYongsan = !fixedMap.dream?.libCode || !fixedMap.cheongpa?.libCode || !fixedMap.namsan?.libCode;
- const needMapo = !fixedMap.ahyon?.libCode;
+ const needMapo = false;
 
  const [mapoData, yongsanData] = await Promise.all([
  needMapo ? data4LibProxyFetch('libSrch', { region: 11, dtl_region: 11140, pageSize: 100 }).catch(() => null) : Promise.resolve(null),
@@ -8691,31 +8720,35 @@
  if (!container) return;
 
  const tsLabel = checkedTs ? `저장됨 · ${formatShortTimestamp(checkedTs)}` : '방금 조회됨';
+ const hasRemaining = Array.isArray(remainingKeys) && remainingKeys.length > 0;
  const remainingNames = (remainingKeys || []).map(k => TARGET_LIB_LABELS[k] || k).join('·');
- const remainingBtnHtml = (remainingKeys && remainingKeys.length > 0)
- ? `<button type="button" class="lib-refresh-btn" style="background:#f5f3ff; border-color:#ddd6fe; color:#6d28d9;" onclick="fetchRemainingLibrariesForCurrent()" title="${escapeHtml(remainingNames)} 추가 조회">+ 나머지 ${remainingKeys.length}곳 조회</button>`
+ const remainingBtnHtml = hasRemaining
+ ? `<button type="button" class="lib-more-inline-btn" onclick="event.stopPropagation(); fetchRemainingLibrariesForCurrent();" title="${escapeHtml(remainingNames)} 추가 조회">다른 도서관도 조회</button>`
  : '';
 
  const footerHtml = `
- <div class="lib-cache-footer" style="flex-wrap:wrap;">
- <span>💾 ${tsLabel}</span>
- <div style="display:flex; gap:5px; align-items:center;">
- ${remainingBtnHtml}
- <button type="button" class="lib-refresh-btn" onclick="fetchRealTimeLibraryStatusForCurrent(true)">🔄 다시 조회</button>
+ <div class="lib-cache-footer">
+ <div class="lib-cache-meta">
+ <span>${tsLabel}</span>
+ <button type="button" class="lib-icon-refresh-btn" onclick="fetchRealTimeLibraryStatusForCurrent(true)" title="대출 현황 다시 조회" aria-label="대출 현황 다시 조회"><i data-lucide="refresh-cw" size="13"></i></button>
  </div>
  </div>
  `;
 
  if (!results || results.length === 0) {
- container.innerHTML = `<li class="library-item" style="color:var(--sec-text); font-weight:700; justify-content:center;">소장 중인 관심 도서관이 없습니다.</li>${footerHtml}`;
+ const fallbackMore = hasRemaining ? `<div class="lib-card-bottom-action">${remainingBtnHtml}</div>` : '';
+ container.innerHTML = `<li class="library-item" style="color:var(--sec-text); font-weight:700; justify-content:center; flex-direction:column;"><span>소장 중인 관심 도서관이 없습니다.</span>${fallbackMore}</li>${footerHtml}`;
+ refreshIcons();
  return;
  }
 
  const cleanTitle = (bookName || '').split(' =')[0].split(':')[0].trim();
  const encodedTitle = encodeURIComponent(cleanTitle).replace(/'/g, '%27');
+ const dreamIdx = results.findIndex(lib => lib.libKey === 'dream');
+ const attachMoreIdx = hasRemaining ? (dreamIdx >= 0 ? dreamIdx : results.length - 1) : -1;
 
  let html = '';
- results.forEach(lib => {
+ results.forEach((lib, rIdx) => {
  let badgeHtml = '';
  if (lib.loanAvailable === 'Y') {
  badgeHtml = lib.isInterlibrary
@@ -8734,9 +8767,12 @@
  const subTextHtml = lib.isInterlibrary
  ? '<span class="interlibrary-sub">용산구립 상호대차 · 클릭 시 통합검색 이동</span>'
  : '<span class="fav-lib-sub">클릭 시 도서관 자료검색 바로 이동</span>';
+ const bottomActionHtml = (rIdx === attachMoreIdx)
+ ? `<div class="lib-card-bottom-action">${remainingBtnHtml}</div>`
+ : '';
 
  html += `
- <li class="${itemClass}">
+ <li class="${itemClass}" style="flex-direction:column; align-items:stretch;">
  <a href="${escapeHtml(targetUrl)}" target="_blank" rel="noopener" class="library-item-link">
  <div class="fav-lib-wrap">
  <span class="${textClass}"><i data-lucide="${iconName}" size="14"></i> ${escapeHtml(lib.name)}</span>
@@ -8744,6 +8780,7 @@
  </div>
  ${badgeHtml}
  </a>
+ ${bottomActionHtml}
  </li>
  `;
  });
@@ -8754,7 +8791,7 @@
 
  async function fetchRealTimeLibraryStatus(isbn, bookName, forceRefresh = false, onlyRemaining = false) {
  const container = document.getElementById('libraryList');
- container.innerHTML = `<li class='loading-msg'>${onlyRemaining ? '나머지 도서관 대출 여부를 확인하는 중입니다...' : '우선순위 도서관(꿈나무→청파→남산→아현)을 순차 확인 중입니다...'}</li>`;
+ container.innerHTML = `<li class='loading-msg'>${onlyRemaining ? '나머지 도서관 대출 여부를 확인하는 중입니다...' : '우선순위 도서관(꿈나무→청파→남산)을 순차 확인 중입니다...'}</li>`;
 
  try {
  const { results, remainingKeys } = await queryLibraryStatusWithCache(isbn, forceRefresh, onlyRemaining);

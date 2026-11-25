@@ -1,4 +1,4 @@
-const CACHE_NAME = 'allbooks-cache-v80';
+const CACHE_NAME = 'allbooks-cache-v82';
 const CORE_URLS = [
   './all_books.html',
   './manifest.json',
@@ -18,7 +18,6 @@ const OPTIONAL_ASSETS = [
   './SeoulEdu_logo.svg',
   './Ewha_logo.svg',
   './SeoulLibrary_logo.svg',
-  './Ahyeon.jpg',
   './namsan.png',
   './yongsan_ggumnamu.jpg'
 ];

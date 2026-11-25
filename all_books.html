@@ -1685,6 +1685,96 @@
  }
  .lib-more-inline-btn:hover, .lib-more-inline-btn:active { color: #334155; }
 
+
+ /* API 잔량: 배경 없이 텍스트만 */
+ .api-usage-corner .api-usage-pill {
+   background: transparent !important; border: none !important; box-shadow: none !important;
+   padding: 2px 4px !important; color: #94a3b8 !important; font-size: 11px !important;
+   font-weight: 700 !important; cursor: default !important; pointer-events: none !important;
+ }
+ /* 빨간 사각 이중 테두리 '완독' 고무도장 (첨부 스타일 반영) */
+ .cover-done-stamp {
+   position: absolute; left: 50%; top: 50%; z-index: 4;
+   width: 82%; max-width: 74px; aspect-ratio: 1.72 / 1;
+   transform: translate(-50%, -50%) rotate(-18deg);
+   pointer-events: none;
+   display: inline-flex; align-items: center; justify-content: center;
+   border: 2.5px solid rgba(200, 30, 30, 0.9);
+   border-radius: 7px; padding: 2px;
+   background: rgba(255, 255, 255, 0.14);
+   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+   filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.55));
+ }
+ .cover-done-stamp-inner {
+   width: 100%; height: 100%;
+   border: 1px solid rgba(200, 30, 30, 0.85);
+   border-radius: 4px;
+   display: flex; align-items: center; justify-content: center;
+   color: rgba(200, 30, 30, 0.94);
+   font-size: 13px; font-weight: 900; letter-spacing: 2px; line-height: 1;
+   text-indent: 2px;
+   background-image: radial-gradient(rgba(255,255,255,0.28) 1px, transparent 1px);
+   background-size: 5px 5px;
+ }
+ /* 반납 / 판매 동일 붉은색 띠지 + D-day 대여 띠지 */
+ .cover-own-obi.red-tag { background: rgba(185, 28, 28, 0.72); }
+ .cover-own-obi.due-tag { background: rgba(30, 64, 175, 0.68); font-size: 9px; letter-spacing: 0.6px; }
+ .cover-own-obi.due-urgent { background: rgba(217, 119, 6, 0.78); font-size: 9px; letter-spacing: 0.6px; }
+
+ /* 내 서재: 표지 아래 하트 평점 */
+ .mylib-thumb-col {
+   display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0;
+ }
+ .mylib-thumb-rating {
+   font-size: 10px; line-height: 1; letter-spacing: -1px; color: #ef4444;
+   font-weight: 800; text-align: center; white-space: nowrap;
+ }
+
+ /* 플랫폼 통일 배지 색상 (소장/대여 동일 톤) */
+ .mylib-badge.src-aladin { background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; }
+ .mylib-badge.src-kyobo { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
+ .mylib-badge.src-ridi { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+ .mylib-badge.src-yes24 { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+ .mylib-badge.src-paper-fmt { background: #faf6ec; color: #6b5638; border: 1px solid #e6dcc4; }
+ .mylib-badge.src-ebook-fmt { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+
+ /* 바텀시트 중복 배지 노란색 */
+ .bottom-sheet-badge {
+   background: #fef3c7 !important; color: #b45309 !important;
+   border: 1px solid #fcd34d; margin-left: 6px;
+ }
+
+ /* 검색 결과 종이책/e-book 표시 */
+ .search-fmt-pill {
+   display: inline-block; margin-top: 2px; padding: 1px 5px; border-radius: 999px;
+   font-size: 9.5px; font-weight: 700; line-height: 1.3;
+ }
+ .search-fmt-pill.ebook { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+ .search-fmt-pill.paper { background: #faf6ec; color: #6b5638; border: 1px solid #e6dcc4; }
+
+ /* 북마크 카드 우측 상단 ··· 버튼 */
+ .bm-more-btn {
+   position: absolute; top: 4px; right: 4px; z-index: 4;
+   width: 24px; height: 24px; border-radius: 50%; border: none;
+   background: rgba(15, 23, 42, 0.62); color: #ffffff;
+   display: inline-flex; align-items: center; justify-content: center;
+   cursor: pointer; padding: 0; backdrop-filter: blur(2px);
+ }
+ .bm-more-btn:active { transform: scale(0.92); }
+
+ /* 오늘 뭐 읽지 2권 스택 */
+ .home-random-stack { display: flex; flex-direction: column; gap: 10px; }
+
+ /* 저장 안 함(붉은 톤) / 저장(어울리는 다크 슬레이트) */
+ .btn-discard-danger {
+   background: #fee2e2 !important; color: #b91c1c !important;
+   border: 1px solid #fecaca !important;
+ }
+ .btn-save-slate {
+   background: #1e293b !important; color: #ffffff !important;
+   border: 1px solid #0f172a !important;
+ }
+
 </style>
 </head>
 <body>
@@ -1698,7 +1788,7 @@
  </div>
 
  <div class="api-usage-corner">
- <button type="button" id="apiUsagePill" class="api-usage-pill" onclick="showApiUsageInfo()" title="정보나루 일일 API 사용량 및 캐시 현황">⚡ API 0/100</button>
+ <span id="apiUsagePill" class="api-usage-pill">API 0/500</span>
  </div>
 
  <div class="barcode-corner">
@@ -1708,6 +1798,20 @@
  </div>
 
  <div class="search-container">
+ <div class="top-quick-links" style="margin: 0 0 10px 0;" aria-label="주요 도서관 및 서점 바로가기">
+ <a href="https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchSimple.do" target="_blank" rel="noopener" class="top-quick-btn">
+ <img src="yongsan_ggumnamu.jpg" alt=""><span>꿈나무도서관</span>
+ </a>
+ <a href="https://nslib.sen.go.kr/nslib/intro/search/index.do?menu_idx=4" target="_blank" rel="noopener" class="top-quick-btn">
+ <img src="namsan.png" alt=""><span>남산도서관</span>
+ </a>
+ <a href="https://www.aladin.co.kr/account/wmaininfo.aspx?pType=MyAccount" target="_blank" rel="noopener" class="top-quick-btn">
+ <img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" alt=""><span>알라딘</span>
+ </a>
+ <a href="https://www.kyobobook.co.kr/" target="_blank" rel="noopener" class="top-quick-btn">
+ <img src="https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32" alt=""><span>교보문고</span>
+ </a>
+ </div>
  <div class="card" id="searchSection">
  <div class="search-box">
  <div class="search-input-wrap">
@@ -1741,25 +1845,11 @@
  </div>
  </div>
 
- <div class="top-quick-links" aria-label="주요 도서관 및 서점 바로가기">
- <a href="https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchSimple.do" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="yongsan_ggumnamu.jpg" alt=""><span>꿈나무도서관</span>
- </a>
- <a href="https://nslib.sen.go.kr/nslib/intro/search/index.do?menu_idx=4" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="namsan.png" alt=""><span>남산도서관</span>
- </a>
- <a href="https://www.aladin.co.kr/account/wmaininfo.aspx?pType=MyAccount" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" alt=""><span>알라딘</span>
- </a>
- <a href="https://www.kyobobook.co.kr/" target="_blank" rel="noopener" class="top-quick-btn">
- <img src="https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32" alt=""><span>교보문고</span>
- </a>
- </div>
+
  </div>
 
  <!-- 검색 전 홈 독서 대시보드 -->
  <div id="homeReadingDashboard" class="home-dashboard hidden">
- <div class="home-kpi-strip" id="homeKpiStrip"></div>
  <div class="home-grid">
  <div class="card">
  <div class="section-title" style="justify-content: space-between; margin-bottom: 10px;">
@@ -1771,7 +1861,7 @@
  <div class="card">
  <div class="section-title" style="justify-content: space-between; margin-bottom: 10px;">
  <span>오늘 뭐 읽지?</span>
- <button class="owned-chip-btn indigo icon-trash-btn" onclick="pickRandomUnreadBook()" title="다시 뽑기" aria-label="다시 뽑기"><i data-lucide="dices" size="15"></i></button>
+ <button class="owned-chip-btn indigo icon-trash-btn" onclick="pickRandomUnreadBook(true)" title="다시 뽑기" aria-label="다시 뽑기"><i data-lucide="dices" size="15"></i></button>
  </div>
  <div id="homeRandomPickContainer"></div>
  </div>
@@ -1935,7 +2025,7 @@
  <h3 class="mylib-header-title" style="color:#d97706;"><i data-lucide="bookmark" fill="#f59e0b" color="#f59e0b" size="18"></i> 내 북마크</h3>
  <button type="button" class="mylib-ghost-icon-btn" onclick="closeBookmarkModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="18"></i></button>
  </div>
- <p style="font-size:11.5px; color:var(--sec-text); margin: 8px 0 0 0;">표지 클릭 시 재검색 · 하단 띠지/+ 버튼 클릭 시 메모 편집</p>
+ <p style="font-size:11.5px; color:var(--sec-text); margin: 8px 0 0 0;">표지 클릭 시 재검색 · 우측 상단 ··· 버튼에서 메모·서재 추가·삭제</p>
  <div id="bookmarkModalContent" class="bookmark-modal-content"></div>
  </div>
  </div>
@@ -2012,7 +2102,6 @@
  <div class="mylib-header-actions" style="gap:2px;">
  <button type="button" class="mylib-ghost-icon-btn" id="myLibDupFilterBtn" onclick="openMyLibManageSheet()" title="서재 관리 메뉴" aria-label="서재 관리 메뉴">
  <i data-lucide="more-horizontal" size="18"></i>
- <span id="myLibDupDot" class="mylib-dup-dot hidden">0</span>
  </button>
  <button type="button" class="mylib-ghost-icon-btn" onclick="closeMyLibraryModal()" title="닫기" aria-label="닫기">
  <i data-lucide="x" size="18"></i>
@@ -2059,7 +2148,8 @@
  <div class="ridi-filter-options">
  <button type="button" class="ridi-chip active" data-ownership="all" onclick="setMyLibOwnershipFilter('all')">전체</button>
  <button type="button" class="ridi-chip" data-ownership="소장" onclick="toggleMyLibOwnershipFilter('소장')">소장</button>
- <button type="button" class="ridi-chip" data-ownership="대여" onclick="toggleMyLibOwnershipFilter('대여')">대여</button>
+ <button type="button" class="ridi-chip" data-ownership="대여중" onclick="toggleMyLibOwnershipFilter('대여중')">대여중</button>
+ <button type="button" class="ridi-chip" data-ownership="반납" onclick="toggleMyLibOwnershipFilter('반납')">반납</button>
  <button type="button" class="ridi-chip" data-ownership="판매" onclick="toggleMyLibOwnershipFilter('판매')">판매</button>
  </div>
  </div>
@@ -2136,6 +2226,7 @@
  <button type="button" class="mylib-ms-action-btn" onclick="batchUpdateSelectedStatus('예정')">예정</button>
  <button type="button" class="mylib-ms-action-btn" onclick="batchUpdateSelectedStatus('읽는 중')">읽는 중</button>
  <button type="button" class="mylib-ms-action-btn" onclick="batchUpdateSelectedStatus('완독')">완독</button>
+ <button type="button" class="mylib-ms-action-btn" onclick="batchUpdateSelectedTags()">태그</button>
  <button type="button" class="mylib-ms-action-btn danger" onclick="batchDeleteSelectedBooks()">삭제</button>
  </div>
  </div>
@@ -2201,8 +2292,8 @@
 
  <div class="owned-edit-cover-wrap">
  <div id="ownedCoverCol" class="owned-cover-col" onclick="triggerOwnedCoverUpload()" title="터치하여 표지 이미지 첨부 또는 변경">
- <span id="ownedCoverStateBadge" class="cover-format-dot paper">종</span>
- <div id="ownedCoverOwnObi" class="cover-own-obi owned">소장</div>
+ <div id="ownedCoverOwnObi" class="cover-own-obi hidden"></div>
+ <div id="ownedCoverDoneStamp" class="cover-done-stamp hidden"><span class="cover-done-stamp-inner">완독</span></div>
  <img id="ownedEditCoverImg" class="owned-edit-cover hidden" src="" alt="책 표지" onerror="handleOwnedCoverError()">
  <div class="owned-cover-placeholder">
  <i data-lucide="image-plus" size="18"></i>
@@ -2216,6 +2307,7 @@
  <label class="form-label" for="ownedInputTitle" style="justify-content:space-between; width:100%; gap:6px;">
  <span style="white-space:nowrap;">책 제목 *</span>
  <span id="ownedTitleStoreLinks" class="owned-title-store-links hidden">
+ <a id="ownedKakaoIconLink" href="#" target="_blank" rel="noopener" class="owned-title-store-icon" title="카카오 도서 검색에서 보기" aria-label="카카오 도서 검색에서 보기"><img src="https://www.google.com/s2/favicons?domain=daum.net&sz=32" alt="카카오 도서"></a>
  <a id="ownedKyoboIconLink" href="#" target="_blank" rel="noopener" class="owned-title-store-icon" title="교보문고에서 보기" aria-label="교보문고에서 보기"><img src="https://www.google.com/s2/favicons?domain=kyobobook.co.kr&sz=32" alt="교보문고"></a>
  <a id="ownedAladinIconLink" href="#" target="_blank" rel="noopener" class="owned-title-store-icon" title="알라딘에서 보기" aria-label="알라딘에서 보기"><img src="https://www.google.com/s2/favicons?domain=aladin.co.kr&sz=32" alt="알라딘"></a>
  </span>
@@ -2258,7 +2350,7 @@
  <div class="owned-meta-key">ISBN</div>
  <div class="owned-meta-val-wrap">
  <button type="button" id="ownedMetaBtn_isbn" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('isbn')"></button>
- <input type="text" id="ownedInputIsbn" class="owned-meta-inline-input hidden" placeholder="10 또는 13자리" onblur="finishInlineMetaEdit('isbn'); triggerAutoFillOwnedMeta();" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
+ <input type="text" id="ownedInputIsbn" class="owned-meta-inline-input hidden" placeholder="10 또는 13자리" onblur="finishInlineMetaEdit('isbn'); triggerAutoFillOwnedMeta(true);" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
  </div>
  </div>
  <div class="owned-meta-row">
@@ -2291,7 +2383,8 @@
  <div class="ridi-filter-label">소장</div>
  <div class="ridi-filter-options" role="radiogroup" aria-label="소장 구분">
  <button type="button" id="ownedOwnToggleBtn" class="owned-ridi-chip active-owned" role="radio" aria-checked="true" onclick="selectOwnedOwnershipMode('owned')">소장</button>
- <button type="button" id="ownedBorrowToggleBtn" class="owned-ridi-chip" role="radio" aria-checked="false" onclick="selectOwnedOwnershipMode('borrowed')">대여</button>
+ <button type="button" id="ownedBorrowToggleBtn" class="owned-ridi-chip" role="radio" aria-checked="false" onclick="selectOwnedOwnershipMode('borrowed')">대여중</button>
+ <button type="button" id="ownedReturnToggleBtn" class="owned-ridi-chip" role="radio" aria-checked="false" onclick="selectOwnedOwnershipMode('returned')">반납</button>
  <button type="button" id="ownedSoldToggleBtn" class="owned-ridi-chip" role="radio" aria-checked="false" onclick="selectOwnedOwnershipMode('sold')">판매</button>
  </div>
  </div>
@@ -2377,7 +2470,6 @@
  </div>
 
  <div class="memo-modal-actions">
- <button id="ownedDeleteBtn" class="memo-btn memo-btn-delete hidden" onclick="deleteOwnedBookFromModal()" title="서재에서 삭제" aria-label="서재에서 삭제"><i data-lucide="trash-2" size="16"></i></button>
  <button class="memo-btn memo-btn-cancel" onclick="closeOwnedEditModal()">취소</button>
  <button id="ownedSaveBtn" class="memo-btn memo-btn-save" onclick="saveOwnedBookFromModal()">저장</button>
  </div>
@@ -2393,8 +2485,8 @@
  </div>
  <p style="font-size:13px; color:var(--sec-text); margin:0 0 14px 0; line-height:1.5;">수정된 내용이 있습니다. 저장하고 닫을까요?</p>
  <div class="memo-modal-actions" style="justify-content:flex-end; gap:8px;">
- <button type="button" class="memo-btn memo-btn-cancel" onclick="discardAndCloseOwnedEditModal()">저장 안 함</button>
- <button type="button" class="memo-btn memo-btn-save" onclick="saveAndCloseOwnedEditModal()">저장</button>
+ <button type="button" class="memo-btn btn-discard-danger" onclick="discardAndCloseOwnedEditModal()">저장 안 함</button>
+ <button type="button" class="memo-btn btn-save-slate" onclick="saveAndCloseOwnedEditModal()">저장</button>
  </div>
  </div>
  </div>
@@ -2407,20 +2499,19 @@
  <h4 class="bottom-sheet-title">내 서재 관리</h4>
  <div class="bottom-sheet-list">
  <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); setMyLibStatusFilter('duplicates');">
- <span class="bottom-sheet-item-left"><i data-lucide="alert-triangle" size="17"></i><span>중복 도서 확인</span></span>
- <span id="manageSheetDupBadge" class="bottom-sheet-badge hidden">0</span>
+ <span class="bottom-sheet-item-left"><i data-lucide="alert-triangle" size="17"></i><span>중복 도서 확인</span><span id="manageSheetDupBadge" class="bottom-sheet-badge hidden">0</span></span>
  </button>
  <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); enterMyLibMultiSelectMode();">
- <span class="bottom-sheet-item-left"><i data-lucide="check-square" size="17"></i><span>다중 선택 모드 (일괄 변경 · 삭제)</span></span>
+ <span class="bottom-sheet-item-left"><i data-lucide="check-square" size="17"></i><span>다중 선택 → 삭제</span></span>
  </button>
  <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); syncAllFromSheet(true);">
- <span class="bottom-sheet-item-left"><i data-lucide="refresh-cw" size="17"></i><span>캐시 새로고침 (시트 동기화)</span></span>
+ <span class="bottom-sheet-item-left"><i data-lucide="refresh-cw" size="17"></i><span>시트 동기화</span></span>
  </button>
  <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); openGoogleSheetDirect();">
- <span class="bottom-sheet-item-left"><i data-lucide="external-link" size="17"></i><span>구글 시트 바로 열기</span></span>
+ <span class="bottom-sheet-item-left"><i data-lucide="external-link" size="17"></i><span>구글 시트 편집</span></span>
  </button>
  <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); toggleMyLibSetupBox();">
- <span class="bottom-sheet-item-left"><i data-lucide="settings" size="17"></i><span>환경설정 (시트 URL · PIN)</span></span>
+ <span class="bottom-sheet-item-left"><i data-lucide="settings" size="17"></i><span>환경설정</span></span>
  </button>
  </div>
  </div>
@@ -2811,6 +2902,7 @@
  let selectedOwnedIsEbook = false;
  let selectedOwnedIsBorrowed = false;
  let selectedOwnedIsSold = false;
+ let selectedOwnedIsReturned = false;
  let currentModalCoverUrl = '';
  let currentModalPubYear = '';
  let currentModalDescription = '';
@@ -3182,48 +3274,74 @@
  return '';
  }
 
- function getCoverOwnershipObiHtml(book) {
- if (!book) return '';
- if (isOwnedSold(book)) return '<div class="cover-own-obi sold">판매</div>';
- if (isOwnedBorrowed(book)) return '<div class="cover-own-obi borrowed">대여</div>';
- return '<div class="cover-own-obi owned">소장</div>';
+ function getDueDaysDiff(dueStr) {
+ const due = String(dueStr || '').trim();
+ if (!due || !/^\d{4}-\d{2}-\d{2}$/.test(due)) return null;
+ const today = new Date();
+ today.setHours(0, 0, 0, 0);
+ const [y, m, d] = due.split('-').map(Number);
+ const target = new Date(y, m - 1, d);
+ return Math.round((target - today) / (1000 * 60 * 60 * 24));
  }
 
- function getCoverFormatDotHtml(book) {
+ function getCoverOwnershipObiHtml(book) {
  if (!book) return '';
- const ebook = isOwnedEbook(book);
- return ebook
- ? '<span class="cover-format-dot ebook" aria-label="e-book">E</span>'
- : '<span class="cover-format-dot paper" aria-label="종이책">종</span>';
+ if (isOwnedSold(book)) return '<div class="cover-own-obi red-tag">판매</div>';
+ if (isOwnedReturned(book)) return '<div class="cover-own-obi red-tag">반납</div>';
+ if (isOwnedBorrowed(book)) {
+ const diffDays = getDueDaysDiff(book.dueDate);
+ if (diffDays !== null && diffDays < 180) {
+ const cls = diffDays <= 3 ? 'due-urgent' : 'due-tag';
+ const label = diffDays < 0 ? `D+${Math.abs(diffDays)}` : (diffDays === 0 ? '오늘반납' : `D-${diffDays}`);
+ return `<div class="cover-own-obi ${cls}">${label}</div>`;
  }
+ }
+ return '';
+ }
+
+ function getCoverDoneStampHtml(book) {
+ if (!book) return '';
+ return normalizeReadingStatus(book.status) === '완독'
+ ? '<div class="cover-done-stamp"><span class="cover-done-stamp-inner">완독</span></div>'
+ : '';
+ }
+
+ function getCoverFormatDotHtml(book) { return ''; }
 
  function updateOwnedModalCoverVisuals() {
  const colEl = document.getElementById('ownedCoverCol');
+ const st = normalizeReadingStatus(selectedOwnedStatus);
  if (colEl) {
  colEl.classList.remove('cover-status-planned', 'cover-status-reading', 'cover-status-done', 'cover-status-stop');
- const st = normalizeReadingStatus(selectedOwnedStatus);
  if (st === '예정') colEl.classList.add('cover-status-planned');
  else if (st === '읽는 중') colEl.classList.add('cover-status-reading');
  else if (st === '완독') colEl.classList.add('cover-status-done');
  else if (st === '중단' || st === '중지') colEl.classList.add('cover-status-stop');
  }
- const fmtBadge = document.getElementById('ownedCoverStateBadge');
- if (fmtBadge) {
- fmtBadge.className = 'cover-format-dot ' + (selectedOwnedIsEbook ? 'ebook' : 'paper');
- fmtBadge.removeAttribute('style');
- fmtBadge.textContent = selectedOwnedIsEbook ? 'E' : '종';
- }
+ const stampEl = document.getElementById('ownedCoverDoneStamp');
+ if (stampEl) stampEl.classList.toggle('hidden', st !== '완독');
+
  const obiEl = document.getElementById('ownedCoverOwnObi');
  if (obiEl) {
  if (selectedOwnedIsSold) {
- obiEl.className = 'cover-own-obi sold';
+ obiEl.className = 'cover-own-obi red-tag';
  obiEl.textContent = '판매';
+ } else if (selectedOwnedIsReturned) {
+ obiEl.className = 'cover-own-obi red-tag';
+ obiEl.textContent = '반납';
  } else if (selectedOwnedIsBorrowed) {
- obiEl.className = 'cover-own-obi borrowed';
- obiEl.textContent = '대여';
+ const dueVal = document.getElementById('ownedInputDueDate')?.value || '';
+ const diffDays = getDueDaysDiff(dueVal);
+ if (diffDays !== null && diffDays < 180) {
+ obiEl.className = 'cover-own-obi ' + (diffDays <= 3 ? 'due-urgent' : 'due-tag');
+ obiEl.textContent = diffDays < 0 ? `D+${Math.abs(diffDays)}` : (diffDays === 0 ? '오늘반납' : `D-${diffDays}`);
  } else {
- obiEl.className = 'cover-own-obi owned';
- obiEl.textContent = '소장';
+ obiEl.className = 'cover-own-obi hidden';
+ obiEl.textContent = '';
+ }
+ } else {
+ obiEl.className = 'cover-own-obi hidden';
+ obiEl.textContent = '';
  }
  }
  }
@@ -3343,6 +3461,13 @@
  if (typeof ownedBook.isSold === 'boolean') return ownedBook.isSold;
  const raw = String(ownedBook.isSold || '').trim().toLowerCase();
  return raw === '판매' || raw === 'sold' || raw === 'true';
+ }
+
+ function isOwnedReturned(ownedBook) {
+ if (!ownedBook) return false;
+ if (typeof ownedBook.isReturned === 'boolean') return ownedBook.isReturned;
+ const raw = String(ownedBook.isReturned || '').trim().toLowerCase();
+ return raw === '반납' || raw === 'returned' || raw === 'true';
  }
 
  function getLibraryLogoSrc(sourceName) {
@@ -4376,7 +4501,7 @@
  dash.classList.remove('hidden');
  const stats = computeLibraryStats();
 
- document.getElementById('homeKpiStrip').innerHTML = `
+ const kpiStripEl = document.getElementById('homeKpiStrip'); if (kpiStripEl) kpiStripEl.innerHTML = `
  <div class="home-kpi-card" onclick="openMyLibraryModal(false, 'all')">
  <span class="home-kpi-label">전체 도서</span>
  <span class="home-kpi-value">${stats.total}권</span>
@@ -4396,7 +4521,7 @@
  `;
 
  const borrowedBooks = myOwnedBooks
- .filter(b => isOwnedBorrowed(b) && !isOwnedSold(b) && !String(b.finishDate || '').trim() && !!String(b.dueDate || '').trim() && !['완독', '중단'].includes(normalizeReadingStatus(b.status)))
+ .filter(b => isOwnedBorrowed(b) && !isOwnedSold(b) && !isOwnedReturned(b) && !isOwnedEbook(b) && !String(b.finishDate || '').trim() && !['완독', '중단'].includes(normalizeReadingStatus(b.status)))
  .slice()
  .sort((a, b) => {
  const da = String(a.dueDate || '').trim();
@@ -4470,27 +4595,53 @@
  if (tag) setMyLibTagFilter(tag);
  }
 
- function pickRandomUnreadBook() {
- const borrowedUnread = myOwnedBooks.filter(b => {
- if (!isOwnedBorrowed(b) || isOwnedSold(b)) return false;
+ let currentRandomPicks = [];
+
+ function pickRandomUnreadBook(shuffle = false) {
+ const eligible = myOwnedBooks.filter(b => {
+ if (isOwnedSold(b) || isOwnedReturned(b)) return false;
  if (String(b.finishDate || '').trim()) return false;
  const st = normalizeReadingStatus(b.status);
- return st === '' || st === '예정';
+ return st !== '완독' && st !== '중단' && st !== '중지';
  });
- const ownedUnread = myOwnedBooks.filter(b => {
- if (isOwnedBorrowed(b) || isOwnedSold(b)) return false;
- const st = normalizeReadingStatus(b.status);
- return st === '' || st === '예정';
- });
- const pool = borrowedUnread.length > 0 ? borrowedUnread : ownedUnread;
- if (pool.length === 0) {
+ if (eligible.length === 0) {
  currentRandomPick = null;
- } else if (pool.length === 1) {
- currentRandomPick = pool[0];
- } else {
- const candidates = pool.filter(b => b !== currentRandomPick);
- currentRandomPick = candidates[Math.floor(Math.random() * candidates.length)];
+ currentRandomPicks = [];
+ renderRandomPickCard();
+ return;
  }
+ const rankBook = (b) => {
+ const borrowed = isOwnedBorrowed(b);
+ const diff = borrowed ? getDueDaysDiff(b.dueDate) : null;
+ const paper = !isOwnedEbook(b);
+ const reading = normalizeReadingStatus(b.status) === '읽는 중';
+ if (borrowed && diff !== null) return 0 * 100000 + Math.max(0, diff + 365);
+ if (borrowed && paper) return 1 * 100000;
+ if (paper && reading) return 2 * 100000;
+ if (paper) return 3 * 100000;
+ if (reading) return 4 * 100000;
+ return 5 * 100000;
+ };
+ const prevSet = new Set(currentRandomPicks);
+ const sorted = eligible.slice().sort((a, b) => {
+ const ra = rankBook(a);
+ const rb = rankBook(b);
+ if (Math.floor(ra / 100000) !== Math.floor(rb / 100000)) return ra - rb;
+ if (Math.floor(ra / 100000) === 0 && !shuffle) return ra - rb;
+ return Math.random() - 0.5;
+ });
+ const picked = [];
+ for (const b of sorted) {
+ if (shuffle && prevSet.has(b) && sorted.length > 2) continue;
+ picked.push(b);
+ if (picked.length >= 2) break;
+ }
+ for (const b of sorted) {
+ if (picked.length >= 2) break;
+ if (!picked.includes(b)) picked.push(b);
+ }
+ currentRandomPicks = picked;
+ currentRandomPick = picked[0] || null;
  renderRandomPickCard();
  }
 
@@ -4505,38 +4656,40 @@
  </div>
  ` : '';
 
- if (!currentRandomPick) {
- container.innerHTML = `${undoBarHtml}<div class="loading-msg" style="padding:14px;">예정 도서가 없습니다.</div>`;
+ if (!currentRandomPicks || currentRandomPicks.length === 0) {
+ container.innerHTML = `${undoBarHtml}<div class="loading-msg" style="padding:14px;">추천할 도서가 없습니다.</div>`;
  return;
  }
 
- const b = currentRandomPick;
+ const cardsHtml = currentRandomPicks.map(b => {
  const idx = myOwnedBooks.indexOf(b);
  const ebook = isOwnedEbook(b);
  const st = normalizeReadingStatus(b.status);
  const authorDisplay = formatAuthorWithSuffix(b.author);
- const tags = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && !isEbookTagToken(t)).slice(0, 4)
+ const fmtBadge = ebook
+ ? '<span class="mylib-badge src-ebook-fmt">e-book</span>'
+ : '<span class="mylib-badge src-paper-fmt">종이책</span>';
+ const tags = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && !isEbookTagToken(t)).slice(0, 3)
  .map(t => `<span class="mylib-badge">#${escapeHtml(t)}</span>`).join('');
-
  const randomThumbUrl = getOwnedBookThumbUrl(b);
- container.innerHTML = `
- ${undoBarHtml}
+ return `
  <div class="random-pick-box clickable" onclick="openOwnedEditModalByIndex(${idx})">
  <div class="random-pick-thumb-wrap ${getCoverStatusBorderCls(b)}">
- ${getCoverFormatDotHtml(b)}
  ${getCoverOwnershipObiHtml(b)}
+ ${getCoverDoneStampHtml(b)}
  <img class="random-pick-thumb" src="${escapeHtml(randomThumbUrl)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG">
  </div>
  <div class="random-pick-body">
  <p class="random-pick-title">${escapeHtml(formatOwnedTitle(b))}</p>
  <p class="random-pick-meta" style="font-weight:700; color:#374151;">${escapeHtml(authorDisplay)}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${getOwnedSeries(b) ? ' · ' + escapeHtml(getOwnedSeries(b)) : ''}</p>
- <div class="mylib-item-badges">${ebook ? '<span class="mylib-badge ebook">e-book</span>' : ''}${st === '예정' ? '<span class="mylib-badge status-planned">예정</span>' : ''}${tags}</div>
- <div class="random-pick-actions" onclick="event.stopPropagation()">
- <button class="owned-action-btn add" onclick="startReadingOwnedByIndex(${idx})">📖 읽기 시작</button>
- </div>
+ <div class="mylib-item-badges">${fmtBadge}${getDueDateBadgeHtml(b)}${st ? `<span class="mylib-badge ${st === '읽는 중' ? 'status-reading' : 'status-planned'}">${escapeHtml(st)}</span>` : ''}${tags}</div>
+ ${st !== '읽는 중' ? `<div class="random-pick-actions" onclick="event.stopPropagation()"><button class="owned-action-btn add" onclick="startReadingOwnedByIndex(${idx})">📖 읽기 시작</button></div>` : ''}
  </div>
  </div>
  `;
+ }).join('');
+
+ container.innerHTML = `${undoBarHtml}<div class="home-random-stack">${cardsHtml}</div>`;
  }
 
  async function startReadingOwnedByIndex(idx) {
@@ -4850,12 +5003,15 @@
  if (!bar) return;
  const stats = computeLibraryStats();
  const isAll = !myLibDuplicatesMode && myLibReadingStatuses.length === 0 && myLibOwnershipFilter === 'all' && myLibFormatFilter === 'all' && myLibRatingFilter === 'all' && myLibSelectedTags.length === 0 && myLibSelectedSources.length === 0;
+ const activeBorrowedCount = myOwnedBooks.filter(b => isOwnedBorrowed(b) && !isOwnedSold(b) && !isOwnedReturned(b)).length;
  bar.innerHTML = `
  <button type="button" class="mylib-stat-inline ${isAll ? 'active-pill' : ''}" onclick="setMyLibStatusFilter('all')" title="전체 도서 보기">전체 <strong>${stats.total}</strong></button>
  <span class="mylib-stat-dot">·</span>
  <button type="button" class="mylib-stat-inline ${(myLibFormatFilter === 'paper' && !myLibDuplicatesMode) ? 'active-pill' : ''}" onclick="toggleMyLibFormatFilter('paper')" title="종이책 필터">종이책 <strong>${stats.paper}</strong></button>
  <span class="mylib-stat-dot">·</span>
  <button type="button" class="mylib-stat-inline ${(myLibFormatFilter === 'ebook' && !myLibDuplicatesMode) ? 'active-pill' : ''}" onclick="toggleMyLibFormatFilter('ebook')" title="e-book 필터">e-book <strong>${stats.ebooks}</strong></button>
+ <span class="mylib-stat-dot">·</span>
+ <button type="button" class="mylib-stat-inline ${(myLibOwnershipFilter === '대여중' && !myLibDuplicatesMode) ? 'active-pill' : ''}" onclick="toggleMyLibOwnershipFilter('대여중')" title="대여 중인 책 보기">대여중 <strong>${activeBorrowedCount}</strong></button>
  <span class="mylib-stat-dot">·</span>
  <button type="button" class="mylib-stat-inline ${(!myLibDuplicatesMode && myLibReadingStatuses.includes('완독')) ? 'active-pill' : ''}" onclick="toggleMyLibReadingStatusFilter('완독')" title="완독한 책 보기">완독 <strong>${stats.donePct}%</strong></button>
  `;
@@ -5342,14 +5498,16 @@
  const q = (document.getElementById('myLibSearchInput')?.value || '').trim().toLowerCase();
  const qCompact = q.replace(/\s+/g, '');
  const sortMode = document.getElementById('myLibSortSelect')?.value || 'recent';
+ const prioritizePaperBorrowed = (myLibOwnershipFilter === '대여중' || myLibOwnershipFilter === '대여');
  const dupSet = myLibDuplicatesMode ? getDuplicateOwnedBookSet() : null;
 
  let result = myOwnedBooks.filter(b => {
  if (myLibDuplicatesMode) {
  if (!dupSet.has(b)) return false;
  } else {
- if (myLibOwnershipFilter === '소장' && (isOwnedBorrowed(b) || isOwnedSold(b))) return false;
- if (myLibOwnershipFilter === '대여' && !isOwnedBorrowed(b)) return false;
+ if (myLibOwnershipFilter === '소장' && (isOwnedBorrowed(b) || isOwnedSold(b) || isOwnedReturned(b))) return false;
+ if ((myLibOwnershipFilter === '대여중' || myLibOwnershipFilter === '대여') && (!isOwnedBorrowed(b) || isOwnedSold(b) || isOwnedReturned(b))) return false;
+ if (myLibOwnershipFilter === '반납' && !isOwnedReturned(b)) return false;
  if (myLibOwnershipFilter === '판매' && !isOwnedSold(b)) return false;
  if (myLibFormatFilter === 'ebook' && !isOwnedEbook(b)) return false;
  if (myLibFormatFilter === 'paper' && isOwnedEbook(b)) return false;
@@ -5522,6 +5680,19 @@
  return;
  }
 
+ if (prioritizePaperBorrowed) {
+ filtered.sort((a, b) => {
+ const ea = isOwnedEbook(a) ? 1 : 0;
+ const eb = isOwnedEbook(b) ? 1 : 0;
+ if (ea !== eb) return ea - eb;
+ const da = String(a.dueDate || '').trim();
+ const db = String(b.dueDate || '').trim();
+ if (da && db) return da.localeCompare(db);
+ if (da) return -1;
+ if (db) return 1;
+ return 0;
+ });
+ }
  const slice = filtered.slice(0, myLibVisibleLimit);
  const listCoverCache = getBookCoverCache();
  let lastDupKey = '';
@@ -5540,20 +5711,27 @@
  const subLine = `${escapeHtml(formatAuthorWithSuffix(b.author))}${pubText}${transSup ? ' · ' + escapeHtml(transSup) : ''}`;
  const rawTags = String(b.tags || '').split(',').map(t => t.trim()).filter(t => t && !isEbookTagToken(t));
  const srcText = getOwnedSource(b);
- const getSourceBadgeCls = (s, borrowed) => {
+ const getSourceBadgeCls = (s) => {
  const txt = String(s || '');
+ if (txt.includes('알라딘')) return 'src-aladin';
+ if (txt.includes('교보')) return 'src-kyobo';
+ if (txt.includes('리디')) return 'src-ridi';
+ if (txt.includes('예스24') || txt.includes('yes24')) return 'src-yes24';
  if (txt.includes('밀리')) return 'src-millie';
  if (txt.includes('남산')) return 'src-namsan';
  if (txt.includes('꿈나무')) return 'src-dream';
- if (borrowed || txt.includes('도서관') || txt.includes('분관')) return 'src-other-lib';
- return '';
+ if (txt.includes('도서관') || txt.includes('분관')) return 'src-other-lib';
+ return 'ebook';
  };
- const srcColorCls = getSourceBadgeCls(srcText, isOwnedBorrowed(b));
+ const srcColorCls = getSourceBadgeCls(srcText);
+ const formatBadgeHtml = ebook
+ ? '<span class="mylib-badge src-ebook-fmt">e-book</span>'
+ : '<span class="mylib-badge src-paper-fmt">종이책</span>';
  const sourceBadgeHtml = srcText
- ? `<span class="mylib-badge ${srcColorCls || (isOwnedBorrowed(b) ? 'src-other-lib' : 'ebook')}">${escapeHtml(srcText)}</span>`
+ ? `<span class="mylib-badge ${srcColorCls}">${escapeHtml(srcText)}</span>`
  : '';
  const dueBadgeHtml = getDueDateBadgeHtml(b);
- const tagBadges = sourceBadgeHtml + dueBadgeHtml + rawTags.slice(0, 3)
+ const tagBadges = formatBadgeHtml + sourceBadgeHtml + dueBadgeHtml + rawTags.slice(0, 3)
  .map(t => `<span class="mylib-badge">#${escapeHtml(t)}</span>`).join('');
 
  let groupHeaderHtml = '';
@@ -5574,10 +5752,10 @@
  }
 
  const thumbUrl = getOwnedBookThumbUrl(b, listCoverCache);
- const formatDotHtml = getCoverFormatDotHtml(b);
  const ownObiHtml = getCoverOwnershipObiHtml(b);
+ const doneStampHtml = getCoverDoneStampHtml(b);
  const statusBorderCls = getCoverStatusBorderCls(b);
- const thumbHtml = `<div class="mylib-item-thumb-wrap ${statusBorderCls}">${formatDotHtml}${ownObiHtml}<img class="mylib-item-thumb" src="${escapeHtml(thumbUrl)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG"></div>`;
+ const thumbHtml = `<div class="mylib-thumb-col"><div class="mylib-item-thumb-wrap ${statusBorderCls}">${ownObiHtml}${doneStampHtml}<img class="mylib-item-thumb" src="${escapeHtml(thumbUrl)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG"></div>${ratingShort ? `<div class="mylib-thumb-rating">${ratingShort}</div>` : ''}</div>`;
  const cardStateCls = myLibDuplicatesMode ? 'is-dup' : (statusVal === '완독' ? 'is-done' : '');
 
  return `
@@ -5595,7 +5773,7 @@
  ? `<div class="owned-mini-actions" onclick="event.stopPropagation()"><button class="owned-chip-btn danger icon-trash-btn" onclick="quickDeleteOwnedByIndex(${idx})" title="삭제" aria-label="삭제">${TRASH_ICON_SVG_14}</button></div>`
  : (myLibMultiSelectMode
    ? `<span class="mylib-select-check" aria-hidden="true">✓</span>`
-   : `<div class="mylib-item-right-ctrl" onclick="event.stopPropagation()">${ratingShort ? `<span class="mylib-card-heart-rating">${ratingShort}</span>` : ''}<button type="button" class="mylib-card-more-btn" onclick="openCardQuickActionPopover(event, ${idx})" title="빠른 작업" aria-label="빠른 작업"><i data-lucide="more-horizontal" size="16"></i></button></div>`)}
+   : `<div class="mylib-item-right-ctrl" onclick="event.stopPropagation()"><button type="button" class="mylib-card-more-btn" onclick="openCardQuickActionPopover(event, ${idx})" title="빠른 작업" aria-label="빠른 작업"><i data-lucide="more-horizontal" size="16"></i></button></div>`)}
  </div>
  ${b.review ? `<div class="mylib-item-review">💬 ${escapeHtml(b.review)}</div>` : ''}
  <div class="mylib-item-badges">
@@ -5873,6 +6051,72 @@
    showToast(`${okCount}권을 '${newStatus}'(으)로 변경했어요.`, 'success');
  }
 
+ 
+ async function batchUpdateSelectedTags() {
+   const targets = myOwnedBooks.filter(b => myLibSelectedRows.has(b.row));
+   if (targets.length === 0) { showToast('선택된 책이 없어요.', 'info'); return; }
+   const raw = prompt(`선택한 ${targets.length}권에 추가할 태그를 입력하세요 (쉼표 또는 띄어쓰기로 구분):`, '');
+   if (raw === null) return;
+   const newTags = raw.split(/[,\s]+/).map(t => t.replace(/^#+/, '').trim()).filter(Boolean);
+   if (newTags.length === 0) return;
+   let okCount = 0;
+   showToast(`${targets.length}권에 태그 추가 중...`, 'info');
+   for (const b of targets) {
+     const existing = String(b.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+     const merged = existing.slice();
+     newTags.forEach(t => { if (!merged.includes(t)) merged.push(t); });
+     try {
+       const res = await sendSheetPost({
+         target: 'library',
+         action: 'lib_update',
+         row: b.row,
+         origTitle: b.title,
+         origAuthor: b.author,
+         book: { ...b, tags: merged.join(', ') }
+       });
+       if (res && res.status === 'ok') okCount++;
+     } catch (e) {}
+   }
+   exitMyLibMultiSelectMode();
+   showToast(`${okCount}권에 태그(#${newTags.join(', #')})를 추가했어요.`, 'success');
+ }
+
+ function openBookmarkMorePopover(ev, isbn, hasOwned) {
+   ev.stopPropagation();
+   const b = getBookmarks().find(x => String(x.isbn) === String(isbn));
+   if (!b) return;
+   const menu = document.getElementById('quickPopoverMenu');
+   const backdrop = document.getElementById('quickPopoverBackdrop');
+   if (!menu || !backdrop) return;
+   const safeIsbn = escapeHtml(String(isbn)).replace(/'/g, "\\'");
+   const memoPreview = (b.memo && b.memo.trim())
+     ? `<div style="font-size:11.5px; color:#475569; background:#f8fafc; padding:6px 8px; border-radius:7px; line-height:1.4; max-height:64px; overflow:auto;">📝 ${escapeHtml(b.memo.trim())}</div><div class="quick-popover-divider"></div>`
+     : '';
+   menu.innerHTML = `
+     ${memoPreview}
+     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); openMemoModalForIsbn('${safeIsbn}');">
+       <i data-lucide="file-text" size="15"></i><span>${b.memo && b.memo.trim() ? '메모 수정' : '메모 추가'}</span>
+     </button>
+     ${!hasOwned ? `<button type="button" class="quick-popover-item" onclick="closeQuickPopover(); moveBookmarkToLibraryByIsbn('${safeIsbn}');">
+       <i data-lucide="book-plus" size="15"></i><span>내 서재에 추가</span>
+     </button>` : ''}
+     <div class="quick-popover-divider"></div>
+     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); removeBookmark('${safeIsbn}');">
+       <i data-lucide="trash-2" size="15"></i><span>북마크 삭제</span>
+     </button>
+   `;
+   backdrop.classList.remove('hidden');
+   positionQuickPopover(ev.currentTarget);
+   refreshIcons();
+ }
+
+ function moveBookmarkToLibraryByIsbn(isbn) {
+   const b = getBookmarks().find(x => String(x.isbn) === String(isbn));
+   if (!b) return;
+   toggleBookmarkModal();
+   openMoveBookmarkToLibraryModal(b);
+ }
+
  async function batchDeleteSelectedBooks() {
    const targets = myOwnedBooks.filter(b => myLibSelectedRows.has(b.row)).sort((a, b) => (Number(b.row) || 0) - (Number(a.row) || 0));
    if (targets.length === 0) { showToast('선택된 책이 없어요.', 'info'); return; }
@@ -6011,6 +6255,7 @@
  document.getElementById('ownedInputDueDate').value = b.dueDate || '';
  const initialSourceVal = getOwnedSource(b);
  setOwnedBorrowToggle(isOwnedBorrowed(b));
+ selectedOwnedIsReturned = isOwnedReturned(b);
  setOwnedSoldToggle(isOwnedSold(b));
  setOwnedEbookToggle(isOwnedEbook(b));
  updateSourceFieldUI(initialSourceVal);
@@ -6331,7 +6576,7 @@
  }
 
  function syncOwnedOwnershipButtonsUI() {
- const isOwnedMode = !selectedOwnedIsBorrowed && !selectedOwnedIsSold;
+ const isOwnedMode = !selectedOwnedIsBorrowed && !selectedOwnedIsSold && !selectedOwnedIsReturned;
  const ownBtn = document.getElementById('ownedOwnToggleBtn');
  if (ownBtn) {
  ownBtn.classList.toggle('active-owned', isOwnedMode);
@@ -6342,6 +6587,11 @@
  borrowBtn.classList.toggle('active-borrowed', selectedOwnedIsBorrowed);
  borrowBtn.setAttribute('aria-checked', selectedOwnedIsBorrowed ? 'true' : 'false');
  }
+ const retBtn = document.getElementById('ownedReturnToggleBtn');
+ if (retBtn) {
+ retBtn.classList.toggle('active-sold', selectedOwnedIsReturned);
+ retBtn.setAttribute('aria-checked', selectedOwnedIsReturned ? 'true' : 'false');
+ }
  const soldBtn = document.getElementById('ownedSoldToggleBtn');
  if (soldBtn) {
  soldBtn.classList.toggle('active-sold', selectedOwnedIsSold);
@@ -6351,16 +6601,9 @@
  }
 
  function selectOwnedOwnershipMode(mode) {
- if (mode === 'borrowed') {
- selectedOwnedIsBorrowed = true;
- selectedOwnedIsSold = false;
- } else if (mode === 'sold') {
- selectedOwnedIsBorrowed = false;
- selectedOwnedIsSold = true;
- } else {
- selectedOwnedIsBorrowed = false;
- selectedOwnedIsSold = false;
- }
+ selectedOwnedIsBorrowed = (mode === 'borrowed');
+ selectedOwnedIsReturned = (mode === 'returned');
+ selectedOwnedIsSold = (mode === 'sold');
  syncOwnedOwnershipButtonsUI();
  refreshOwnedModeDependentFields();
  }
@@ -6594,10 +6837,12 @@
  }
 
  const storeLinksEl = document.getElementById('ownedTitleStoreLinks');
+ const kakaoLinkEl = document.getElementById('ownedKakaoIconLink');
  const kyoboLinkEl = document.getElementById('ownedKyoboIconLink');
  const aladinLinkEl = document.getElementById('ownedAladinIconLink');
  if (storeLinksEl && kyoboLinkEl && aladinLinkEl) {
  if (qKey) {
+ if (kakaoLinkEl) kakaoLinkEl.href = currentModalKakaoUrl || `https://search.daum.net/search?w=book&q=${encodeURIComponent(qKey)}`;
  kyoboLinkEl.href = `https://search.kyobobook.co.kr/search?keyword=${encodeURIComponent(qKey)}`;
  aladinLinkEl.href = `https://www.aladin.co.kr/m/msearch.aspx?SearchWord=${encodeURIComponent(qKey)}&SearchTarget=All&start=h_keyword`;
  storeLinksEl.classList.remove('hidden');
@@ -7250,17 +7495,22 @@
  }
  }
 
- function triggerAutoFillOwnedMeta() {
+ function triggerAutoFillOwnedMeta(forceByIsbn = false) {
  if (!activeOwnedEditContext) return;
  const rawIsbn = (document.getElementById('ownedInputIsbn')?.value || '').trim();
  const isbnVal = normalizeIsbn(rawIsbn);
  const title = (document.getElementById('ownedInputTitle')?.value || '').trim();
 
- // ISBN 우선: ISBN 칸에 값이 있으면 ISBN으로만, 비어 있을 때만 제목으로 조회
  const queryKey = rawIsbn
  ? `isbn:${isbnVal || rawIsbn}`
  : (title.length >= 2 ? `title:${title.toLowerCase()}` : '');
  if (!queryKey || queryKey === lastAutoFillQueryKey) return;
+
+ if (forceByIsbn && (isbnVal.length === 10 || isbnVal.length === 13)) {
+ lastAutoFillQueryKey = queryKey;
+ autoFillOwnedBookMeta(isbnVal, false, true);
+ return;
+ }
 
  const hasTitle = !!title;
  const hasAuthor = !!document.getElementById('ownedInputAuthor')?.value.trim();
@@ -7343,33 +7593,33 @@
  };
 
  const filledLabels = [];
- if (doc.bookname && !document.getElementById('ownedInputTitle').value.trim()) {
+ if (doc.bookname && (forceRefresh || !document.getElementById('ownedInputTitle').value.trim())) {
  document.getElementById('ownedInputTitle').value = doc.bookname;
  filledLabels.push('제목');
  }
  if (doc.authors || doc.translator) {
  const parsedPeople = splitAuthorAndTranslator(doc.authors || '');
- if (parsedPeople.author && !document.getElementById('ownedInputAuthor').value.trim()) {
+ if (parsedPeople.author && (forceRefresh || !document.getElementById('ownedInputAuthor').value.trim())) {
  document.getElementById('ownedInputAuthor').value = parsedPeople.author;
  resetOwnedAuthorOtherBooksUI(parsedPeople.author);
  filledLabels.push('저자');
  }
  const trEl = document.getElementById('ownedInputTranslator');
  const resolvedTrans = formatAutoTranslatorText(doc.translator) || parsedPeople.translator;
- if (resolvedTrans && trEl && !trEl.value.trim()) {
+ if (resolvedTrans && trEl && (forceRefresh || !trEl.value.trim())) {
  trEl.value = resolvedTrans;
  filledLabels.push('저자 외');
  }
  }
- if (doc.publisher && !document.getElementById('ownedInputPublisher').value.trim()) {
+ if (doc.publisher && (forceRefresh || !document.getElementById('ownedInputPublisher').value.trim())) {
  document.getElementById('ownedInputPublisher').value = doc.publisher;
  filledLabels.push('출판사');
  }
- if ((doc.isbn13 || doc.isbn) && !document.getElementById('ownedInputIsbn').value.trim()) {
+ if ((doc.isbn13 || doc.isbn) && (forceRefresh || !document.getElementById('ownedInputIsbn').value.trim())) {
  document.getElementById('ownedInputIsbn').value = doc.isbn13 || doc.isbn;
  filledLabels.push('ISBN');
  }
- if (!document.getElementById('ownedInputSeries').value.trim()) {
+ if (forceRefresh || !document.getElementById('ownedInputSeries').value.trim()) {
  const inferredSeries = doc.series || inferSeriesNameFromDoc(doc);
  if (inferredSeries) {
  document.getElementById('ownedInputSeries').value = inferredSeries;
@@ -7391,8 +7641,9 @@
  if (!currentModalDescription) filledLabels.push('줄거리');
  currentModalDescription = stripHtmlText(doc.description).slice(0, 2500);
  }
- if (doc.kdcRaw && !currentModalKdc) {
+ if (doc.kdcRaw && (forceRefresh || !currentModalKdc)) {
  currentModalKdc = doc.kdcRaw;
+ renderRecommendedTagPicks();
  filledLabels.push('분류');
  }
  if (doc.vol && !currentModalVol) {
@@ -7443,7 +7694,8 @@
  tags: cleanTags.join(', '),
  isEbook: selectedOwnedIsEbook,
  isSold: selectedOwnedIsSold,
- isBorrowed: selectedOwnedIsBorrowed && !selectedOwnedIsSold,
+ isReturned: selectedOwnedIsReturned && !selectedOwnedIsSold,
+ isBorrowed: selectedOwnedIsBorrowed && !selectedOwnedIsSold && !selectedOwnedIsReturned,
  source: selectedOwnedIsSold ? '' : (document.getElementById('ownedInputSource')?.value.trim() || ''),
  borrowSource: selectedOwnedIsSold ? '' : (document.getElementById('ownedInputSource')?.value.trim() || ''),
  dueDate: (() => {
@@ -7770,16 +8022,21 @@
  const ownedMatch = findOwnedMatch(book);
  const ownedObj = ownedMatch ? ownedMatch.owned : null;
 
+ const isEbookResult = ownedObj ? isOwnedEbook(ownedObj) : /e-?book|전자책|체험판/i.test(`${book.bookname || ''} ${book.publisher || ''}`);
+ const fmtPillHtml = isEbookResult
+ ? '<span class="search-fmt-pill ebook">e-book</span>'
+ : '<span class="search-fmt-pill paper">종이책</span>';
  listHtml += `
  <div class="search-result-item" id="book-item-${index}" onclick="selectBook(${index})">
  <div class="cover-wrap ${ownedObj ? getCoverStatusBorderCls(ownedObj) : ''}" style="border-radius:8px; overflow:hidden;">
- ${ownedObj ? getCoverFormatDotHtml(ownedObj) : ''}
  ${ownedObj ? getCoverOwnershipObiHtml(ownedObj) : ''}
+ ${ownedObj ? getCoverDoneStampHtml(ownedObj) : ''}
  <img src="${escapeHtml(normalizeCoverUrl(book.bookImageURL))}" onerror="this.onerror=null;this.src=NO_COVER_SVG">
  </div>
  <p class="result-title" title="${titleEsc}">${titleEsc}</p>
  <p class="result-author" title="${authorEsc}">${authorEsc}</p>
  <p class="result-year" title="출간일: ${yearEsc}">${yearEsc}</p>
+ ${fmtPillHtml}
  </div>
  `;
  });
@@ -8309,39 +8566,14 @@
  img.onerror = function () { this.onerror = null; this.src = NO_COVER_SVG; };
  coverWrap.appendChild(img);
 
- const delBtn = document.createElement('div');
- delBtn.className = 'bookmark-delete';
- delBtn.title = '북마크 삭제';
- delBtn.setAttribute('aria-label', '북마크 삭제');
- delBtn.innerHTML = TRASH_ICON_SVG_11;
- delBtn.onclick = (e) => {
- e.stopPropagation();
- removeBookmark(book.isbn);
- };
- coverWrap.appendChild(delBtn);
-
- const memoEl = document.createElement('div');
- if (book.memo && book.memo.trim() !== '') {
- memoEl.className = 'bm-memo-obi';
- memoEl.title = book.memo;
- const memoSpan = document.createElement('span');
- memoSpan.className = 'bm-memo-obi-text';
- memoSpan.innerText = book.memo;
- memoEl.appendChild(memoSpan);
- } else {
- memoEl.className = 'bm-memo-plus-overlay';
- memoEl.title = '메모 추가';
- memoEl.setAttribute('aria-label', '메모 추가');
- const plusCircle = document.createElement('span');
- plusCircle.className = 'bm-memo-plus-circle';
- plusCircle.innerText = '+';
- memoEl.appendChild(plusCircle);
- }
- memoEl.onclick = (e) => {
- e.stopPropagation();
- openMemoModalForIsbn(book.isbn);
- };
- coverWrap.appendChild(memoEl);
+ const moreBtn = document.createElement('button');
+ moreBtn.type = 'button';
+ moreBtn.className = 'bm-more-btn';
+ moreBtn.title = '북마크 메뉴';
+ moreBtn.setAttribute('aria-label', '북마크 메뉴');
+ moreBtn.innerHTML = '<i data-lucide="more-horizontal" size="14"></i>';
+ moreBtn.onclick = (e) => openBookmarkMorePopover(e, book.isbn, !!ownedMatch);
+ coverWrap.appendChild(moreBtn);
 
  const displayTitle = book.title;
  const titleEl = document.createElement('p');
@@ -8359,17 +8591,7 @@
  item.appendChild(titleEl);
  item.appendChild(authorEl);
 
- if (!ownedMatch) {
- const moveBtn = document.createElement('button');
- moveBtn.className = 'bookmark-move-btn';
- moveBtn.innerText = '+보유 도서';
- moveBtn.onclick = (e) => {
- e.stopPropagation();
- toggleBookmarkModal();
- openMoveBookmarkToLibraryModal(book);
- };
- item.appendChild(moveBtn);
- }
+
 
  item.onclick = () => {
  let cleanTitle = book.title.split(' =')[0].split(':')[0].trim();

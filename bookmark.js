@@ -1595,16 +1595,12 @@ function resetAuthorPhotoToDefault() {
    const rowsHtml = items.slice(0, 6).map((b, idx) => {
      const dismissKey = escapeHtml(normalizeIsbn(b.isbn) || b.title).replace(/'/g, "\\'");
      return `
-       <div class="new-rel-row">
-         <button type="button" class="new-rel-dismiss-x" onclick="dismissNewRelease('${dismissKey}')" title="숨김" aria-label="숨김"><i data-lucide="x" size="13"></i></button>
+       <div class="new-rel-row clickable" onclick="searchNewReleaseBook(${idx})">
+         <button type="button" class="new-rel-dismiss-x" onclick="event.stopPropagation(); dismissNewRelease('${dismissKey}')" title="숨김" aria-label="숨김"><i data-lucide="x" size="13"></i></button>
          <img class="new-rel-thumb" src="${escapeHtml(normalizeCoverUrl(b.cover))}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG">
          <div class="new-rel-info">
            <p class="new-rel-book-title"><span class="match-pill" style="background:#ffe4e6; color:#e11d38; margin-right:4px;">NEW</span>${escapeHtml(b.title)}</p>
            <p class="new-rel-book-meta">${escapeHtml(b.author || b.followedAuthor)}${b.pubDate ? ' · ' + escapeHtml(b.pubDate) : ''}</p>
-         </div>
-         <div class="new-rel-actions">
-           <button type="button" class="action-icon-pill search-pill" onclick="searchNewReleaseBook(${idx})" title="통합 검색" aria-label="통합 검색"><i data-lucide="search" size="14"></i></button>
-           <button type="button" class="action-icon-pill" onclick="bookmarkNewReleaseBook(${idx})" title="북마크 저장" aria-label="북마크 저장"><i data-lucide="bookmark" size="14"></i></button>
          </div>
        </div>
      `;

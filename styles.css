@@ -2791,3 +2791,22 @@
   background-size: 200% 100%;
   animation: shimmerSweep 1.25s infinite linear;
 }
+
+/* === v4 연속 스크롤 120Hz 최적화 === */
+.mylib-scroll-body {
+  will-change: scroll-position;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+.mylib-item {
+  touch-action: auto !important;
+  contain: layout style paint;
+}
+.mylib-item:active {
+  background: #ffffff;
+}
+
+.new-rel-row.clickable { cursor: pointer; transition: border-color 0.14s, background-color 0.14s, transform 0.1s; }
+.new-rel-row.clickable:hover { border-color: #fda4af; background: #fff1f2; }
+.new-rel-row.clickable:active { transform: scale(0.99); }

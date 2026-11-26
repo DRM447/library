@@ -145,11 +145,29 @@ refreshIcons();
    const ptrEl = document.getElementById('myLibPtrIndicator');
    if (!scrollEl) return;
 
-   // 스크롤 하단 도달 시 자동 더 보기 (무한 스크롤)
+   // 컨테이너 1곳에 passive 이벤트 위임으로 롱프레스 처리 (카드별 인라인 리스너 제거)
+   const listContainer = document.getElementById('myLibListContainer');
+   if (listContainer) {
+     listContainer.addEventListener('pointerdown', (e) => {
+       const card = e.target.closest('.mylib-item[data-book-idx]');
+       if (!card) return;
+       handleMyLibCardPointerDown(e, Number(card.getAttribute('data-book-idx')));
+     }, { passive: true });
+     listContainer.addEventListener('pointermove', (e) => handleMyLibCardPointerMove(e), { passive: true });
+     listContainer.addEventListener('pointerup', () => cancelMyLibCardLongPress(), { passive: true });
+     listContainer.addEventListener('pointercancel', () => cancelMyLibCardLongPress(), { passive: true });
+   }
+
+   // 스크롤 중 롱프레스 차단 + 바닥 900px 전에 미리 부드럽게 append (관성 스크롤 끊김 방지)
    let autoLoadBusy = false;
    scrollEl.addEventListener('scroll', () => {
+     isMyLibActivelyScrolling = true;
+     cancelMyLibCardLongPress();
+     if (myLibScrollIdleTimer) clearTimeout(myLibScrollIdleTimer);
+     myLibScrollIdleTimer = setTimeout(() => { isMyLibActivelyScrolling = false; }, 140);
+
      if (autoLoadBusy) return;
-     if (scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 180) {
+     if (scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 900) {
        const loadMoreBtn = document.querySelector('#myLibListContainer .mylib-load-more');
        if (loadMoreBtn) {
          autoLoadBusy = true;

@@ -1859,7 +1859,7 @@ function buildMyLibCardHtml(b, idx, listCoverCache, opts = {}) {
   const kindPill = opts.kindPillHtml || '';
   const clickAttr = isPostSearch
     ? `onclick="openOwnedEditModalByIndex(${idx})"`
-    : `data-book-idx="${idx}" onclick="handleMyLibCardClick(event, ${idx})" onpointerdown="handleMyLibCardPointerDown(event, ${idx})" onpointermove="handleMyLibCardPointerMove(event)" onpointerup="cancelMyLibCardLongPress()" onpointercancel="cancelMyLibCardLongPress()" oncontextmenu="if(myLibMultiSelectMode) event.preventDefault();"`;
+    : `data-book-idx="${idx}" onclick="handleMyLibCardClick(event, ${idx})" oncontextmenu="if(myLibMultiSelectMode) event.preventDefault();"`;
 
   const periodStr = formatReadingPeriod(b.startDate, b.finishDate);
   const seriesStr = formatSeriesBadgeText(b);

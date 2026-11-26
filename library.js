@@ -1,3 +1,6 @@
+let lastFilteredOwnedBooks = null;
+let isMyLibActivelyScrolling = false;
+let myLibScrollIdleTimer = null;
 /* =========================================================
  * All BOOKs 내 서재 · 필터 · 기록 수정 · 바코드 스캐너 (library.js)
  * ========================================================= */
@@ -749,7 +752,7 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
  }
 
  function renderMyLibraryList(resetLimit = false) {
- if (resetLimit) { myLibVisibleLimit = 40; const _lc = document.getElementById('myLibListContainer'); if (_lc) _lc.dataset.renderedCount = '0'; }
+ if (resetLimit) { myLibVisibleLimit = 80; lastFilteredOwnedBooks = null; const _lc = document.getElementById('myLibListContainer'); if (_lc) _lc.dataset.renderedCount = '0'; }
  const listEl = document.getElementById('myLibListContainer');
  const infoEl = document.getElementById('myLibResultInfo');
 
@@ -816,7 +819,9 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
  return;
  }
 
- const filtered = getFilteredOwnedBooks();
+ const canReuseFiltered = !resetLimit && !myLibDuplicatesMode && Array.isArray(lastFilteredOwnedBooks);
+ const filtered = canReuseFiltered ? lastFilteredOwnedBooks : getFilteredOwnedBooks();
+ if (!myLibDuplicatesMode) lastFilteredOwnedBooks = filtered;
  if (myLibDuplicatesMode) {
  infoEl.innerHTML = `중복 의심 ${filtered.length}권 · <button class="owned-chip-btn skip" style="padding:2px 8px; font-size:10.5px;" onclick="toggleSkippedDuplicatesView(true)">건너뛰기한 도서 목록 (${skippedGroupCount})</button>`;
  } else {
@@ -1076,7 +1081,7 @@ async function quickChangeOwnedStatus(idx, newStatus) {
  }
 
  function handleMyLibCardPointerDown(ev, idx) {
-   if (myLibDuplicatesMode || myLibMultiSelectMode) return;
+   if (myLibDuplicatesMode || myLibMultiSelectMode || isMyLibActivelyScrolling) return;
    if (ev.target.closest('button')) return;
    myLibLongPressTriggered = false;
    myLibLongPressStartX = ev.clientX;
@@ -1301,7 +1306,7 @@ async function quickChangeOwnedStatus(idx, newStatus) {
 }
 
  function loadMoreMyLibrary() {
- myLibVisibleLimit += 50;
+ myLibVisibleLimit += 60;
  renderMyLibraryList(false);
  }
 

@@ -2046,7 +2046,7 @@
  <div class="section-title" style="color: var(--primary); align-items: center; justify-content: space-between; gap: 8px;">
  <span style="display:flex; align-items:center; gap:8px; line-height: 1.3; min-width: 0;"><i data-lucide="bell-ring" style="flex-shrink:0;"></i> <span id="libBoxTitle">대출 가능 여부</span></span>
  </div>
- <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">*용산꿈나무 · 청파 · 남산도서관 대출 여부를 확인합니다.</p>
+ <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">*용산꿈나무 · 청파 · 남산도서관 대출 여부를 확인합니다. (정보나루 전날 기준 · 예약 여부는 도서관 클릭 확인)</p>
  <div id="libraryList" class="library-list"></div>
  </div>
 
@@ -6222,6 +6222,10 @@
    showToast(`${okCount}권에 태그(#${newTags.join(', #')})를 추가했어요.`, 'success');
  }
 
+ function getBookmarks() {
+   return mergeBookmarksWithMeta(safeReadJson('myBookmarks', []));
+ }
+
  function openBookmarkMorePopover(ev, isbn, hasOwned) {
    ev.stopPropagation();
    const b = getBookmarks().find(x => String(x.isbn) === String(isbn));
@@ -8474,14 +8478,7 @@
  if (savedLib) {
  renderLibraryStatusResults(isbn, book.bookname || '', savedLib.results, savedLib.ts, savedLib.remainingKeys || []);
  } else {
- document.getElementById('libraryList').innerHTML = `
- <div style="text-align:center; padding: 15px 0;">
- <button onclick="fetchRealTimeLibraryStatusForCurrent(true)" class="kyobo-mini-btn" style="padding: 12px 20px; font-size: 14px;">
- <i data-lucide="search" size="16"></i> 대출 상태 실시간 조회하기
- </button>
- </div>
- `;
- refreshIcons();
+ fetchRealTimeLibraryStatus(isbn, book.bookname || '', false);
  }
  } else {
  document.getElementById('recommendScroll').innerHTML = "<div class='loading-msg'>ISBN 정보가 없어 추천 도서를 불러올 수 없습니다.</div>";
@@ -8915,14 +8912,7 @@
  }
 
  currentRecommendBooks = [];
- container.innerHTML = `
- <div style="width:100%; text-align:center; padding:12px 0;">
- <button class="kyobo-mini-btn" style="background:#f5f3ff; color:#6d28d9; box-shadow:none; border:1px solid #ddd6fe;" onclick="fetchRecommendations('${escapeHtml(isbn)}')">
- <i data-lucide="sparkles" size="15"></i> 불러오기
- </button>
- </div>
- `;
- refreshIcons();
+ fetchRecommendations(isbn);
  }
 
  async function fetchRecommendations(isbn) {
@@ -8933,6 +8923,9 @@
  const books = (data?.response?.docs || []).slice(0, 10).map(item => compactBookDoc(item.book)).filter(Boolean);
 
  setApiCache('rec', String(isbn), books, 300);
+ if (!currentSelectedBook || String(currentSelectedBook.isbn13 || currentSelectedBook.isbn || '') !== String(isbn)) {
+ return;
+ }
  currentRecommendBooks = books;
 
  if (books.length === 0) {
@@ -8941,6 +8934,9 @@
  }
  container.innerHTML = renderBookStripCards(currentRecommendBooks, 'searchRecommendedBook');
  } catch (e) {
+ if (!currentSelectedBook || String(currentSelectedBook.isbn13 || currentSelectedBook.isbn || '') !== String(isbn)) {
+ return;
+ }
  container.innerHTML = '<div class="loading-msg">추천 데이터를 불러오지 못했습니다.</div>';
  }
  }
@@ -8976,7 +8972,10 @@
  }
 
  function getLibraryDirectSearchUrl(libKey, encodedTitle, libName) {
- if (libKey === 'dream' || libKey === 'cheongpa') {
+ if (libKey === 'dream') {
+ return `https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchResultList.do?searchType=SIMPLE&searchCategory=ALL&searchKey=ALL&searchKeyword=${encodedTitle}&searchLibrary=&searchLibraryArr=MA`;
+ }
+ if (libKey === 'cheongpa') {
  return `https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchResultList.do?searchType=SIMPLE&searchCategory=ALL&searchKey=ALL&searchKeyword=${encodedTitle}&searchLibrary=ALL`;
  }
  if (libKey === 'namsan') {

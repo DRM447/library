@@ -303,7 +303,6 @@
  color: #ffffff; font-size: 9.5px; font-weight: 700; text-align: center;
  letter-spacing: 1.6px; line-height: 1.25; padding: 3px 0;
  pointer-events: none; z-index: 6;
- backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
  border-top: 1px solid rgba(255, 255, 255, 0.22);
  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
@@ -416,16 +415,12 @@
  }
  .owned-search-summary::-webkit-details-marker { display: none; }
  .owned-search-title {
- display: flex; align-items: center; gap: 7px; font-size: 14.5px; font-weight: 800; color: #065f46;
- flex-wrap: wrap;
+ display: block; font-size: 13.5px; font-weight: 800; color: #065f46;
+ line-height: 1.45; width: 100%;
  }
- .owned-search-toggle {
- font-size: 11px; font-weight: 700; color: #047857; background: #ffffff;
- border: 1px solid #a7f3d0; padding: 4px 10px; border-radius: 999px; flex-shrink: 0;
- white-space: nowrap;
+ .owned-search-title .match-pill {
+ vertical-align: middle; margin-left: 4px;
  }
- .owned-search-toggle::after { content: '펼치기'; }
- details[open] > summary .owned-search-toggle::after { content: '접기'; }
  .owned-search-list {
  display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 12px; max-height: 260px; overflow-y: auto;
  }
@@ -584,6 +579,10 @@
  .link-pill.color-free { border-left: 3px solid #8b5cf6; }
  .link-pill.color-store { border-left: 3px solid #3b82f6; }
  .link-pill.color-used { border-left: 3px solid #f59e0b; }
+
+ /* 3. 그 외 2열 고정 (모바일 한 줄 배치) */
+ .link-grid.other-links-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+ .link-grid.other-links-grid .link-pill { width: 100%; min-width: 0; justify-content: center; padding: 8px 6px; font-size: 12.5px; white-space: nowrap; }
 
  /* 서울시 자치구 전자도서관 3열 그리드 고정 */
  .link-grid.district-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
@@ -839,9 +838,14 @@
  border: 1px solid var(--border); border-radius: 13px; padding: 12px 13px;
  background: #ffffff; display: flex; flex-direction: column; gap: 6px; min-width: 0;
  cursor: pointer; touch-action: pan-y;
- transition: border-color 0.15s, background-color 0.15s;
+ user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+ -webkit-tap-highlight-color: transparent;
+ content-visibility: auto; contain-intrinsic-size: auto 104px;
+ transition: background-color 0.1s;
  }
+ @media (hover: hover) {
  .mylib-item:hover { border-color: #6ee7b7; background: #f8fafc; }
+ }
  .mylib-item:active { background: #f0fdf4; }
  .mylib-item.is-done { background: #ffffff; border-color: var(--border); }
  .mylib-item.is-dup { border-color: #fcd34d; background: #fffbeb; }
@@ -1686,22 +1690,21 @@
  }
  .lib-icon-refresh-btn {
  border: none; background: transparent; color: #64748b;
- width: 24px; height: 24px; border-radius: 6px; padding: 0;
+ width: 16px; height: 16px; border-radius: 4px; padding: 0;
  display: inline-flex; align-items: center; justify-content: center;
  cursor: pointer; transition: background-color 0.14s, color 0.14s;
  }
  .lib-icon-refresh-btn:hover, .lib-icon-refresh-btn:active {
  background: #f1f5f9; color: #334155;
  }
- .lib-card-bottom-action {
- display: flex; justify-content: flex-end; margin-top: 6px; padding-top: 4px;
- }
  .lib-more-inline-btn {
- border: none; background: transparent; color: #64748b;
- font-size: 11.5px; font-weight: 700; padding: 2px 4px;
- cursor: pointer; font-family: inherit; transition: color 0.14s;
+ border: 1px solid #a5b4fc; background: #eef2ff; color: #4338ca;
+ font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+ cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0;
+ transition: background-color 0.14s, border-color 0.14s, color 0.14s, transform 0.1s;
  }
- .lib-more-inline-btn:hover, .lib-more-inline-btn:active { color: #334155; }
+ .lib-more-inline-btn:hover { background: #e0e7ff; border-color: #818cf8; color: #3730a3; }
+ .lib-more-inline-btn:active { transform: scale(0.96); }
 
 
  /* API 잔량: 배경 없이 텍스트만 */
@@ -1960,6 +1963,9 @@
    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
    transition: background-color 0.14s, color 0.14s, border-color 0.14s;
  }
+ #sameAuthorSubBtn.author-sub-btn {
+   width: 24px; height: 24px; padding: 0; border-radius: 7px; font-size: 14px; line-height: 1;
+ }
  .author-sub-btn:hover { background: #f8fafc; border-color: #94a3b8; }
  .author-sub-btn.is-following {
    background: #1e293b; color: #ffffff; border-color: #1e293b;
@@ -2185,11 +2191,10 @@
  </div>
 
  <!-- 검색 실행 시 내 서재 관련 도서 알림 카드 (선택 도서 정보 아래) -->
- <div id="ownedSearchCard" class="card owned-search-card hidden">
+ <div id="ownedSearchCard" class="card owned-search-card hidden" onclick="toggleOwnedSearchCardDetails(event)">
  <details id="ownedSearchDetails" open>
  <summary class="owned-search-summary">
  <span class="owned-search-title" id="ownedSearchTitle">📚 내 서재 보유 도서</span>
- <span class="owned-search-toggle"></span>
  </summary>
  <div id="ownedSearchList" class="owned-search-list"></div>
  </details>
@@ -2247,9 +2252,9 @@
 
  <div class="link-group">
  <div class="link-group-title"><i data-lucide="archive" size="16" color="#8b5cf6"></i> 3. 그 외</div>
- <div class="link-grid">
+ <div class="link-grid other-links-grid">
  <a href="#" class="link-pill color-store dynamic-link" data-template="https://play.google.com/store/search?q={kw}&c=books&hl=ko" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="googleplaybook" class="site-logo" alt="logo"> 구글 플레이북</a>
- <a href="#" class="link-pill color-free dynamic-link" data-template="https://archive.org/search?query={kw}&and%5B%5D=mediatype%3A%22texts%22" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="internetarchive" class="site-logo" alt="logo"> 인터넷 아카이브(원문)</a>
+ <a href="#" class="link-pill color-free dynamic-link" data-template="https://archive.org/search?query={kw}&and%5B%5D=mediatype%3A%22texts%22" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="internetarchive" class="site-logo" alt="logo"> 인터넷 아카이브</a>
  </div>
  </div>
  </div>
@@ -2263,7 +2268,7 @@
  <div class="section-title" style="color: var(--primary); align-items: center; justify-content: space-between; gap: 8px;">
  <span style="display:flex; align-items:center; gap:8px; line-height: 1.3; min-width: 0;"><i data-lucide="bell-ring" style="flex-shrink:0;"></i> <span id="libBoxTitle">대출 가능 여부</span></span>
  </div>
- <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">*용산꿈나무 · 청파 · 남산도서관 대출 여부를 확인합니다. (정보나루 전날 기준 · 예약 여부는 도서관 클릭 확인)</p>
+ <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">근처 도서관의 대출 여부를 확인합니다.</p>
  <div id="libraryList" class="library-list"></div>
  </div>
 
@@ -2788,21 +2793,7 @@
 
  
 
- <!-- 관심 작가 관리 모달 -->
- <div id="followedAuthorsModalOverlay" class="memo-modal-overlay" style="z-index: 2200;" data-close-fn="closeFollowedAuthorsModal">
- <div class="memo-modal-box" style="max-width: 430px;">
- <div class="owned-edit-top-bar" style="align-items:center; margin-bottom:8px;">
- <h3 class="memo-modal-title" style="margin:0; color:#be123c;">♥ 관심 작가 관리</h3>
- <button type="button" class="mylib-ghost-icon-btn" onclick="closeFollowedAuthorsModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="18"></i></button>
- </div>
- <p style="font-size:12px; color:var(--sec-text); margin:0 0 12px 0; line-height:1.45;">내 서재 기록 창이나 검색 결과의 '저자의 다른 도서' 옆 <b>+ 구독</b> 버튼으로 관심 작가를 추가할 수 있어요. 최근 1개월 이내 미소장 신간이 있으면 홈 화면에 알려드려요.</p>
- <div id="followedAuthorsList" style="display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px;"></div>
- <div class="memo-modal-actions" style="justify-content:space-between;">
- <button type="button" class="memo-btn memo-btn-cancel" onclick="checkFollowedAuthorsNewReleases(true)">신간 지금 확인</button>
- <button type="button" class="memo-btn memo-btn-save" onclick="closeFollowedAuthorsModal()">닫기</button>
- </div>
- </div>
- </div>
+
 
  <!-- 내 서재 관리 하단 바텀시트 -->
  <div id="myLibManageSheetOverlay" class="bottom-sheet-overlay" onclick="if(event.target===this) closeMyLibManageSheet()">
@@ -3285,7 +3276,6 @@
  else if (topModal === 'ratingBreakdown') closeRatingBreakdownModal();
  else if (topModal === 'memo') closeMemoModal();
  else if (topModal === 'myLib') closeMyLibraryModal();
- else if (topModal === 'followedAuthors') closeFollowedAuthorsModal();
  else if (topModal === 'bookmark') closeBookmarkModal();
  return true;
  }
@@ -5200,6 +5190,12 @@
  refreshIcons(dropdown);
  }
 
+ function toggleOwnedSearchCardDetails(ev) {
+ if (ev.target.closest('summary') || ev.target.closest('.owned-mini-row') || ev.target.closest('a, button')) return;
+ const det = document.getElementById('ownedSearchDetails');
+ if (det) det.open = !det.open;
+ }
+
  function renderOwnedSearchBanner(keyword, extraAuthorStrings = []) {
  const card = document.getElementById('ownedSearchCard');
  const titleEl = document.getElementById('ownedSearchTitle');
@@ -5238,7 +5234,7 @@
  : '<span class="match-pill similar">관련</span>');
 
  return `
- <div class="owned-mini-row clickable" onclick="openOwnedEditModalByIndex(${rowIdx})">
+ <div class="owned-mini-row clickable" onclick="event.stopPropagation(); openOwnedEditModalByIndex(${rowIdx})">
  <div class="owned-mini-info">
  <p class="owned-mini-title">${ebook ? '📱 ' : '✅ '}${escapeHtml(formatOwnedTitle(b))} ${pill}</p>
  <p class="owned-mini-meta">${escapeHtml(formatAuthorWithSuffix(b.author))}${b.publisher ? ' · ' + escapeHtml(b.publisher) : ''}${seriesText}${statusBadge}${ratingBadge}</p>
@@ -6172,7 +6168,7 @@
  const ownObiHtml = getCoverOwnershipObiHtml(b);
  const doneStampHtml = getCoverDoneStampHtml(b);
  const statusBorderCls = getCoverStatusBorderCls(b);
- const thumbHtml = `<div class="mylib-thumb-col"><div class="mylib-item-thumb-wrap ${statusBorderCls}">${ownObiHtml}${doneStampHtml}<img class="mylib-item-thumb" src="${escapeHtml(thumbUrl)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG"></div>${ratingShort ? `<div class="mylib-thumb-rating">${ratingShort}</div>` : ''}</div>`;
+ const thumbHtml = `<div class="mylib-thumb-col"><div class="mylib-item-thumb-wrap ${statusBorderCls}">${ownObiHtml}${doneStampHtml}<img class="mylib-item-thumb" src="${escapeHtml(thumbUrl)}" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=NO_COVER_SVG"></div>${ratingShort ? `<div class="mylib-thumb-rating">${ratingShort}</div>` : ''}</div>`;
  const cardStateCls = myLibDuplicatesMode ? 'is-dup' : (statusVal === '완독' ? 'is-done' : '');
 
  return `
@@ -6213,7 +6209,7 @@
  `;
  }
  listEl.innerHTML = html;
- refreshIcons();
+ refreshIcons(listEl);
  }
 
  
@@ -6401,7 +6397,8 @@
        return;
      }
      updateMyLibMultiSelectBar();
-     renderMyLibraryList(false);
+     const cardEl = ev.currentTarget || ev.target.closest('.mylib-item');
+     if (cardEl) cardEl.classList.toggle('is-selected', myLibSelectedRows.has(b.row));
      return;
    }
    openOwnedEditModalByIndex(idx);
@@ -8593,7 +8590,6 @@
  closeOwnedEditModal,
  closePinPromptModal,
  cancelDirtyConfirmModal,
- closeFollowedAuthorsModal
  };
  document.querySelectorAll('.memo-modal-overlay[data-close-fn]').forEach(overlay => {
  overlay.addEventListener('pointerdown', (e) => {
@@ -8720,7 +8716,7 @@
  const aladinSearchUrl = `https://www.aladin.co.kr/m/msearch.aspx?SearchWord=${encodeURIComponent(originalKw)}&SearchTarget=All&start=h_keyword`;
 
  // 1) 90일 브라우저 캐시 확인 (카카오 기반 v3 키)
- const searchCacheKey = `v3:${(spacelessKw || originalKw).toLowerCase()}`;
+ const searchCacheKey = `v4:${(spacelessKw || originalKw).toLowerCase()}`;
  const cachedDocs = getApiCache('search', searchCacheKey, API_CACHE_TTL_MS);
  let combinedDocs = [];
 
@@ -8807,7 +8803,7 @@
  }
 
  if (combinedDocs.length > 0) {
- setApiCache('search', searchCacheKey, combinedDocs.slice(0, 15).map(i => i.doc), 400);
+ setApiCache('search', searchCacheKey, combinedDocs.slice(0, 50).map(i => i.doc), 400);
  }
  }
 
@@ -8815,7 +8811,7 @@
 
  if (combinedDocs.length === 0) {
  currentBooksList = [];
- document.getElementById('searchResultCountText').innerText = `'${keyword}' 검색 결과 없음`;
+ document.getElementById('searchResultCountText').innerText = `통합 검색 결과 (0건)`;
 
  document.getElementById('searchResultsList').innerHTML = `
  <div class='loading-msg' style='display:flex; flex-direction:column; align-items:center; gap:10px; width: 100%;'>
@@ -8827,13 +8823,13 @@
  return;
  }
 
- currentBooksList = combinedDocs.slice(0, 25);
+ currentBooksList = combinedDocs.slice(0, 50);
  currentBooksList.forEach(it => {
  const id = normalizeIsbn(it.doc.isbn13 || it.doc.isbn);
  if (id && it.doc.bookImageURL) saveBookCoverCache(id, it.doc.bookImageURL);
  });
 
- document.getElementById('searchResultCountText').innerText = `'${keyword}' 통합 검색 결과 (${currentBooksList.length}건)`;
+ document.getElementById('searchResultCountText').innerText = `통합 검색 결과 (${currentBooksList.length}건)`;
 
  renderSearchResultCards();
 
@@ -8895,7 +8891,18 @@
    const authorText = String(book.authors || '').trim();
    const pubPart = `${book.publisher ? ' / ' + escapeHtml(book.publisher) : ''}${escapeHtml(pubYear)}`;
    if (authorText) {
-     mainAuthorEl.innerHTML = `<button type="button" class="main-author-jump-btn" onclick="scrollToSameAuthorSection()" title="동저자의 다른 도서로 바로 이동">${escapeHtml(authorText)}</button>${pubPart}`;
+     const roleEntries = extractPersonRoleEntries(authorText, '저자');
+     const authorNames = roleEntries.filter(p => p.role === '저자').map(p => p.name);
+     const extraRoles = roleEntries.filter(p => p.role !== '저자');
+     if (authorNames.length > 0 && extraRoles.length > 0) {
+       const extraText = extraRoles.map(p => `${p.name} ${p.role}`).join(', ');
+       mainAuthorEl.innerHTML = `<button type="button" class="main-author-jump-btn" onclick="scrollToSameAuthorSection()" title="저자의 다른 도서로 바로 이동">${escapeHtml(authorNames.join(', '))}</button><span style="color:var(--sec-text); font-weight:500;"> · ${escapeHtml(extraText)}</span>${pubPart}`;
+     } else {
+       const cleanAuthorOnly = authorText.replace(/\s*[;,]?\s*[^,;]*(옮김|옮긴이|역|번역|그림|감수|편역|해설)[^,;]*/g, '').trim();
+       const trailingExtra = cleanAuthorOnly && cleanAuthorOnly !== authorText ? authorText.slice(cleanAuthorOnly.length) : '';
+       const linkTarget = cleanAuthorOnly || authorText;
+       mainAuthorEl.innerHTML = `<button type="button" class="main-author-jump-btn" onclick="scrollToSameAuthorSection()" title="저자의 다른 도서로 바로 이동">${escapeHtml(linkTarget)}</button>${trailingExtra ? `<span style="color:var(--sec-text); font-weight:500;">${escapeHtml(trailingExtra)}</span>` : ''}${pubPart}`;
+     }
    } else {
      mainAuthorEl.innerText = `${book.publisher || ''}${pubYear}`;
    }
@@ -9337,7 +9344,7 @@
  const { authorName } = sameAuthorPager;
 
  if (titleEl) {
- titleEl.innerText = `${authorName} 저자의 다른 도서 (${currentSameAuthorBooks.length}권)`;
+ titleEl.innerText = '저자의 다른 도서';
  }
 
  if (currentSameAuthorBooks.length === 0) {
@@ -9387,7 +9394,7 @@
 
  currentSameAuthorBooks = [];
  sameAuthorPager = { authorName, pageNo: 1, numFound: 0, seenTitles, currentIsbn };
- if (titleEl) titleEl.innerText = `${authorName} 저자의 다른 도서`;
+ if (titleEl) titleEl.innerText = '저자의 다른 도서';
  if (aladinLinkEl) {
    aladinLinkEl.href = buildAladinAuthorSearchUrl(authorName);
    aladinLinkEl.title = `'${authorName}' 알라딘 국내도서 전체 검색`;
@@ -9676,10 +9683,7 @@
  const altBannerHtml = (matchedMeta && matchedMeta.isbn)
  ? `<li class="library-item" style="background:#eef2ff; border:1px solid #c7d2fe; border-radius:10px; margin-bottom:8px; padding:8px 10px; font-size:12px; font-weight:700; color:#3730a3;">📚 선택한 판본이 미소장이라 같은 책의 다른 종이책 판본(${matchedMeta.pubYear ? escapeHtml(matchedMeta.pubYear) + '년' : '구판'})으로 조회했습니다.</li>`
  : '';
- const codeSummary = (results || []).map(r => r.libCode).filter(Boolean).join(',');
- const tsLabel = (checkedTs ? `저장됨 · ${formatShortTimestamp(checkedTs)}` : '방금 조회됨')
-   + (cleanIsbnLabel ? ` · ISBN ${cleanIsbnLabel}` : '')
-   + (codeSummary ? ` (${codeSummary})` : '');
+ const tsLabel = checkedTs ? `저장됨 · ${formatShortTimestamp(checkedTs)}` : '방금 조회됨';
  const hasRemaining = Array.isArray(remainingKeys) && remainingKeys.length > 0;
  const remainingNames = (remainingKeys || []).map(k => TARGET_LIB_LABELS[k] || k).join('·');
  const remainingBtnHtml = hasRemaining
@@ -9690,25 +9694,23 @@
  <div class="lib-cache-footer">
  <div class="lib-cache-meta">
  <span>${tsLabel}</span>
- <button type="button" class="lib-icon-refresh-btn" onclick="fetchRealTimeLibraryStatusForCurrent(true)" title="대출 현황 다시 조회" aria-label="대출 현황 다시 조회"><i data-lucide="refresh-cw" size="13"></i></button>
+ <button type="button" class="lib-icon-refresh-btn" onclick="fetchRealTimeLibraryStatusForCurrent(true)" title="대출 현황 다시 조회" aria-label="대출 현황 다시 조회"><i data-lucide="refresh-cw" size="10"></i></button>
  </div>
+ ${remainingBtnHtml}
  </div>
  `;
 
  if (!results || results.length === 0) {
- const fallbackMore = hasRemaining ? `<div class="lib-card-bottom-action">${remainingBtnHtml}</div>` : '';
- container.innerHTML = `<li class="library-item" style="color:var(--sec-text); font-weight:700; justify-content:center; flex-direction:column;"><span>소장 중인 관심 도서관이 없습니다.</span>${fallbackMore}</li>${footerHtml}`;
- refreshIcons();
+ container.innerHTML = `<li class="library-item" style="color:var(--sec-text); font-weight:700; justify-content:center; flex-direction:column;"><span>소장 중인 관심 도서관이 없습니다.</span></li>${footerHtml}`;
+ refreshIcons(container);
  return;
  }
 
  const cleanTitle = (bookName || '').split(' =')[0].split(':')[0].trim();
  const encodedTitle = encodeURIComponent(cleanTitle).replace(/'/g, '%27');
- const dreamIdx = results.findIndex(lib => lib.libKey === 'dream');
- const attachMoreIdx = hasRemaining ? (dreamIdx >= 0 ? dreamIdx : results.length - 1) : -1;
 
  let html = '';
- results.forEach((lib, rIdx) => {
+ results.forEach((lib) => {
  let badgeHtml = '';
  if (lib.loanAvailable === 'Y') {
  badgeHtml = lib.isInterlibrary
@@ -9725,10 +9727,7 @@
  const textClass = lib.isInterlibrary ? 'fav-lib-text interlibrary-text' : 'fav-lib-text';
  const iconName = lib.isInterlibrary ? 'arrow-left-right' : 'map-pin';
  const subTextHtml = lib.isInterlibrary
- ? '<span class="interlibrary-sub">용산구립 상호대차 · 클릭 시 통합검색 이동</span>'
- : '<span class="fav-lib-sub">클릭 시 도서관 자료검색 바로 이동</span>';
- const bottomActionHtml = (rIdx === attachMoreIdx)
- ? `<div class="lib-card-bottom-action">${remainingBtnHtml}</div>`
+ ? '<span class="interlibrary-sub">용산구립 상호대차</span>'
  : '';
 
  html += `
@@ -9740,7 +9739,6 @@
  </div>
  ${badgeHtml}
  </a>
- ${bottomActionHtml}
  </li>
  `;
  });
@@ -9927,7 +9925,7 @@
    btnEl.classList.remove('hidden');
    const followed = isAuthorFollowed(clean);
    btnEl.classList.toggle('is-following', followed);
-   btnEl.innerHTML = followed ? '✓ 구독중' : '+ 구독';
+   btnEl.innerHTML = btnEl.id === 'sameAuthorSubBtn' ? (followed ? '✓' : '+') : (followed ? '✓ 구독중' : '+ 구독');
    btnEl.title = followed ? `${clean} 저자 구독 해제` : `${clean} 저자 신간 알림 구독`;
  }
 
@@ -9946,7 +9944,6 @@
      checkFollowedAuthorsNewReleases(true);
    }
    refreshAllFollowButtonsUI();
-   renderFollowedAuthorsModalList();
    renderHomeNewReleaseCard();
  }
 
@@ -9998,7 +9995,7 @@
  function getCachedAuthorPhoto(authorName) {
    const key = String(authorName || '').trim().toLowerCase();
    if (!key) return null;
-   const val = getApiCache('authorPhoto', key, API_CACHE_TTL_MS);
+   const val = getApiCache('authorPhoto_v2', key, API_CACHE_TTL_MS);
    return typeof val === 'string' ? val : null;
  }
 
@@ -10024,35 +10021,60 @@
      }
    } catch (e) {}
 
-   // 2) 브라우저에서 한국어 위키백과 CORS API 직접 폴백 (Code.gs 미재배포 상태에서도 즉시 동작)
+   // 2) 브라우저에서 한국어 위키백과 + 영어 위키백과(langlinks) CORS API 직접 폴백
+   let enTitle = '';
    if (!photoUrl) {
      try {
-       const wUrl = `https://ko.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(clean)}&prop=pageimages&piprop=thumbnail&pithumbsize=160&redirects=1&format=json&origin=*`;
+       const wUrl = `https://ko.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(clean)}&prop=pageimages|langlinks&lllang=en&piprop=thumbnail&pithumbsize=160&redirects=1&format=json&origin=*`;
        const wRes = await fetch(wUrl);
        if (wRes.ok) {
          const wData = await wRes.json();
          const pages = wData?.query?.pages ? Object.values(wData.query.pages) : [];
          const hit = pages.find(p => p?.thumbnail?.source);
          if (hit) photoUrl = hit.thumbnail.source;
+         else {
+           const llPage = pages.find(p => Array.isArray(p?.langlinks) && p.langlinks[0]?.['*']);
+           if (llPage) enTitle = llPage.langlinks[0]['*'];
+         }
        }
      } catch (e) {}
    }
    if (!photoUrl) {
+     for (const qStr of [clean + ' 작가', clean]) {
+       try {
+         const sUrl = `https://ko.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(qStr)}&gsrlimit=5&prop=pageimages|langlinks&lllang=en&piprop=thumbnail&pithumbsize=160&format=json&origin=*`;
+         const sRes = await fetch(sUrl);
+         if (sRes.ok) {
+           const sData = await sRes.json();
+           const pages = sData?.query?.pages ? Object.values(sData.query.pages) : [];
+           const compactClean = clean.replace(/\s+/g, '').toLowerCase();
+           pages.sort((a, b) => (a.index || 99) - (b.index || 99));
+           const hit = pages.find(p => p?.thumbnail?.source && String(p.title || '').replace(/\s+/g, '').toLowerCase().includes(compactClean));
+           if (hit) { photoUrl = hit.thumbnail.source; break; }
+           if (!enTitle) {
+             const llHit = pages.find(p => Array.isArray(p?.langlinks) && p.langlinks[0]?.['*'] && String(p.title || '').replace(/\s+/g, '').toLowerCase().includes(compactClean));
+             if (llHit) enTitle = llHit.langlinks[0]['*'];
+           }
+         }
+       } catch (e) {}
+     }
+   }
+   if (!photoUrl && enTitle) {
      try {
-       const sUrl = `https://ko.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(clean + ' 작가')}&gsrlimit=4&prop=pageimages&piprop=thumbnail&pithumbsize=160&format=json&origin=*`;
-       const sRes = await fetch(sUrl);
-       if (sRes.ok) {
-         const sData = await sRes.json();
-         const pages = sData?.query?.pages ? Object.values(sData.query.pages) : [];
-         const compactClean = clean.replace(/\s+/g, '').toLowerCase();
-         pages.sort((a, b) => (a.index || 99) - (b.index || 99));
-         const hit = pages.find(p => p?.thumbnail?.source && String(p.title || '').replace(/\s+/g, '').toLowerCase().includes(compactClean));
+       const enUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(enTitle)}&prop=pageimages&piprop=thumbnail&pithumbsize=160&redirects=1&format=json&origin=*`;
+       const enRes = await fetch(enUrl);
+       if (enRes.ok) {
+         const enData = await enRes.json();
+         const pages = enData?.query?.pages ? Object.values(enData.query.pages) : [];
+         const hit = pages.find(p => p?.thumbnail?.source);
          if (hit) photoUrl = hit.thumbnail.source;
        }
      } catch (e) {}
    }
 
-   setApiCache('authorPhoto', cacheKey, photoUrl || '', 300);
+   if (photoUrl) {
+     setApiCache('authorPhoto_v2', cacheKey, photoUrl, 300);
+   }
    return photoUrl || '';
  }
 
@@ -10089,7 +10111,7 @@
      const photo = getCachedAuthorPhoto(a);
      const initial = escapeHtml(String(a || '?').trim().charAt(0));
      const avatarHtml = photo
-       ? `<img class="bm-author-avatar" src="${escapeHtml(photo)}" alt="${escapeHtml(a)}" loading="lazy" onerror="this.outerHTML='<span class=\'bm-author-avatar-fallback\'>${initial}</span>'">`
+       ? `<img class="bm-author-avatar" src="${escapeHtml(photo)}" alt="${escapeHtml(a)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=\'bm-author-avatar-fallback\'>${initial}</span>'">`
        : `<span class="bm-author-avatar-fallback">${initial}</span>`;
      return `<span class="bm-followed-chip" onclick="searchFollowedAuthorFromBookmark('${safe}')">${avatarHtml}<span>${escapeHtml(a)}</span><button type="button" class="del" onclick="event.stopPropagation(); toggleFollowAuthorByName('${safe}')" title="구독 해제">✕</button></span>`;
    }).join('');
@@ -10108,49 +10130,6 @@
    executeSearch(authorName);
  }
 
- function openFollowedAuthorsModal() {
-   renderFollowedAuthorsModalList();
-   const ov = document.getElementById('followedAuthorsModalOverlay');
-   if (ov) {
-     ov.classList.add('open');
-     pushModalHistory('followedAuthors');
-     refreshIcons(ov);
-   }
- }
-
- function closeFollowedAuthorsModal() {
-   const ov = document.getElementById('followedAuthorsModalOverlay');
-   if (ov) ov.classList.remove('open');
-   popModalHistory('followedAuthors');
- }
-
- function renderFollowedAuthorsModalList() {
-   const el = document.getElementById('followedAuthorsList');
-   if (!el) return;
-   const authors = getFollowedAuthors();
-   if (authors.length === 0) {
-     el.innerHTML = '<div style="font-size:12.5px; color:var(--sec-text); padding:6px 2px;">아직 구독 중인 작가가 없습니다. 내 서재나 검색 화면의 + 구독 버튼으로 추가해 보세요!</div>';
-     return;
-   }
-   el.innerHTML = authors.map(a => `
-     <span class="follow-author-chip">
-       <span>${escapeHtml(a)}</span>
-       <button type="button" onclick="toggleFollowAuthorByName('${escapeHtml(a).replace(/'/g, "\\'")}')" title="팔로우 해제">✕</button>
-     </span>
-   `).join('');
- }
-
- function addFollowedAuthorFromInput() {
-   const inp = document.getElementById('followAuthorAddInput');
-   const name = String(inp?.value || '').trim();
-   if (!name) return;
-   if (!isAuthorFollowed(name)) {
-     toggleFollowAuthorByName(name);
-   } else {
-     showToast(`'${name}' 작가는 이미 팔로우 중입니다.`);
-   }
-   inp.value = '';
- }
 
  function parseBookPubDateMs(book) {
    const raw = String(book?.pubDate || book?.datetime || book?.publishDate || '').trim();
@@ -10335,7 +10314,7 @@
          </div>
        </div>
        <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
-         <button type="button" class="owned-chip-btn" onclick="openFollowedAuthorsModal()" title="관심 저자 관리">구독 ${getFollowedAuthors().length}</button>
+         <button type="button" class="owned-chip-btn" onclick="toggleBookmarkModal()" title="내 북마크에서 관심 저자 보기">구독 ${getFollowedAuthors().length}</button>
        </div>
      </div>
      <div class="new-rel-list">${rowsHtml}</div>
@@ -10384,8 +10363,8 @@
        return;
      }
      const dy = e.touches[0].clientY - ptrStartY;
-     if (dy > 14 && ptrEl) {
-       const h = Math.min(46, Math.round((dy - 14) * 0.55));
+     if (dy > 28 && ptrEl) {
+       const h = Math.min(46, Math.round((dy - 28) * 0.55));
        ptrEl.style.height = h + 'px';
        ptrEl.classList.add('visible');
        if (dy >= 72) {

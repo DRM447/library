@@ -1,6 +1,13 @@
-const CACHE_NAME = 'allbooks-cache-v111';
+const CACHE_NAME = 'allbooks-cache-v112';
 const CORE_URLS = [
   './all_books.html',
+  './styles.css',
+  './icons.js',
+  './api.js',
+  './library.js',
+  './search.js',
+  './bookmark.js',
+  './app.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -49,6 +56,12 @@ self.addEventListener('fetch', event => {
 
   const isDynamicCore = isSameOrigin && (
     requestUrl.pathname.endsWith('/all_books.html') ||
+    requestUrl.pathname.endsWith('/styles.css') ||
+    requestUrl.pathname.endsWith('/api.js') ||
+    requestUrl.pathname.endsWith('/library.js') ||
+    requestUrl.pathname.endsWith('/search.js') ||
+    requestUrl.pathname.endsWith('/bookmark.js') ||
+    requestUrl.pathname.endsWith('/app.js') ||
     requestUrl.pathname.endsWith('/manifest.json') ||
     requestUrl.pathname.endsWith('/')
   );

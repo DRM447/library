@@ -1826,6 +1826,19 @@
    background: #eef2ff;
    color: #4338ca;
  }
+ .meta-author-mini-sub {
+   display: inline-flex; align-items: center; justify-content: center;
+   width: 17px; height: 17px; padding: 0; border-radius: 50%;
+   background: #ffffff; color: #334155; border: 1px solid #cbd5e1;
+   font-size: 11px; font-weight: 900; line-height: 1;
+   cursor: pointer; flex-shrink: 0; font-family: inherit;
+   transition: background-color 0.14s, color 0.14s, border-color 0.14s, transform 0.1s;
+ }
+ .meta-author-mini-sub:hover { background: #f8fafc; border-color: #94a3b8; }
+ .meta-author-mini-sub:active { transform: scale(0.9); }
+ .meta-author-mini-sub.is-following {
+   background: #1e293b; color: #ffffff; border-color: #1e293b;
+ }
 
  /* 모달 내부 터치 스크롤 안정화 */
  .memo-modal-box,
@@ -2603,38 +2616,48 @@
  <div id="ownedBookCandidatesList" class="owned-cand-scroll"></div>
  </div>
 
- <!-- 출간일 · 분류 · ISBN · 저자 · 저자 외 (터치 시 인라인 편집, 엔터/포커스 아웃 시 자동 반영) -->
+ <!-- 출간일 · 분류 · ISBN · 출판사 · 저자 · 저자 외 (터치 시 인라인 편집, 라벨 클릭 시 알라딘 이동) -->
  <div class="owned-meta-table">
  <div class="owned-meta-row">
- <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('daum')" title="다음 책 정보 페이지로 이동">출간일</div>
+ <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">출간일</div>
  <div class="owned-meta-val-wrap">
  <button type="button" id="ownedMetaBtn_pubYear" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('pubYear')"></button>
  <input type="text" id="ownedInputPubYear" class="owned-meta-inline-input hidden" placeholder="예: 2025" onblur="finishInlineMetaEdit('pubYear')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
  </div>
  </div>
  <div class="owned-meta-row">
- <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('daum')" title="다음 책 정보 페이지로 이동">분류</div>
+ <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">분류</div>
  <div class="owned-meta-val-wrap">
  <button type="button" id="ownedMetaBtn_kdc" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('kdc')"></button>
  <input type="text" id="ownedInputKdc" class="owned-meta-inline-input hidden" placeholder="예: 문학" onblur="finishInlineMetaEdit('kdc')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
  </div>
  </div>
  <div class="owned-meta-row">
- <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('kyobo')" title="교보문고 페이지로 이동">ISBN</div>
+ <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">ISBN</div>
  <div class="owned-meta-val-wrap">
  <button type="button" id="ownedMetaBtn_isbn" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('isbn')"></button>
  <input type="text" id="ownedInputIsbn" class="owned-meta-inline-input hidden" placeholder="10 또는 13자리" onblur="finishInlineMetaEdit('isbn');" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
  </div>
  </div>
  <div class="owned-meta-row">
- <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('daum')" title="다음 책 정보 페이지로 이동">저자</div>
+ <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">출판사</div>
+ <div class="owned-meta-val-wrap">
+ <button type="button" id="ownedMetaBtn_publisher" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('publisher')"></button>
+ <input type="text" id="ownedInputPublisher" class="owned-meta-inline-input hidden" placeholder="출판사명" onblur="finishInlineMetaEdit('publisher')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
+ </div>
+ </div>
+ <div class="owned-meta-row">
+ <div class="owned-meta-key clickable-meta-key" style="justify-content:space-between; gap:3px; padding-right:6px;" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">
+ <span>저자</span>
+ <button type="button" id="ownedMetaAuthorSubBtn" class="meta-author-mini-sub hidden" onclick="event.stopPropagation(); toggleFollowMetaAuthor();" title="관심 저자 구독" aria-label="관심 저자 구독">+</button>
+ </div>
  <div class="owned-meta-val-wrap">
  <button type="button" id="ownedMetaBtn_author" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('author')"></button>
  <input type="text" id="ownedInputAuthor" class="owned-meta-inline-input hidden" placeholder="저자명" onblur="finishInlineMetaEdit('author')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
  </div>
  </div>
  <div class="owned-meta-row">
- <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('daum')" title="다음 책 정보 페이지로 이동">저자 외</div>
+ <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">저자 외</div>
  <div class="owned-meta-val-wrap">
  <button type="button" id="ownedMetaBtn_translator" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('translator')"></button>
  <input type="text" id="ownedInputTranslator" class="owned-meta-inline-input hidden" placeholder="옮긴이, 감수, 엮은이 등" onblur="finishInlineMetaEdit('translator')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
@@ -2726,11 +2749,10 @@
  <textarea id="ownedInputReview" class="form-input owned-review-autosize" rows="1" placeholder="짧은 감상이나 기억하고 싶은 문장을 남겨보세요." oninput="autoResizeTextarea(this)"></textarea>
  </div>
 
- <!-- 출판사·시리즈명·시리즈 넘버는 자동 입력 및 저장용으로 숨김 유지 -->
+ <!-- 시리즈명·시리즈 넘버는 자동 입력 및 저장용으로 숨김 유지 -->
  <div class="hidden" aria-hidden="true">
  <input type="text" id="ownedInputSeries" value="">
  <input type="text" id="ownedInputVol" value="">
- <input type="text" id="ownedInputPublisher" value="">
  </div>
  <div class="form-field">
  <label class="form-label" for="ownedInputMemo">메모</label>
@@ -7207,6 +7229,7 @@
  { key: 'pubYear', val: currentModalPubYear, display: currentModalPubYear ? formatPubYearText(currentModalPubYear) : '', inputId: 'ownedInputPubYear' },
  { key: 'kdc', val: cleanCategoryDisplay(currentModalKdc), display: cleanCategoryDisplay(currentModalKdc), inputId: 'ownedInputKdc' },
  { key: 'isbn', val: normalizeIsbn(document.getElementById('ownedInputIsbn')?.value || ''), display: normalizeIsbn(document.getElementById('ownedInputIsbn')?.value || ''), inputId: 'ownedInputIsbn' },
+ { key: 'publisher', val: (document.getElementById('ownedInputPublisher')?.value || '').trim(), display: (document.getElementById('ownedInputPublisher')?.value || '').trim(), inputId: 'ownedInputPublisher' },
  { key: 'author', val: (document.getElementById('ownedInputAuthor')?.value || '').trim(), display: (document.getElementById('ownedInputAuthor')?.value || '').trim(), inputId: 'ownedInputAuthor' },
  { key: 'translator', val: (document.getElementById('ownedInputTranslator')?.value || '').trim(), display: (document.getElementById('ownedInputTranslator')?.value || '').trim(), inputId: 'ownedInputTranslator' }
  ];
@@ -7221,6 +7244,7 @@
  btn.classList.toggle('is-empty', !item.display);
  }
  });
+ updateMetaAuthorMiniSubBtn(getPrimaryAuthorForModal(document.getElementById('ownedInputAuthor')?.value || ''));
  }
 
  function startInlineMetaEdit(key) {
@@ -7228,6 +7252,7 @@
  pubYear: 'ownedInputPubYear',
  kdc: 'ownedInputKdc',
  isbn: 'ownedInputIsbn',
+ publisher: 'ownedInputPublisher',
  author: 'ownedInputAuthor',
  translator: 'ownedInputTranslator'
  };
@@ -7245,6 +7270,7 @@
  pubYear: 'ownedInputPubYear',
  kdc: 'ownedInputKdc',
  isbn: 'ownedInputIsbn',
+ publisher: 'ownedInputPublisher',
  author: 'ownedInputAuthor',
  translator: 'ownedInputTranslator'
  };
@@ -7271,9 +7297,9 @@
  }
 
  function resetAllInlineMetaEditors() {
- ['pubYear', 'kdc', 'isbn', 'author', 'translator'].forEach(key => {
+ ['pubYear', 'kdc', 'isbn', 'publisher', 'author', 'translator'].forEach(key => {
  const btn = document.getElementById('ownedMetaBtn_' + key);
- const inpMap = { pubYear: 'ownedInputPubYear', kdc: 'ownedInputKdc', isbn: 'ownedInputIsbn', author: 'ownedInputAuthor', translator: 'ownedInputTranslator' };
+ const inpMap = { pubYear: 'ownedInputPubYear', kdc: 'ownedInputKdc', isbn: 'ownedInputIsbn', publisher: 'ownedInputPublisher', author: 'ownedInputAuthor', translator: 'ownedInputTranslator' };
  const inp = document.getElementById(inpMap[key]);
  if (btn) btn.classList.remove('hidden');
  if (inp) inp.classList.add('hidden');
@@ -7289,7 +7315,11 @@
    return;
  }
  let url = '';
- if (target === 'daum') {
+ if (target === 'aladin') {
+   url = (isbnVal.length === 10 || isbnVal.length === 13)
+     ? `https://www.aladin.co.kr/shop/wproduct.aspx?ISBN=${encodeURIComponent(isbnVal)}`
+     : `https://www.aladin.co.kr/m/msearch.aspx?SearchWord=${encodeURIComponent(qKey)}&SearchTarget=All&start=h_keyword`;
+ } else if (target === 'daum') {
    url = currentModalKakaoUrl || `https://search.daum.net/search?w=book&q=${encodeURIComponent(qKey)}`;
  } else if (target === 'kyobo') {
    url = `https://search.kyobobook.co.kr/search?keyword=${encodeURIComponent(qKey)}`;
@@ -9925,6 +9955,29 @@
    if (btn?.dataset?.author) toggleFollowAuthorByName(btn.dataset.author);
  }
 
+ function updateMetaAuthorMiniSubBtn(authorName) {
+   const btn = document.getElementById('ownedMetaAuthorSubBtn');
+   if (!btn) return;
+   const clean = String(authorName || '').trim();
+   if (!clean || clean === '저자 미상') {
+     btn.classList.add('hidden');
+     btn.dataset.author = '';
+     return;
+   }
+   btn.dataset.author = clean;
+   btn.classList.remove('hidden');
+   const followed = isAuthorFollowed(clean);
+   btn.classList.toggle('is-following', followed);
+   btn.textContent = followed ? '✓' : '+';
+   btn.title = followed ? `${clean} 저자 구독 해제` : `${clean} 저자 신간 알림 구독`;
+ }
+
+ function toggleFollowMetaAuthor() {
+   const btn = document.getElementById('ownedMetaAuthorSubBtn');
+   const authorName = btn?.dataset?.author || getPrimaryAuthorForModal(document.getElementById('ownedInputAuthor')?.value || '');
+   if (authorName) toggleFollowAuthorByName(authorName);
+ }
+
  function toggleFollowModalAuthor() {
    const btn = document.getElementById('ownedModalFollowBtn');
    if (btn?.dataset?.author) toggleFollowAuthorByName(btn.dataset.author);
@@ -9935,6 +9988,8 @@
    if (sameBtn && sameBtn.dataset.author) updateFollowButtonEl(sameBtn, sameBtn.dataset.author);
    const modalBtn = document.getElementById('ownedModalFollowBtn');
    if (modalBtn && modalBtn.dataset.author) updateFollowButtonEl(modalBtn, modalBtn.dataset.author);
+   const metaBtn = document.getElementById('ownedMetaAuthorSubBtn');
+   if (metaBtn && metaBtn.dataset.author) updateMetaAuthorMiniSubBtn(metaBtn.dataset.author);
    renderBookmarkFollowedAuthors();
  }
 

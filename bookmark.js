@@ -744,7 +744,7 @@ function batchDeleteSelectedBookmarks() {
   sendSheetPost({ action: 'removeMany', isbns: targets }).catch(() => {
     targets.forEach(id => sendSheetPost({ action: 'remove', isbn: id }).catch(() => {}));
   });
-  showToast(`북마크 ${removedItems.length}권을 삭제했습니다.`, '', {
+  showToast(`북마크 ${removedItems.length}권을 해제했습니다.`, '', {
     label: '실행 취소',
     onClick: () => restoreDeletedBookmarks(removedItems)
   });
@@ -806,14 +806,14 @@ function openBookmarkMorePopover(ev, isbn, hasOwned) {
       <i data-lucide="search" size="15" color="#4f46e5"></i><span>도서 검색</span>
     </button>
     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); openMemoModalForIsbn('${safeIsbn}');">
-      ${MEMO_PLUS_ICON_SVG}<span>${b.memo && b.memo.trim() ? '메모 수정' : '메모 추가'}</span>
+      <i data-lucide="file-plus-2" size="15" color="#d97706"></i><span>${b.memo && b.memo.trim() ? '메모 수정' : '메모 추가'}</span>
     </button>
     ${!hasOwned ? `<button type="button" class="quick-popover-item" onclick="closeQuickPopover(); moveBookmarkToLibraryByIsbn('${safeIsbn}');">
       <i data-lucide="library" size="15" color="#059669"></i><span>내 서재에 추가</span>
     </button>` : ''}
     <div class="quick-popover-divider"></div>
     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); removeBookmark('${safeIsbn}');">
-      <i data-lucide="trash-2" size="15"></i><span>북마크 삭제</span>
+      <i data-lucide="trash-2" size="15"></i><span>북마크 해제</span>
     </button>
   `;
   backdrop.classList.remove('hidden');
@@ -942,7 +942,7 @@ function removeBookmark(isbn) {
   refreshCurrentBookBookmarkUI();
   renderHomeReadingDashboard();
   sendSheetPost({ action: 'remove', isbn: targetIsbn }).catch(() => {});
-  showToast('북마크에서 삭제되었습니다.', '', removed ? {
+  showToast('북마크를 해제했습니다.', '', removed ? {
     label: '실행 취소',
     onClick: () => restoreDeletedBookmarks([removed])
   } : null);
@@ -1031,7 +1031,7 @@ function removeBookmark(isbn) {
   if (exists) {
     const prev = cur.slice();
     saveFollowedAuthors(cur.filter(a => a.toLowerCase().replace(/\s+/g, '') !== key));
-    showToast(`'${clean}' 관심 저자를 삭제했습니다.`, '', {
+    showToast(`'${clean}' 관심 저자를 해제했습니다.`, '', {
       label: '실행 취소',
       onClick: () => {
         saveFollowedAuthors(prev);
@@ -1258,14 +1258,14 @@ function openFollowedAuthorMorePopover(ev, authorName) {
     </div>
     <div class="quick-popover-divider"></div>
     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); searchFollowedAuthorFromBookmark('${safe}');">
-      <i data-lucide="search" size="15" color="#4f46e5"></i><span>저자 검색</span>
+      <i data-lucide="search" size="15" color="#4f46e5"></i><span>저자 이름으로 검색하기</span>
     </button>
     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); openAuthorPhotoModal('${safe}');">
-      <i data-lucide="image" size="15" color="#059669"></i><span>사진 교체 (위키백과·직접)</span>
+      <i data-lucide="image" size="15" color="#059669"></i><span>사진 교체하기</span>
     </button>
     <div class="quick-popover-divider"></div>
     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); toggleFollowAuthorByName('${safe}');">
-      <i data-lucide="trash-2" size="15"></i><span>관심 저자 삭제</span>
+      <i data-lucide="trash-2" size="15"></i><span>관심 저자 해제</span>
     </button>
   `;
   backdrop.classList.remove('hidden');
@@ -1295,65 +1295,175 @@ function closeAuthorPhotoModal() {
   activePhotoEditAuthor = '';
 }
 
-async function fetchWikiCandidatesClient(lang, queryStr, limit = 8) {
-  const url = `https://${lang}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(queryStr)}&gsrlimit=${limit}&prop=pageimages|description|extracts&exintro=1&explaintext=1&exsentences=1&piprop=thumbnail&pithumbsize=240&format=json&origin=*`;
+function isTitleRelevantToQuery(title, query) {
+  const norm = (s) => String(s || '').replace(/\([^)]*\)/g, '').replace(/[\s·・.,\-_]+/g, '').toLowerCase();
+  const t = norm(title);
+  const q = norm(query);
+  if (!t || !q) return false;
+  if (t.includes(q) || q.includes(t)) return true;
+  const tokens = String(query || '').trim().toLowerCase().split(/\s+/).filter(w => w.length >= 2);
+  if (tokens.length >= 2) {
+    return tokens.every(tok => t.includes(tok.replace(/[\s·・.,\-_]+/g, '')));
+  }
+  return false;
+}
+
+async function fetchWikiPageByTitle(lang, titleStr) {
+  const url = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(titleStr)}&prop=pageimages|description|extracts|langlinks&lllang=en&exintro=1&explaintext=1&exsentences=1&piprop=thumbnail&pithumbsize=240&redirects=1&format=json&origin=*`;
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const data = await res.json();
+  const pages = data?.query?.pages ? Object.values(data.query.pages) : [];
+  const p = pages.find(x => x && !x.missing && x.title);
+  if (!p) return null;
+  return {
+    title: String(p.title),
+    description: String(p.description || p.extract || '').slice(0, 90),
+    photoUrl: p?.thumbnail?.source || '',
+    enTitle: Array.isArray(p?.langlinks) && p.langlinks[0]?.['*'] ? String(p.langlinks[0]['*']) : '',
+    lang
+  };
+}
+
+async function fetchWikiTitleCandidates(lang, queryStr, limit = 8) {
+  const url = `https://${lang}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent('intitle:' + queryStr)}&gsrlimit=${limit}&prop=pageimages|description|extracts|langlinks&lllang=en&exintro=1&explaintext=1&exsentences=1&piprop=thumbnail&pithumbsize=240&format=json&origin=*`;
   const res = await fetch(url);
   if (!res.ok) return [];
   const data = await res.json();
   const pages = data?.query?.pages ? Object.values(data.query.pages) : [];
   pages.sort((a, b) => (a.index || 99) - (b.index || 99));
-  return pages.map(p => ({
-    title: String(p.title || ''),
-    description: String(p.description || p.extract || '').slice(0, 90),
-    photoUrl: p?.thumbnail?.source || '',
-    lang
-  })).filter(x => x.title);
+  return pages
+    .filter(p => p && p.title && isTitleRelevantToQuery(p.title, queryStr))
+    .map(p => ({
+      title: String(p.title),
+      description: String(p.description || p.extract || '').slice(0, 90),
+      photoUrl: p?.thumbnail?.source || '',
+      enTitle: Array.isArray(p?.langlinks) && p.langlinks[0]?.['*'] ? String(p.langlinks[0]['*']) : '',
+      lang
+    }));
+}
+
+async function fetchWikidataAuthorCandidates(queryStr) {
+  const isKorean = /[가-힣]/.test(queryStr);
+  const lang = isKorean ? 'ko' : 'en';
+  const sUrl = `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(queryStr)}&language=${lang}&limit=6&format=json&origin=*`;
+  const res = await fetch(sUrl);
+  if (!res.ok) return [];
+  const data = await res.json();
+  const items = Array.isArray(data?.search) ? data.search : [];
+  if (items.length === 0) return [];
+
+  const ids = items.map(x => x.id).filter(Boolean).slice(0, 6);
+  const eUrl = `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${ids.join('|')}&props=sitelinks|labels|descriptions&languages=ko|en&format=json&origin=*`;
+  const eRes = await fetch(eUrl);
+  if (!eRes.ok) return [];
+  const eData = await eRes.json();
+  const entities = eData?.entities || {};
+
+  const out = [];
+  for (const id of ids) {
+    const ent = entities[id];
+    if (!ent) continue;
+    const koTitle = ent.sitelinks?.kowiki?.title || '';
+    const enTitle = ent.sitelinks?.enwiki?.title || '';
+    const label = ent.labels?.ko?.value || ent.labels?.en?.value || koTitle || enTitle;
+    const desc = ent.descriptions?.ko?.value || ent.descriptions?.en?.value || '';
+    if (!koTitle && !enTitle) continue;
+
+    let photoUrl = '';
+    let chosenLang = koTitle ? 'ko' : 'en';
+    if (koTitle) {
+      const pKo = await fetchWikiPageByTitle('ko', koTitle).catch(() => null);
+      if (pKo?.photoUrl) photoUrl = pKo.photoUrl;
+    }
+    if (!photoUrl && enTitle) {
+      const pEn = await fetchWikiPageByTitle('en', enTitle).catch(() => null);
+      if (pEn?.photoUrl) {
+        photoUrl = pEn.photoUrl;
+        chosenLang = 'en';
+      }
+    }
+    if (photoUrl) {
+      out.push({
+        title: label || koTitle || enTitle,
+        description: desc,
+        photoUrl,
+        lang: chosenLang
+      });
+    }
+  }
+  return out;
 }
 
 async function searchWikiAuthorCandidates() {
-  const q = (document.getElementById('wikiAuthorSearchInput')?.value || activePhotoEditAuthor || '').trim();
+  const rawQ = (document.getElementById('wikiAuthorSearchInput')?.value || activePhotoEditAuthor || '').trim();
   const statusEl = document.getElementById('wikiAuthorPhotoStatus');
   const gridEl = document.getElementById('wikiAuthorPhotoGrid');
-  if (!q || !statusEl || !gridEl) return;
+  const googleLinkEl = document.getElementById('googleImgSearchLink');
+  if (!rawQ || !statusEl || !gridEl) return;
 
-  statusEl.textContent = `'${q}' 위키백과 인물 후보를 찾는 중...`;
-  gridEl.innerHTML = '<div class="loading-msg" style="padding:14px;">위키백과 검색 중...</div>';
+  const searchQuery = /작가|저자|교수|소설가|시인|학자/.test(rawQ) ? rawQ : `${rawQ} 작가`;
+  if (googleLinkEl) {
+    googleLinkEl.href = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchQuery)}`;
+  }
+
+  statusEl.textContent = `'${rawQ}' 이미지 검색 중...`;
+  gridEl.innerHTML = '<div class="loading-msg" style="padding:14px;">이미지 후보를 불러오는 중입니다...</div>';
 
   try {
-    const [koRes, koWriterRes, enRes] = await Promise.all([
-      fetchWikiCandidatesClient('ko', q, 8).catch(() => []),
-      fetchWikiCandidatesClient('ko', q + ' 작가', 4).catch(() => []),
-      fetchWikiCandidatesClient('en', q, 4).catch(() => [])
-    ]);
-    const seen = new Set();
-    const merged = [];
-    [...koRes, ...koWriterRes, ...enRes].forEach(item => {
-      if (!item.photoUrl) return;
-      const key = `${item.lang}:${item.title}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      merged.push(item);
-    });
+    let candidates = [];
+    // 1순위: Apps Script 경유 카카오 이미지 검색 (추가 API 키 불필요)
+    try {
+      const reqUrl = buildSheetGetUrl({ action: 'searchAuthorImages', query: searchQuery });
+      if (reqUrl) {
+        const res = await fetch(reqUrl);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data?.images) && data.images.length > 0) {
+            candidates = data.images;
+          }
+        }
+      }
+    } catch (e) {}
 
-    if (merged.length === 0) {
-      statusEl.textContent = '위키백과에서 사진이 있는 후보를 찾지 못했습니다. 검색어를 바꾸거나 아래에서 직접 사진을 첨부해 주세요.';
+    // 2순위(폴백): code.gs 미재배포 또는 결과 없을 때 Wikidata + 제목 일치 위키백과
+    if (candidates.length === 0) {
+      const isKorean = /[가-힣]/.test(rawQ);
+      const [wdRes, exactPage] = await Promise.all([
+        fetchWikidataAuthorCandidates(rawQ).catch(() => []),
+        isKorean ? fetchWikiPageByTitle('ko', rawQ).catch(() => null) : fetchWikiPageByTitle('en', rawQ).catch(() => null)
+      ]);
+      const rawList = [...wdRes];
+      if (exactPage && exactPage.photoUrl) rawList.push(exactPage);
+      else if (exactPage && exactPage.enTitle) {
+        const enPage = await fetchWikiPageByTitle('en', exactPage.enTitle).catch(() => null);
+        if (enPage?.photoUrl) rawList.push({ title: exactPage.title, description: enPage.description, photoUrl: enPage.photoUrl, lang: 'EN' });
+      }
+      const seen = new Set();
+      rawList.forEach(item => {
+        if (!item?.photoUrl || seen.has(item.photoUrl)) return;
+        seen.add(item.photoUrl);
+        candidates.push(item);
+      });
+    }
+
+    if (candidates.length === 0) {
+      statusEl.textContent = '검색 결과가 없습니다. 우측 구글 이미지에서 찾아 URL을 붙여넣거나 기기에서 첨부해 주세요.';
       gridEl.innerHTML = '';
       return;
     }
 
-    statusEl.textContent = `위키백과 후보 ${merged.length}건 (원하는 인물 사진을 터치하면 바로 적용됩니다)`;
-    gridEl.innerHTML = merged.map((c, i) => `
+    statusEl.textContent = `이미지 후보 ${candidates.length}건 (원하는 사진을 터치하면 바로 적용됩니다)`;
+    gridEl.innerHTML = candidates.map((c, i) => `
       <div class="wiki-photo-card" data-wiki-idx="${i}">
-        <img src="${escapeHtml(c.photoUrl)}" alt="${escapeHtml(c.title)}" loading="lazy" referrerpolicy="no-referrer">
-        <span class="wiki-lang-tag">${c.lang.toUpperCase()}</span>
-        <span class="wiki-photo-card-title">${escapeHtml(c.title)}</span>
-        <span class="wiki-photo-card-desc">${escapeHtml(c.description || '')}</span>
+        <img src="${escapeHtml(c.photoUrl)}" alt="${escapeHtml(c.title || rawQ)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.wiki-photo-card').style.display='none'">
+        <span class="wiki-photo-card-title">${escapeHtml(c.title || rawQ)}</span>
       </div>
     `).join('');
     gridEl.querySelectorAll('.wiki-photo-card').forEach(el => {
       const idx = Number(el.getAttribute('data-wiki-idx'));
       el.addEventListener('click', () => {
-        const picked = merged[idx];
+        const picked = candidates[idx];
         if (!picked || !activePhotoEditAuthor) return;
         saveCustomAuthorPhoto(activePhotoEditAuthor, picked.photoUrl);
         renderBookmarkFollowedAuthors();
@@ -1362,7 +1472,7 @@ async function searchWikiAuthorCandidates() {
       });
     });
   } catch (e) {
-    statusEl.textContent = '위키백과 검색 중 오류가 발생했습니다. 아래에서 직접 첨부해 주세요.';
+    statusEl.textContent = '이미지 검색 중 오류가 발생했습니다. 구글 이미지에서 찾아 URL을 붙여넣어 주세요.';
     gridEl.innerHTML = '';
   }
 }

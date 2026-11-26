@@ -272,7 +272,7 @@
           </div>
         </div>
         <div class="mylib-multiselect-actions">
-          <button type="button" class="mylib-ms-action-btn danger" onclick="batchDeleteSelectedBookmarks()">선택 삭제</button>
+          <button type="button" class="mylib-ms-action-btn danger" onclick="batchDeleteSelectedBookmarks()">북마크 해제</button>
         </div>
       </div>
     </div>
@@ -286,10 +286,13 @@
         <button type="button" class="setup-close-btn" onclick="closeAuthorPhotoModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="16"></i></button>
       </div>
       <div class="mylib-setup-row" style="margin-bottom:8px;">
-        <input type="text" id="wikiAuthorSearchInput" class="form-input" placeholder="위키백과 검색어 (예: 한강 소설가)" onkeydown="if(event.key==='Enter') searchWikiAuthorCandidates()">
+        <input type="text" id="wikiAuthorSearchInput" class="form-input" placeholder="이미지 검색어 (예: 닐 슈빈 작가)" onkeydown="if(event.key==='Enter') searchWikiAuthorCandidates()">
         <button type="button" class="memo-btn memo-btn-save" style="white-space:nowrap; padding:8px 12px;" onclick="searchWikiAuthorCandidates()">검색</button>
       </div>
-      <div id="wikiAuthorPhotoStatus" style="font-size:11.5px; color:var(--sec-text); margin-bottom:4px;">위키백과 후보를 불러오는 중입니다...</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px;">
+        <div id="wikiAuthorPhotoStatus" style="font-size:11.5px; color:var(--sec-text); min-width:0; flex:1;">이미지 후보를 불러오는 중입니다...</div>
+        <a id="googleImgSearchLink" href="#" target="_blank" rel="noopener" class="owned-chip-btn indigo" style="text-decoration:none; flex-shrink:0;">구글 이미지 ↗</a>
+      </div>
       <div id="wikiAuthorPhotoGrid" class="wiki-photo-grid"></div>
       <div style="border-top:1px dashed var(--border); padding-top:10px; margin-top:6px; display:flex; flex-direction:column; gap:7px;">
         <div class="mylib-setup-row">
@@ -367,7 +370,7 @@
       <p class="memo-modal-bookname" id="memoModalBookName"></p>
       <textarea id="memoTextarea" class="memo-textarea" placeholder="메모를 남겨보세요. (선택 사항)"></textarea>
       <div id="memoModalActions" class="memo-modal-actions hidden">
-        <button id="memoDeleteBtn" class="memo-btn memo-btn-delete hidden" onclick="deleteFromMemoModal()" title="북마크 삭제" aria-label="북마크 삭제"><i data-lucide="trash-2" size="17"></i></button>
+        <button id="memoDeleteBtn" class="memo-btn memo-btn-delete hidden" onclick="deleteFromMemoModal()" title="북마크 해제" aria-label="북마크 해제"><i data-lucide="trash-2" size="17"></i></button>
         <button id="memoMoveToLibBtn" class="memo-btn hidden" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;" onclick="moveActiveBookmarkToLibrary()">+내 서재에 추가</button>
       </div>
     </div>

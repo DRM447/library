@@ -1103,7 +1103,11 @@ searchInputEl.addEventListener('input', function () {
 
  async function fetchRealTimeLibraryStatus(isbn, bookName, forceRefresh = false, onlyRemaining = false) {
  const container = document.getElementById('libraryList');
- container.innerHTML = `<li class='loading-msg'>${onlyRemaining ? '나머지 도서관 대출 여부를 확인하는 중입니다...' : '우선순위 도서관(꿈나무→청파→남산)을 순차 확인 중입니다...'}</li>`;
+ container.innerHTML = `
+  <li class="skeleton-lib-item"><div class="skeleton-bar" style="width:58%;"></div><div class="skeleton-bar" style="width:22%; height:22px; border-radius:999px;"></div></li>
+  <li class="skeleton-lib-item"><div class="skeleton-bar" style="width:46%;"></div><div class="skeleton-bar" style="width:22%; height:22px; border-radius:999px;"></div></li>
+  <li style="text-align:center; font-size:11.5px; color:var(--sec-text); padding:2px 0 6px 0;">${onlyRemaining ? '나머지 도서관 대출 여부를 확인 중...' : '가까운 도서관 대출 여부를 확인 중...'}</li>
+`;
 
  try {
  const savedBefore = getSavedLibraryStatus(isbn);

@@ -167,7 +167,12 @@ let syncStateDebounceTimer = null;
  try { localStorage.setItem('fixedTargetLibCodes', JSON.stringify(mergedLibs)); } catch (e) {}
  }
  if (Array.isArray(remoteState.followedAuthors)) {
- try { localStorage.setItem('followedAuthors', JSON.stringify(remoteState.followedAuthors)); } catch (e) {}
+  const localFollowed = safeReadJson('followedAuthors', []);
+  if (remoteState.followedAuthors.length === 0 && Array.isArray(localFollowed) && localFollowed.length > 0) {
+    pushSyncStateToSheet(true);
+  } else {
+    try { localStorage.setItem('followedAuthors', JSON.stringify(remoteState.followedAuthors)); } catch (e) {}
+  }
  }
  if (Array.isArray(remoteState.dismissedNewReleases)) {
   try { localStorage.setItem('dismissedNewReleases', JSON.stringify(remoteState.dismissedNewReleases)); } catch (e) {}

@@ -98,7 +98,7 @@
       </div>
       <div class="card">
         <div class="section-title" style="justify-content: space-between; margin-bottom: 10px;">
-          <span>오늘 뭐 읽지?</span>
+          <span class="home-title-with-illust"><img id="homeWhatToReadIcon" class="home-mini-illust" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt=""><span>오늘 뭐 읽지?</span></span>
           <button class="owned-chip-btn indigo icon-trash-btn" onclick="pickRandomUnreadBook(true)" title="다시 뽑기" aria-label="다시 뽑기"><i data-lucide="dices" size="15"></i></button>
         </div>
         <div id="homeRandomPickContainer"></div>
@@ -309,7 +309,7 @@
 
   <!-- 우측 하단: 내 서재 FAB -->
   <div id="myLibFabContainer" class="my-lib-fab-container">
-    <button class="my-lib-fab-btn" onclick="openMyLibraryModal()" title="내 서재 (보유 도서)" aria-label="내 서재">
+    <button class="my-lib-fab-btn" onclick="openMyLibraryModal()" title="내 서재" aria-label="내 서재">
       <i data-lucide="library"></i>
       <span id="myLibBadge" class="my-lib-fab-badge">0</span>
     </button>
@@ -411,7 +411,7 @@
       <div class="mylib-controls" style="gap:0;">
         <div class="mylib-search-filter-row">
           <div class="search-input-wrap">
-            <input type="text" id="myLibSearchInput" class="mylib-search-input" placeholder="내 서재 도서 검색 (제목·저자·역자·태그·출판사)" oninput="handleMyLibSearchInput()">
+            <input type="text" id="myLibSearchInput" class="mylib-search-input" placeholder="도서명, 저자명, 출판사, ISBN을 입력해주세요." oninput="handleMyLibSearchInput()">
             <button type="button" id="myLibSearchClearBtn" class="search-clear-btn hidden" onclick="clearMyLibSearchInput()" title="검색어 지우기" aria-label="검색어 지우기"><i data-lucide="x" size="13"></i></button>
           </div>
           <button type="button" id="myLibFilterToggleBtn" class="mylib-filter-toggle-btn" onclick="toggleMyLibFilterDrawer()" aria-expanded="false" title="필터" aria-label="필터">
@@ -507,10 +507,10 @@
             </div>
           </div>
           <div class="mylib-multiselect-actions">
-            <button type="button" class="mylib-ms-action-btn" style="background:rgba(16,185,129,0.28);" onclick="batchUpdateSelectedOwnership('owned')">소장</button>
-            <button type="button" class="mylib-ms-action-btn" style="background:rgba(56,189,248,0.28);" onclick="batchUpdateSelectedOwnership('borrowed')">대여중</button>
-            <button type="button" class="mylib-ms-action-btn" style="background:rgba(248,113,113,0.28);" onclick="batchUpdateSelectedOwnership('returned')">반납</button>
-            <button type="button" class="mylib-ms-action-btn" style="background:rgba(251,191,36,0.28);" onclick="batchUpdateSelectedOwnership('sold')">판매</button>
+            <button type="button" class="mylib-ms-action-btn ms-own" onclick="batchUpdateSelectedOwnership('owned')">소장</button>
+            <button type="button" class="mylib-ms-action-btn ms-borrow" onclick="batchUpdateSelectedOwnership('borrowed')">대여중</button>
+            <button type="button" class="mylib-ms-action-btn ms-return" onclick="batchUpdateSelectedOwnership('returned')">반납</button>
+            <button type="button" class="mylib-ms-action-btn ms-sold" onclick="batchUpdateSelectedOwnership('sold')">판매</button>
           </div>
           <div class="mylib-multiselect-actions">
             <button type="button" class="mylib-ms-action-btn" onclick="batchUpdateSelectedStatus('예정')">예정</button>

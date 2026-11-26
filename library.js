@@ -754,8 +754,8 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
  const infoEl = document.getElementById('myLibResultInfo');
 
  if (myOwnedBooks.length === 0) {
- infoEl.innerText = '보유 도서 0권';
- listEl.innerHTML = `<div class="loading-msg">시트에서 도서 목록을 불러오는 중이거나 통합 Code.gs 배포가 필요합니다.</div>`;
+ infoEl.innerText = '내 서재 0권';
+ listEl.innerHTML = `<div class="empty-state-illust-wrap" style="grid-column:1/-1;"><img class="empty-state-illust-img" src="${ILLUST_STACKED_BOOKS}" alt=""><span>아직 등록된 책이 없거나 시트에서 불러오는 중입니다.</span></div>`;
  return;
  }
 
@@ -833,7 +833,7 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
  if (filtered.length === 0) {
  listEl.innerHTML = myLibDuplicatesMode
  ? `${dupUndoBarHtml}<div class="loading-msg">확인할 중복 의심 도서가 없습니다.${skippedGroupCount > 0 ? `<br><button class="owned-chip-btn skip" style="margin-top:8px;" onclick="toggleSkippedDuplicatesView(true)">건너뛰기한 도서 목록 보기 (${skippedGroupCount})</button>` : ''}</div>`
- : '<div class="loading-msg">조건에 맞는 보유 도서가 없습니다.</div>';
+ : `<div class="empty-state-illust-wrap" style="grid-column:1/-1;"><img class="empty-state-illust-img" src="${ILLUST_STACKED_BOOKS}" alt=""><span>조건에 맞는 책이 없습니다.</span></div>`;
  return;
  }
 
@@ -961,42 +961,96 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
  }
 
  function openCardQuickActionPopover(ev, idx) {
-   ev.stopPropagation();
-   const b = myOwnedBooks[idx];
-   if (!b) return;
-   const menu = document.getElementById('quickPopoverMenu');
-   const backdrop = document.getElementById('quickPopoverBackdrop');
-   if (!menu || !backdrop) return;
-   const curSt = normalizeReadingStatus(b.status);
-   const statuses = ['예정', '읽는 중', '완독', '중단'];
-   const statusBtns = statuses.map(st => {
-     const isAct = curSt === st;
-     const cls = isAct ? (st === '완독' ? 'active-done' : 'active') : '';
-     return `<button type="button" class="quick-status-btn ${cls}" onclick="quickChangeOwnedStatus(${idx}, '${st}')">${st}</button>`;
-   }).join('');
-   const popThumb = getOwnedBookThumbUrl(b);
-   menu.innerHTML = `
-     <div class="quick-popover-book-header">
-       <img class="quick-popover-book-thumb" src="${escapeHtml(popThumb)}" alt="" onerror="this.onerror=null;this.src=NO_COVER_SVG">
-       <div class="quick-popover-book-meta">
-         <p class="quick-popover-book-title">${escapeHtml(formatOwnedTitle(b))}</p>
-         <p class="quick-popover-book-author">${escapeHtml(formatAuthorText(b.author))}</p>
-       </div>
-     </div>
-     <div class="quick-popover-divider"></div>
-     <div class="quick-popover-section-label">독서 상태 변경</div>
-     <div class="quick-popover-status-grid">${statusBtns}</div>
-     <div class="quick-popover-divider"></div>
-     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); quickDeleteOwnedByIndex(${idx});">
-       <i data-lucide="trash-2" size="15"></i><span>이 책 삭제</span>
-     </button>
-   `;
-   backdrop.classList.remove('hidden');
-   positionQuickPopover(ev.currentTarget);
-   refreshIcons();
- }
+  ev.stopPropagation();
+  const b = myOwnedBooks[idx];
+  if (!b) return;
+  const menu = document.getElementById('quickPopoverMenu');
+  const backdrop = document.getElementById('quickPopoverBackdrop');
+  if (!menu || !backdrop) return;
 
- function openOwnedEditMorePopover(ev) {
+  const curSt = normalizeReadingStatus(b.status);
+  const statuses = ['예정', '읽는 중', '완독', '중단'];
+  const statusBtns = statuses.map(st => {
+    const isAct = curSt === st;
+    const cls = isAct ? (st === '완독' ? 'active-done' : 'active') : '';
+    return `<button type="button" class="quick-status-btn ${cls}" onclick="quickChangeOwnedStatus(${idx}, '${st}')">${st}</button>`;
+  }).join('');
+
+  const curOwn = isOwnedSold(b) ? 'sold' : (isOwnedReturned(b) ? 'returned' : (isOwnedBorrowed(b) ? 'borrowed' : 'owned'));
+  const ownItems = [
+    { key: 'owned', label: '소장', actCls: 'active-own' },
+    { key: 'borrowed', label: '대여중', actCls: 'active-borrow' },
+    { key: 'returned', label: '반납', actCls: 'active-warn' },
+    { key: 'sold', label: '판매', actCls: 'active-warn' }
+  ];
+  const ownBtns = ownItems.map(it => {
+    const cls = curOwn === it.key ? it.actCls : '';
+    return `<button type="button" class="quick-status-btn ${cls}" onclick="quickChangeOwnedOwnership(${idx}, '${it.key}')">${it.label}</button>`;
+  }).join('');
+
+  const popThumb = getOwnedBookThumbUrl(b);
+  menu.innerHTML = `
+    <div class="quick-popover-book-header">
+      <img class="quick-popover-book-thumb" src="${escapeHtml(popThumb)}" alt="" onerror="this.onerror=null;this.src=NO_COVER_SVG">
+      <div class="quick-popover-book-meta">
+        <p class="quick-popover-book-title">${escapeHtml(formatOwnedTitle(b))}</p>
+        <p class="quick-popover-book-author">${escapeHtml(formatAuthorText(b.author))}</p>
+      </div>
+    </div>
+    <div class="quick-popover-divider"></div>
+    <div class="quick-popover-section-label">독서상태</div>
+    <div class="quick-popover-status-grid">${statusBtns}</div>
+    <div class="quick-popover-section-label" style="margin-top:2px;">소장 상태</div>
+    <div class="quick-popover-status-grid">${ownBtns}</div>
+    <div class="quick-popover-divider"></div>
+    <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); quickDeleteOwnedByIndex(${idx});">
+      <i data-lucide="trash-2" size="15"></i><span>이 책 삭제</span>
+    </button>
+  `;
+  backdrop.classList.remove('hidden');
+  positionQuickPopover(ev.currentTarget);
+  refreshIcons(menu);
+}
+
+async function quickChangeOwnedOwnership(idx, mode) {
+  closeQuickPopover();
+  const b = myOwnedBooks[idx];
+  if (!b) return;
+  const labelMap = { owned: '소장', borrowed: '대여중', returned: '반납', sold: '판매' };
+  const isBorrowed = (mode === 'borrowed');
+  const isReturned = (mode === 'returned');
+  const isSold = (mode === 'sold');
+  const updatedBook = {
+    ...b,
+    isEbook: isOwnedEbook(b),
+    isBorrowed,
+    isReturned,
+    isSold,
+    source: isSold ? '' : (b.source || b.borrowSource || ''),
+    borrowSource: isSold ? '' : (b.borrowSource || b.source || ''),
+    dueDate: isBorrowed ? (b.dueDate || '') : ''
+  };
+  setOwnedBorrowFlag(updatedBook, isBorrowed);
+  try {
+    const res = await sendSheetPost({
+      target: 'library',
+      action: 'lib_update',
+      row: b.row,
+      origTitle: b.title,
+      origAuthor: b.author,
+      origIsbn: b.isbn,
+      origIsEbook: isOwnedEbook(b),
+      book: updatedBook
+    });
+    if (res && res.status === 'ok') {
+      showToast(`'${formatOwnedTitle(b)}' 상태를 '${labelMap[mode]}'(으)로 변경했어요.`, 'success');
+    }
+  } catch (e) {
+    showToast('소장 상태 변경에 실패했습니다.', 'error');
+  }
+}
+
+function openOwnedEditMorePopover(ev) {
    ev.stopPropagation();
    const menu = document.getElementById('quickPopoverMenu');
    const backdrop = document.getElementById('quickPopoverBackdrop');

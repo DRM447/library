@@ -132,9 +132,9 @@
  const readingEl = document.getElementById('homeReadingNowList');
  if (borrowedBooks.length === 0) {
  readingEl.innerHTML = `
- <div style="padding:14px; text-align:center; color:var(--sec-text); font-size:13px; background:#f9fafb; border-radius:12px; border:1px dashed #d1d5db;">
- 현재 대여 중인 도서가 없어요.<br>
- 도서관에서 빌린 책을 등록하면 반납일과 함께 여기서 바로 확인할 수 있어요!
+ <div class="empty-state-illust-wrap">
+ <img class="empty-state-illust-img" src="${ILLUST_BORROWED_BOOKS}" alt="대여 도서">
+ <span>현재 대여 중인 도서가 없어요.<br>빌린 책을 등록하면 반납일과 함께 바로 확인할 수 있어요.</span>
  </div>
  `;
  } else {
@@ -268,7 +268,7 @@
  ` : '';
 
  if (!currentRandomPicks || currentRandomPicks.length === 0) {
- container.innerHTML = `${undoBarHtml}<div class="loading-msg" style="padding:14px;">추천할 도서가 없습니다.</div>`;
+ container.innerHTML = `${undoBarHtml}<div class="empty-state-illust-wrap"><img class="empty-state-illust-img" src="${ILLUST_WHAT_TO_READ}" alt=""><span>추천할 도서가 없습니다.</span></div>`;
  return;
  }
 
@@ -1570,7 +1570,7 @@ function resetAuthorPhotoToDefault() {
      keyword: b.title,
      author: b.author || b.followedAuthor || '',
      pubYear: b.pubYear || (b.pubDate ? b.pubDate.slice(0, 4) : ''),
-     memo: `${b.followedAuthor} 작가 신간`
+     memo: `${b.followedAuthor} 저자 신간`
    };
    bookmarks.push(newBm);
    try { localStorage.setItem('myBookmarks', JSON.stringify(bookmarks)); } catch (e) {}
@@ -1596,6 +1596,7 @@ function resetAuthorPhotoToDefault() {
      const dismissKey = escapeHtml(normalizeIsbn(b.isbn) || b.title).replace(/'/g, "\\'");
      return `
        <div class="new-rel-row">
+         <button type="button" class="new-rel-dismiss-x" onclick="dismissNewRelease('${dismissKey}')" title="숨김" aria-label="숨김"><i data-lucide="x" size="13"></i></button>
          <img class="new-rel-thumb" src="${escapeHtml(normalizeCoverUrl(b.cover))}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG">
          <div class="new-rel-info">
            <p class="new-rel-book-title"><span class="match-pill" style="background:#ffe4e6; color:#e11d38; margin-right:4px;">NEW</span>${escapeHtml(b.title)}</p>
@@ -1604,7 +1605,6 @@ function resetAuthorPhotoToDefault() {
          <div class="new-rel-actions">
            <button type="button" class="action-icon-pill search-pill" onclick="searchNewReleaseBook(${idx})" title="통합 검색" aria-label="통합 검색"><i data-lucide="search" size="14"></i></button>
            <button type="button" class="action-icon-pill" onclick="bookmarkNewReleaseBook(${idx})" title="북마크 저장" aria-label="북마크 저장"><i data-lucide="bookmark" size="14"></i></button>
-           <button type="button" class="action-icon-pill" onclick="dismissNewRelease('${dismissKey})" title="숨김" aria-label="숨김">✕</button>
          </div>
        </div>
      `;
@@ -1613,9 +1613,9 @@ function resetAuthorPhotoToDefault() {
    card.innerHTML = `
      <div class="new-rel-header">
        <div class="new-rel-title-wrap">
-         <span class="new-rel-bubble" aria-label="관심 작가 신간 ${items.length}권">${PERSON_ICON_SVG}<span>${items.length}</span></span>
+         <span class="new-rel-bubble" aria-label="관심 저자 신간 ${items.length}권">${PERSON_ICON_SVG}<span>${items.length}</span></span>
          <div class="new-rel-headline">
-           <span class="new-rel-headline-main">관심 작가 신간 도착</span>
+           <span class="new-rel-headline-main">관심 저자 신간 도착</span>
            <span class="new-rel-headline-sub">${escapeHtml(previewLine)}</span>
          </div>
        </div>

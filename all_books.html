@@ -566,9 +566,6 @@
       <div class="owned-edit-top-bar" style="align-items:center;">
         <h3 class="memo-modal-title" id="ownedEditModalTitle" style="margin:0;">내 서재에 책 추가</h3>
         <div style="display:inline-flex; align-items:center; gap:2px;">
-          <button type="button" id="ownedEditMoreBtn" class="mylib-ghost-icon-btn" onclick="openOwnedEditMorePopover(event)" title="더보기 메뉴" aria-label="더보기 메뉴">
-            <i data-lucide="more-horizontal" size="18"></i>
-          </button>
           <button type="button" class="mylib-ghost-icon-btn" onclick="closeOwnedEditModal()" title="닫기" aria-label="닫기">
             <i data-lucide="x" size="18"></i>
           </button>
@@ -771,6 +768,7 @@
       </div>
 
       <div class="memo-modal-actions">
+        <button type="button" id="ownedDeleteBtn" class="memo-btn memo-btn-delete hidden" onclick="deleteOwnedBookFromModal()" title="이 책 삭제" aria-label="이 책 삭제"><i data-lucide="trash-2" size="17"></i></button>
         <button class="memo-btn memo-btn-cancel" onclick="closeOwnedEditModal()">취소</button>
         <button id="ownedSaveBtn" class="memo-btn memo-btn-save" onclick="saveOwnedBookFromModal()">저장</button>
       </div>

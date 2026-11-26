@@ -1050,33 +1050,7 @@ async function quickChangeOwnedOwnership(idx, mode) {
   }
 }
 
-function openOwnedEditMorePopover(ev) {
-   ev.stopPropagation();
-   const menu = document.getElementById('quickPopoverMenu');
-   const backdrop = document.getElementById('quickPopoverBackdrop');
-   if (!menu || !backdrop) return;
-   const isEdit = activeOwnedEditContext && activeOwnedEditContext.mode === 'edit';
-   menu.innerHTML = `
-     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); runModalMetaApiRefetch();">
-       <i data-lucide="refresh-cw" size="15"></i><span>도서 정보 API 재조회</span>
-     </button>
-     ${isEdit ? `<div class="quick-popover-divider"></div>
-     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); deleteOwnedBookFromModal();">
-       <i data-lucide="trash-2" size="15"></i><span>이 책 삭제</span>
-     </button>` : ''}
-   `;
-   backdrop.classList.remove('hidden');
-   positionQuickPopover(ev.currentTarget);
-   refreshIcons();
- }
-
- async function runModalMetaApiRefetch() {
-   showToast('도서 정보를 API에서 다시 불러오는 중...', 'info');
-   lastAutoFillQueryKey = '';
-   await autoFillOwnedBookMeta('', false, true);
- }
-
- async function quickChangeOwnedStatus(idx, newStatus) {
+async function quickChangeOwnedStatus(idx, newStatus) {
    closeQuickPopover();
    const b = myOwnedBooks[idx];
    if (!b) return;
@@ -3169,4 +3143,3 @@ function toggleOwnedPlotExpand() {
     showToast('삭제 요청에 실패했습니다.', 'error');
   }
 }
-

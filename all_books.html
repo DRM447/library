@@ -1829,6 +1829,94 @@
    touch-action: pan-x pan-y;
    -webkit-overflow-scrolling: touch;
  }
+
+ /* 관심 작가 FOLLOW 버튼 (레드 알약 + 흰 하트 + 화이트 아웃라인) */
+ .author-follow-btn {
+   display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+   padding: 4px 11px 4px 9px; border-radius: 999px;
+   background: linear-gradient(180deg, #ff3b4f 0%, #e11d38 100%);
+   color: #ffffff; border: 2px solid #ffffff;
+   box-shadow: 0 2px 8px rgba(225, 29, 56, 0.30), 0 0 0 1px rgba(225, 29, 56, 0.14);
+   font-size: 10.5px; font-weight: 900; letter-spacing: 0.5px; line-height: 1;
+   cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0;
+   transition: transform 0.12s, filter 0.15s, background 0.15s;
+ }
+ .author-follow-btn:hover { filter: brightness(1.05); }
+ .author-follow-btn:active { transform: scale(0.94); }
+ .author-follow-btn.is-following {
+   background: #fff1f2; color: #e11d38;
+   border: 2px solid #fecdd3;
+   box-shadow: 0 1px 4px rgba(225, 29, 56, 0.12);
+ }
+ .author-follow-btn svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+ /* 신간 알림 빨간 말풍선 (사람 아이콘 + 숫자) */
+ .new-rel-bubble {
+   position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+   background: #f04452; color: #ffffff;
+   padding: 5px 10px; border-radius: 10px;
+   font-size: 13px; font-weight: 900; line-height: 1;
+   box-shadow: 0 2px 8px rgba(240, 68, 82, 0.32);
+   flex-shrink: 0; margin-bottom: 4px;
+ }
+ .new-rel-bubble::after {
+   content: ''; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%);
+   border-width: 6px 5px 0 5px; border-style: solid;
+   border-color: #f04452 transparent transparent transparent;
+ }
+ .new-rel-card {
+   background: linear-gradient(135deg, #fff5f6 0%, #ffffff 65%);
+   border: 1.5px solid #fecdd3;
+ }
+ .new-rel-header {
+   display: flex; align-items: center; justify-content: space-between; gap: 8px;
+   margin-bottom: 10px;
+ }
+ .new-rel-title-wrap {
+   display: flex; align-items: center; gap: 9px; min-width: 0; flex: 1;
+ }
+ .new-rel-headline {
+   min-width: 0; display: flex; flex-direction: column; gap: 2px;
+ }
+ .new-rel-headline-main {
+   font-size: 14.5px; font-weight: 800; color: #9f1239; line-height: 1.25;
+ }
+ .new-rel-headline-sub {
+   font-size: 11.5px; font-weight: 600; color: #64748b;
+   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+ }
+ .new-rel-list {
+   display: flex; flex-direction: column; gap: 8px;
+ }
+ .new-rel-row {
+   background: #ffffff; border: 1px solid #ffe4e6; border-radius: 12px;
+   padding: 9px 11px; display: flex; align-items: center; gap: 10px;
+ }
+ .new-rel-thumb {
+   width: 40px; height: 58px; border-radius: 6px; object-fit: cover; flex-shrink: 0;
+   background: #f3f4f6; border: 1px solid rgba(15, 23, 42, 0.08);
+ }
+ .new-rel-info { min-width: 0; flex: 1; }
+ .new-rel-book-title {
+   margin: 0; font-size: 13.5px; font-weight: 800; color: var(--text);
+   line-height: 1.3; word-break: break-word;
+ }
+ .new-rel-book-meta {
+   margin: 2px 0 0 0; font-size: 11.5px; color: var(--sec-text);
+ }
+ .new-rel-actions {
+   display: flex; gap: 4px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end;
+ }
+ .follow-author-chip {
+   display: inline-flex; align-items: center; gap: 6px;
+   padding: 6px 10px; border-radius: 999px;
+   background: #fff1f2; border: 1px solid #fecdd3; color: #be123c;
+   font-size: 12.5px; font-weight: 700;
+ }
+ .follow-author-chip button {
+   border: none; background: transparent; color: #e11d48; font-weight: 900;
+   cursor: pointer; padding: 0 2px; font-size: 12px; line-height: 1;
+ }
 </style>
 </head>
 <body>
@@ -1904,6 +1992,7 @@
 
  <!-- 검색 전 홈 독서 대시보드 -->
  <div id="homeReadingDashboard" class="home-dashboard hidden">
+ <div id="homeNewReleaseCard" class="card new-rel-card hidden"></div>
  <div class="home-grid">
  <div class="card">
  <div class="section-title" style="justify-content: space-between; margin-bottom: 10px;">
@@ -1940,37 +2029,36 @@
  <div class="section-title"><i data-lucide="list"></i> <span id="searchResultCountText">검색 결과</span></div>
  <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">*첫 번째 도서가 자동 선택됩니다. 다른 도서를 보려면 표지를 <b style="color:var(--primary)">터치</b>해 주세요.</p>
  <div id="searchResultsList" class="search-results-scroll"></div>
-
- <div id="searchResultQuickLinks" class="top-quick-links" style="margin: 12px 0 0 0; padding-top: 10px; border-top: 1px dashed var(--border);" aria-label="검색어로 주요 도서관 및 서점 바로 검색">
- <a href="#" target="_blank" rel="noopener" class="top-quick-btn dynamic-link" data-template="https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchResultList.do?searchType=SIMPLE&amp;searchCategory=ALL&amp;searchKey=ALL&amp;searchKeyword={kw}&amp;searchLibrary=&amp;searchLibraryArr=MA">
- <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yongsan_ggumnamu" alt=""><span>꿈나무도서관</span>
- </a>
- <a href="#" target="_blank" rel="noopener" class="top-quick-btn dynamic-link" data-template="https://nslib.sen.go.kr/nslib/intro/search/index.do?menu_idx=4&amp;search_type=L_TITLE&amp;search_text={kw}">
- <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="namsan" alt=""><span>남산도서관</span>
- </a>
- <a href="#" target="_blank" rel="noopener" class="top-quick-btn dynamic-link" data-template="https://www.aladin.co.kr/m/msearch.aspx?SearchWord={kw}&amp;SearchTarget=All&amp;start=h_keyword">
- <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="aladin" alt=""><span>알라딘</span>
- </a>
- <a href="#" target="_blank" rel="noopener" class="top-quick-btn dynamic-link" data-template="https://search.kyobobook.co.kr/search?keyword={kw}">
- <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="kyobo" alt=""><span>교보문고</span>
- </a>
- </div>
  </div>
 
  <div id="mainBookResultCard" class="card hidden">
  <div class="section-title" style="justify-content: space-between;">
  <span style="display:flex; align-items:center; gap:8px;"><i data-lucide="info"></i> 선택 도서 정보</span>
- <button id="bookmarkBtn" onclick="openBookmarkMemoModalForCurrent()" style="background:transparent; border:1px solid var(--border); padding:6px 12px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:bold; transition:all 0.2s; white-space: nowrap;">☆ 북마크 저장</button>
+ <span id="mainBookStoreLinks" class="owned-title-store-links hidden">
+ <a id="mainKakaoIconLink" href="#" target="_blank" rel="noopener" class="owned-title-store-icon" title="다음 책 정보에서 보기" aria-label="다음 책 정보에서 보기"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="daum" alt="다음 도서"></a>
+ <a id="mainKyoboIconLink" href="#" target="_blank" rel="noopener" class="owned-title-store-icon" title="교보문고에서 보기" aria-label="교보문고에서 보기"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="kyobo" alt="교보문고"></a>
+ <a id="mainAladinIconLink" href="#" target="_blank" rel="noopener" class="owned-title-store-icon" title="알라딘에서 보기" aria-label="알라딘에서 보기"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="aladin" alt="알라딘"></a>
+ </span>
  </div>
 
  <div class="main-book-profile">
  <div class="main-book-cover-col">
- <img id="mainBookCover" src="" class="main-book-cover" onerror="this.onerror=null;this.src=NO_COVER_SVG">
+ <div id="mainBookCoverWrap" style="position:relative; width:100%; aspect-ratio:2/3; border-radius:10px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.1); border:1px solid var(--border); background:#f3f4f6;">
+ <span id="mainBookCoverBadge" class="cover-badge hidden"></span>
+ <div id="mainBookCoverObi" class="cover-own-obi hidden"></div>
+ <div id="mainBookCoverDoneStamp" class="cover-done-stamp hidden" aria-label="완독"></div>
+ <div id="mainBookCoverStopStamp" class="cover-stop-stamp hidden" aria-label="중단"></div>
+ <img id="mainBookCover" src="" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.onerror=null;this.src=NO_COVER_SVG">
+ </div>
  <button type="button" id="mainBookAddLibBtn" class="bookmark-move-btn hidden" style="width:100%; margin-top:6px; padding:5px 6px; font-size:11px;" onclick="openOwnedAddModalForCurrent()">+보유 도서</button>
  </div>
  <div class="main-book-info">
- <h2 id="mainBookTitle">책 제목</h2>
- <p class="author" id="mainBookAuthor">저자명</p>
+ <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px;">
+ <h2 id="mainBookTitle" style="flex:1; min-width:0;">책 제목</h2>
+ <button type="button" id="bookmarkBtn" onclick="openBookmarkMemoModalForCurrent()" title="북마크 저장" aria-label="북마크 저장" style="background:transparent; border:1px solid var(--border); width:30px; height:30px; padding:0; border-radius:8px; cursor:pointer; font-size:17px; line-height:1; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s;">☆</button>
+ </div>
+ <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap;"><p class="author" id="mainBookAuthor" style="margin:0;">저자명</p><button type="button" id="mainBookFollowBtn" class="author-follow-btn hidden" onclick="toggleFollowCurrentMainAuthor()"></button></div>
+ <div id="mainBookMetaChips" class="mylib-item-badges" style="margin-top:2px;"></div>
  <p class="plot" id="mainBookPlot">줄거리</p>
  </div>
  </div>
@@ -2535,7 +2623,7 @@
  </div>
 
  <div id="ownedAuthorOtherBooksDetails" class="owned-author-other-box hidden">
- <div id="ownedAuthorOtherBooksTitle" class="owned-author-other-title">작가의 다른 책</div>
+ <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:2px;"><div id="ownedAuthorOtherBooksTitle" class="owned-author-other-title" style="margin:0;">작가의 다른 책</div><button type="button" id="ownedModalFollowBtn" class="author-follow-btn hidden" onclick="toggleFollowModalAuthor()"></button></div>
  <div id="ownedAuthorOtherBooksList" class="owned-author-other-scroll"></div>
  </div>
 
@@ -2562,6 +2650,27 @@
  </div>
 
  
+
+ <!-- 관심 작가 관리 모달 -->
+ <div id="followedAuthorsModalOverlay" class="memo-modal-overlay" style="z-index: 2200;" data-close-fn="closeFollowedAuthorsModal">
+ <div class="memo-modal-box" style="max-width: 430px;">
+ <div class="owned-edit-top-bar" style="align-items:center; margin-bottom:8px;">
+ <h3 class="memo-modal-title" style="margin:0; color:#be123c;">♥ 관심 작가 관리</h3>
+ <button type="button" class="mylib-ghost-icon-btn" onclick="closeFollowedAuthorsModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="18"></i></button>
+ </div>
+ <p style="font-size:12px; color:var(--sec-text); margin:0 0 10px 0; line-height:1.45;">팔로우한 작가의 최근 1개월 이내 신간(내 서재 미소장)이 있으면 홈 화면에 알려드려요.</p>
+ <div class="mylib-setup-row" style="margin-bottom:12px;">
+ <input type="text" id="followAuthorAddInput" class="form-input" placeholder="작가 이름 직접 추가 (예: 대니얼 데닛)" onkeydown="if(event.key==='Enter'){event.preventDefault(); addFollowedAuthorFromInput();}">
+ <button type="button" class="author-follow-btn" style="padding:0 13px; height:38px;" onclick="addFollowedAuthorFromInput()">♥ FOLLOW</button>
+ </div>
+ <div id="followedAuthorsList" style="display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px;"></div>
+ <div class="memo-modal-actions" style="justify-content:space-between;">
+ <button type="button" class="memo-btn memo-btn-cancel" onclick="checkFollowedAuthorsNewReleases(true)">신간 지금 확인</button>
+ <button type="button" class="memo-btn memo-btn-save" onclick="closeFollowedAuthorsModal()">닫기</button>
+ </div>
+ </div>
+ </div>
+
  <!-- 내 서재 관리 하단 바텀시트 -->
  <div id="myLibManageSheetOverlay" class="bottom-sheet-overlay" onclick="if(event.target===this) closeMyLibManageSheet()">
  <div class="bottom-sheet-box">
@@ -2576,6 +2685,9 @@
  </button>
  <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); openGoogleSheetDirect();">
  <span class="bottom-sheet-item-left"><i data-lucide="external-link" size="17"></i><span>구글 시트 편집</span></span>
+ </button>
+ <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); openFollowedAuthorsModal();">
+ <span class="bottom-sheet-item-left"><i data-lucide="heart" size="17" color="#e11d38"></i><span>관심 작가 관리</span><span id="manageSheetFollowBadge" class="bottom-sheet-badge hidden" style="background:#ffe4e6 !important; color:#be123c !important; border-color:#fecdd3;">0</span></span>
  </button>
  <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); toggleMyLibSetupBox();">
  <span class="bottom-sheet-item-left"><i data-lucide="settings" size="17"></i><span>환경설정</span></span>
@@ -2710,7 +2822,9 @@
  ignoredDuplicates: Array.from(getIgnoredDuplicateKeys()),
  recentBooks: safeReadJson('recentBooks', []),
  apiUsage: getApiUsageRecord(),
- fixedTargetLibCodes: getFixedTargetLibCodes()
+ fixedTargetLibCodes: getFixedTargetLibCodes(),
+ followedAuthors: getFollowedAuthors(),
+ dismissedNewReleases: getDismissedNewReleases()
  }
  };
  sendSheetPost(payload).catch(() => {});
@@ -2738,6 +2852,12 @@
  if (remoteState.fixedTargetLibCodes && typeof remoteState.fixedTargetLibCodes === 'object') {
  const mergedLibs = { ...getFixedTargetLibCodes(), ...remoteState.fixedTargetLibCodes };
  try { localStorage.setItem('fixedTargetLibCodes', JSON.stringify(mergedLibs)); } catch (e) {}
+ }
+ if (Array.isArray(remoteState.followedAuthors)) {
+ try { localStorage.setItem('followedAuthors', JSON.stringify(remoteState.followedAuthors)); } catch (e) {}
+ }
+ if (Array.isArray(remoteState.dismissedNewReleases)) {
+ try { localStorage.setItem('dismissedNewReleases', JSON.stringify(remoteState.dismissedNewReleases)); } catch (e) {}
  }
  }
 
@@ -2814,6 +2934,7 @@
  isbn13: bk.isbn || cleanIsbn,
  bookImageURL: bk.cover || '',
  description: bk.description || '',
+ url: bk.url || '',
  class_nm: bk.kdc || '',
  vol: bk.vol || '',
  series: bk.series || ''
@@ -2916,6 +3037,7 @@
  class_nm: doc.class_nm || '',
  class_no: doc.class_no || '',
  vol: doc.vol || '',
+ url: doc.url || '',
  description: doc.description ? String(doc.description).slice(0, 320) : ''
  };
  }
@@ -3036,6 +3158,7 @@
  else if (topModal === 'ratingBreakdown') closeRatingBreakdownModal();
  else if (topModal === 'memo') closeMemoModal();
  else if (topModal === 'myLib') closeMyLibraryModal();
+ else if (topModal === 'followedAuthors') closeFollowedAuthorsModal();
  else if (topModal === 'bookmark') closeBookmarkModal();
  return true;
  }
@@ -4705,6 +4828,7 @@
  }).join('') + toggleBtnHtml;
  }
 
+ renderHomeNewReleaseCard();
  if (!currentRandomPick || !myOwnedBooks.includes(currentRandomPick)) {
  pickRandomUnreadBook();
  } else {
@@ -5059,7 +5183,33 @@
  bar.classList.remove('hidden');
  if (addBtn) addBtn.classList.add('hidden');
  const owned = matched.owned;
- const mbc = document.getElementById('mainBookCover'); if (mbc) { mbc.classList.remove('cover-status-planned', 'cover-status-reading', 'cover-status-done', 'cover-status-stop'); const stCls = getCoverStatusBorderCls(owned); if (stCls) mbc.classList.add(stCls); }
+ const mbWrap = document.getElementById('mainBookCoverWrap');
+ if (mbWrap) {
+ mbWrap.classList.remove('cover-status-planned', 'cover-status-reading', 'cover-status-done', 'cover-status-stop');
+ const stCls = getCoverStatusBorderCls(owned);
+ if (stCls) mbWrap.classList.add(stCls);
+ }
+ const mbBadge = document.getElementById('mainBookCoverBadge');
+ if (mbBadge) {
+ const ebFlag = isOwnedEbook(owned);
+ mbBadge.className = `cover-badge ${ebFlag ? 'ebook' : 'owned'}`;
+ mbBadge.textContent = ebFlag ? 'e-book' : '서재';
+ }
+ const mbObi = document.getElementById('mainBookCoverObi');
+ if (mbObi) {
+ if (isOwnedSold(owned)) { mbObi.className = 'cover-own-obi red-tag'; mbObi.textContent = '판매'; }
+ else if (isOwnedReturned(owned)) { mbObi.className = 'cover-own-obi red-tag'; mbObi.textContent = '반납'; }
+ else if (isOwnedBorrowed(owned)) {
+ const diffDays = getDueDaysDiff(owned.dueDate);
+ if (diffDays !== null && diffDays < 180) {
+ mbObi.className = 'cover-own-obi ' + (diffDays <= 3 ? 'due-urgent' : 'due-tag');
+ mbObi.textContent = diffDays < 0 ? `D+${Math.abs(diffDays)}` : (diffDays === 0 ? '오늘반납' : `D-${diffDays}`);
+ } else { mbObi.className = 'cover-own-obi hidden'; mbObi.textContent = ''; }
+ } else { mbObi.className = 'cover-own-obi hidden'; mbObi.textContent = ''; }
+ }
+ const mbSt = normalizeReadingStatus(owned.status);
+ document.getElementById('mainBookCoverDoneStamp')?.classList.toggle('hidden', mbSt !== '완독');
+ document.getElementById('mainBookCoverStopStamp')?.classList.toggle('hidden', mbSt !== '중단' && mbSt !== '중지');
  const ebook = isOwnedEbook(owned);
  const borrowed = isOwnedBorrowed(owned);
  const sold = isOwnedSold(owned);
@@ -5097,7 +5247,11 @@
  bar.onclick = null;
  bar.innerHTML = '';
  if (addBtn) addBtn.classList.remove('hidden');
- document.getElementById('mainBookCover')?.classList.remove('cover-status-planned', 'cover-status-reading', 'cover-status-done', 'cover-status-stop');
+ document.getElementById('mainBookCoverWrap')?.classList.remove('cover-status-planned', 'cover-status-reading', 'cover-status-done', 'cover-status-stop');
+ document.getElementById('mainBookCoverBadge')?.classList.add('hidden');
+ document.getElementById('mainBookCoverObi')?.classList.add('hidden');
+ document.getElementById('mainBookCoverDoneStamp')?.classList.add('hidden');
+ document.getElementById('mainBookCoverStopStamp')?.classList.add('hidden');
  }
  }
 
@@ -5973,6 +6127,12 @@
    if (badge) {
      badge.textContent = String(dupCount);
      badge.classList.toggle('hidden', dupCount === 0);
+   }
+   const fBadge = document.getElementById('manageSheetFollowBadge');
+   if (fBadge) {
+     const fCnt = getFollowedAuthors().length;
+     fBadge.textContent = String(fCnt);
+     fBadge.classList.toggle('hidden', fCnt === 0);
    }
    overlay.classList.add('open');
    refreshIcons();
@@ -6909,6 +7069,30 @@
  return clean;
  }
 
+ function isDetailedKdc(kdcStr) {
+ const s = cleanCategoryDisplay(kdcStr);
+ return s.includes('>');
+ }
+
+ async function fetchDetailedKdcFromData4Lib(isbn, forceRefresh = false) {
+ const cleanIsbn = normalizeIsbn(isbn);
+ if (cleanIsbn.length !== 10 && cleanIsbn.length !== 13) return '';
+ if (!forceRefresh) {
+ const cached = getApiCache('kdc', cleanIsbn, API_CACHE_TTL_MS);
+ if (cached !== null) return String(cached || '');
+ }
+ if (!forceRefresh && getApiUsageRecord().count >= DAILY_API_LIMIT - 5) return '';
+ try {
+ const data = await data4LibProxyFetch('srchDtlList', { isbn13: cleanIsbn, loaninfoYN: 'N' });
+ const detailBook = data?.response?.detail?.[0]?.book;
+ const classNm = cleanCategoryDisplay(detailBook?.class_nm || '');
+ setApiCache('kdc', cleanIsbn, classNm, 500);
+ return classNm;
+ } catch (e) {
+ return '';
+ }
+ }
+
  function syncInlineMetaButtons() {
  const map = [
  { key: 'pubYear', val: currentModalPubYear, display: currentModalPubYear ? formatPubYearText(currentModalPubYear) : '', inputId: 'ownedInputPubYear' },
@@ -7103,6 +7287,7 @@
  }
 
  titleEl.innerText = `${primaryAuthor}의 다른 책`;
+ updateFollowButtonEl(document.getElementById('ownedModalFollowBtn'), primaryAuthor);
  listEl.innerHTML = '';
  boxEl.classList.remove('hidden');
  loadOwnedAuthorOtherBooks();
@@ -7357,38 +7542,51 @@
  const hasSheetDesc = !!String(book.description || '').trim();
  const hasSheetPubYear = !!String(book.pubYear || '').trim();
  const hasSheetKdc = !!String(book.kdc || '').trim();
+ const hasDetailedSheetKdc = isDetailedKdc(book.kdc);
  const hasSheetTranslator = !!String(book.translator || '').trim();
 
- // 표지·줄거리·출간연도·분류·역자 중 하나라도 비어 있으면 자동으로 동기화 (모두 채워져 있으면 요청 0회)
- if (!forceRefresh && hasSheetCover && hasSheetDesc && hasSheetPubYear && hasSheetKdc && hasSheetTranslator) return;
-
  const isbn = normalizeIsbn(book.isbn);
+ const needProxyLookup = forceRefresh || !hasSheetCover || !hasSheetDesc || !hasSheetPubYear || !hasSheetKdc || !hasSheetTranslator;
+ const needDetailedKdcLookup = (isbn.length === 10 || isbn.length === 13) && (forceRefresh || !hasDetailedSheetKdc);
+
+ // 모든 메타와 세부 분류(>)가 이미 채워져 있으면 요청 0회
+ if (!needProxyLookup && !needDetailedKdcLookup) return;
+
  const title = String(book.title || '').trim();
  const fetchKey = isbn || normalizeBookTitle(title);
  if (!fetchKey) return;
 
  const targetRow = book.row;
  try {
- // 카카오(1순위) + 국립중앙도서관(2순위)만 조회 — 정보나루 API는 0회!
+ let proxyBook = {};
+ if (needProxyLookup) {
  const proxyRes = await lookupBookViaSheetProxy(
  isbn.length >= 10 ? isbn : '',
  isbn.length >= 10 ? '' : title,
  book.author || '',
  forceRefresh
  );
- if (!proxyRes.ok || !proxyRes.book) return;
- const proxyBook = proxyRes.book;
+ if (proxyRes.ok && proxyRes.book) proxyBook = proxyRes.book;
+ }
+
+ const resolvedIsbn = normalizeIsbn(isbn || proxyBook.isbn || '');
+ let d4lKdc = '';
+ if ((resolvedIsbn.length === 10 || resolvedIsbn.length === 13) && (forceRefresh || !isDetailedKdc(proxyBook.kdc || book.kdc))) {
+ d4lKdc = await fetchDetailedKdcFromData4Lib(resolvedIsbn, forceRefresh);
+ }
 
  const isSameModalOpen = activeOwnedEditContext && activeOwnedEditContext.mode === 'edit' && activeOwnedEditContext.book.row === targetRow;
 
  const fetchedCover = proxyBook.cover ? normalizeCoverUrl(proxyBook.cover) : (currentModalCoverUrl || '');
  const fetchedPubYear = String(proxyBook.pubYear || book.pubYear || '').trim();
  const fetchedDesc = stripHtmlText(proxyBook.description || book.description || '').slice(0, 2500);
- const fetchedKdc = String(proxyBook.kdc || book.kdc || '').trim();
+ const fetchedKdc = cleanCategoryDisplay(d4lKdc || proxyBook.kdc || book.kdc || '');
  const fetchedVol = String(proxyBook.vol || book.vol || '').trim();
  const fetchedTranslator = formatAutoTranslatorText(proxyBook.translator) || String(book.translator || '').trim();
 
  if (fetchedCover) saveBookCoverCache(fetchKey, fetchedCover);
+
+ const kdcUpgraded = !!fetchedKdc && fetchedKdc !== cleanCategoryDisplay(book.kdc || '') && (isDetailedKdc(fetchedKdc) || !hasSheetKdc);
 
  if (isSameModalOpen) {
  const wasDirtyBeforeAutoFill = isOwnedModalDirty();
@@ -7401,7 +7599,9 @@
  if (fetchedCover && !currentModalCoverUrl) setOwnedCoverDisplay(fetchedCover);
  if (fetchedPubYear && !currentModalPubYear) currentModalPubYear = fetchedPubYear;
  if (fetchedDesc && !currentModalDescription) currentModalDescription = fetchedDesc;
- if (fetchedKdc && !currentModalKdc) currentModalKdc = fetchedKdc;
+ if (fetchedKdc && (!currentModalKdc || (isDetailedKdc(fetchedKdc) && !isDetailedKdc(currentModalKdc)))) {
+ currentModalKdc = fetchedKdc;
+ }
  if (fetchedVol && !currentModalVol) {
  currentModalVol = fetchedVol;
  const volEl = document.getElementById('ownedInputVol');
@@ -7412,6 +7612,7 @@
  if (trEl && !trEl.value.trim()) trEl.value = fetchedTranslator;
  }
  renderOwnedMetaPlotBox();
+ renderRecommendedTagPicks();
  // 자동 메타 보강만으로 isDirty가 오작동하지 않도록 스냅샷 갱신
  if (!wasDirtyBeforeAutoFill) ownedModalInitialSnapshot = getOwnedModalFormSnapshot();
  }
@@ -7420,11 +7621,11 @@
  if (fetchedCover && !book.cover) book.cover = fetchedCover;
  if (fetchedPubYear && !book.pubYear) book.pubYear = fetchedPubYear;
  if (fetchedDesc && !book.description) book.description = fetchedDesc;
- if (fetchedKdc && !book.kdc) book.kdc = fetchedKdc;
+ if (kdcUpgraded) book.kdc = fetchedKdc;
  if (fetchedVol && !book.vol) book.vol = fetchedVol;
  if (fetchedTranslator && !book.translator) book.translator = fetchedTranslator;
 
- const needSheetSave = (fetchedCover && !hasSheetCover) || (fetchedPubYear && !hasSheetPubYear) || (fetchedDesc && !hasSheetDesc) || (fetchedKdc && !hasSheetKdc) || (fetchedTranslator && !hasSheetTranslator);
+ const needSheetSave = (fetchedCover && !hasSheetCover) || (fetchedPubYear && !hasSheetPubYear) || (fetchedDesc && !hasSheetDesc) || kdcUpgraded || (fetchedTranslator && !hasSheetTranslator);
  if (needSheetSave) {
  sendSheetPost({
  target: 'library',
@@ -7875,8 +8076,14 @@
  if (!currentModalDescription) filledLabels.push('줄거리');
  currentModalDescription = stripHtmlText(doc.description).slice(0, 2500);
  }
- if (doc.kdcRaw && (forceRefresh || !currentModalKdc)) {
- currentModalKdc = doc.kdcRaw;
+ const targetIsbnForKdc = normalizeIsbn(doc.isbn13 || doc.isbn || isbnVal);
+ let resolvedKdc = cleanCategoryDisplay(doc.kdcRaw || '');
+ if ((targetIsbnForKdc.length === 10 || targetIsbnForKdc.length === 13) && (forceRefresh || !isDetailedKdc(resolvedKdc))) {
+ const d4lClassNm = await fetchDetailedKdcFromData4Lib(targetIsbnForKdc, forceRefresh);
+ if (d4lClassNm) resolvedKdc = d4lClassNm;
+ }
+ if (resolvedKdc && (forceRefresh || !currentModalKdc || (isDetailedKdc(resolvedKdc) && !isDetailedKdc(currentModalKdc)))) {
+ currentModalKdc = resolvedKdc;
  renderRecommendedTagPicks();
  filledLabels.push('분류');
  }
@@ -8203,7 +8410,8 @@
  closeRatingBreakdownModal,
  closeOwnedEditModal,
  closePinPromptModal,
- cancelDirtyConfirmModal
+ cancelDirtyConfirmModal,
+ closeFollowedAuthorsModal
  };
  document.querySelectorAll('.memo-modal-overlay[data-close-fn]').forEach(overlay => {
  overlay.addEventListener('pointerdown', (e) => {
@@ -8263,6 +8471,7 @@
  listHtml += `
  <div class="search-result-item" id="book-item-${index}" onclick="selectBook(${index})">
  <div class="cover-wrap ${ownedObj ? getCoverStatusBorderCls(ownedObj) : ''}" style="border-radius:8px; overflow:hidden;">
+ ${ownedObj ? `<span class="cover-badge ${isOwnedEbook(ownedObj) ? 'ebook' : 'owned'}">${isOwnedEbook(ownedObj) ? 'e-book' : '서재'}</span>` : ''}
  ${ownedObj ? getCoverOwnershipObiHtml(ownedObj) : ''}
  ${ownedObj ? getCoverDoneStampHtml(ownedObj) : ''}
  <img src="${escapeHtml(normalizeCoverUrl(book.bookImageURL))}" onerror="this.onerror=null;this.src=NO_COVER_SVG">
@@ -8497,6 +8706,7 @@
 
  const pubYear = book.publication_year ? ` (${book.publication_year}년)` : '';
  document.getElementById('mainBookAuthor').innerText = `${book.authors} / ${book.publisher}${pubYear}`;
+ updateFollowButtonEl(document.getElementById('mainBookFollowBtn'), getPrimaryAuthorForModal(book.authors || ''));
 
  document.getElementById('mainBookCover').src = normalizeCoverUrl(book.bookImageURL);
  document.getElementById('libBoxTitle').innerText = `'${book.bookname}' 대출 현황`;
@@ -8511,6 +8721,43 @@
 
  renderMainBookOwnedBar(book);
  renderSameAuthorOwnedBox(book);
+
+ // 선택 도서 정보: ISBN · 분류 배지 및 우측 상단 다음/교보/알라딘 바로가기
+ const ownedForMeta = findOwnedMatch(book)?.owned || null;
+ const metaChipsEl = document.getElementById('mainBookMetaChips');
+ if (metaChipsEl) {
+   const chips = [];
+   const cleanIsbnStr = normalizeIsbn(isbn);
+   const kdcText = cleanCategoryDisplay(book.class_nm || ownedForMeta?.kdc || '');
+   if (cleanIsbnStr) chips.push(`<span class="mylib-badge">ISBN ${escapeHtml(cleanIsbnStr)}</span>`);
+   if (kdcText) chips.push(`<span class="mylib-badge series">${escapeHtml(kdcText)}</span>`);
+   metaChipsEl.innerHTML = chips.join('');
+   if (cleanIsbnStr && !kdcText) {
+     fetchDetailedKdcFromData4Lib(cleanIsbnStr, false).then(fetchedKdc => {
+       if (!fetchedKdc || !currentSelectedBook || normalizeIsbn(currentSelectedBook.isbn13 || currentSelectedBook.isbn) !== cleanIsbnStr) return;
+       book.class_nm = fetchedKdc;
+       metaChipsEl.innerHTML = `<span class="mylib-badge">ISBN ${escapeHtml(cleanIsbnStr)}</span><span class="mylib-badge series">${escapeHtml(fetchedKdc)}</span>`;
+     }).catch(() => {});
+   }
+ }
+ const mainStoreLinks = document.getElementById('mainBookStoreLinks');
+ const mainKakao = document.getElementById('mainKakaoIconLink');
+ const mainKyobo = document.getElementById('mainKyoboIconLink');
+ const mainAladin = document.getElementById('mainAladinIconLink');
+ if (mainStoreLinks && mainKakao && mainKyobo && mainAladin) {
+   const cleanIsbnStr = normalizeIsbn(isbn);
+   const qKey = cleanIsbnStr || extractMainTitleForSearch(book.bookname || '') || book.bookname || '';
+   if (qKey) {
+     mainKakao.href = book.url || `https://search.daum.net/search?w=book&q=${encodeURIComponent(qKey)}`;
+     mainKyobo.href = `https://search.kyobobook.co.kr/search?keyword=${encodeURIComponent(qKey)}`;
+     mainAladin.href = (cleanIsbnStr.length === 10 || cleanIsbnStr.length === 13)
+       ? `https://www.aladin.co.kr/shop/wproduct.aspx?ISBN=${encodeURIComponent(cleanIsbnStr)}`
+       : `https://www.aladin.co.kr/m/msearch.aspx?SearchWord=${encodeURIComponent(qKey)}&SearchTarget=All&start=h_keyword`;
+     mainStoreLinks.classList.remove('hidden');
+   } else {
+     mainStoreLinks.classList.add('hidden');
+   }
+ }
 
  if (!isAuto) {
  let cleanTitle = book.bookname.split(' =')[0].split(':')[0].trim();
@@ -8730,11 +8977,13 @@
  const btn = document.getElementById('bookmarkBtn');
  if (btn) {
  if (isBookmarked) {
- btn.innerHTML = '<span style="color:#f59e0b; display:flex; align-items:center; gap:4px;">★ 북마크됨</span>';
+ btn.innerHTML = '<span style="color:#f59e0b;">★</span>';
+ btn.title = '북마크 해제';
  btn.style.borderColor = '#f59e0b';
  btn.style.backgroundColor = '#fffbeb';
  } else {
- btn.innerHTML = '<span style="color:var(--sec-text); display:flex; align-items:center; gap:4px;">☆ 북마크 저장</span>';
+ btn.innerHTML = '<span style="color:var(--sec-text);">☆</span>';
+ btn.title = '북마크 저장';
  btn.style.borderColor = 'var(--border)';
  btn.style.backgroundColor = 'transparent';
  }
@@ -9069,7 +9318,7 @@
  return `https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchResultList.do?searchType=SIMPLE&searchCategory=ALL&searchKey=ALL&searchKeyword=${encodedTitle}&searchLibrary=ALL`;
  }
  if (libKey === 'namsan') {
- return `https://nslib.sen.go.kr/nslib/intro/search/index.do?menu_idx=4&search_type=L_TITLE&search_text=${encodedTitle}`;
+ return `https://nslib.sen.go.kr/nslib/intro/search/index.do?menu_idx=4&locExquery=111010&editMode=normal&officeNm=%EB%82%A8%EC%82%B0%EB%8F%84%EC%84%9C%EA%B4%80&lectureNm=&mainSearchType=on&search_text=${encodedTitle}`;
  }
  if (libKey === 'ahyon') {
  return `https://ahyon.sen.go.kr/ahyon/intro/search/index.do?menu_idx=4&search_type=L_TITLE&search_text=${encodedTitle}`;
@@ -9401,13 +9650,343 @@
  }
  }
 
+
+ /* =========================================================
+ * 관심 작가 팔로우 & 최근 1개월 신간 알림
+ * ========================================================= */
+ const FOLLOW_HEART_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+ const PERSON_ICON_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="8" r="4.2"/><path d="M4 20c0-3.8 3.6-6.2 8-6.2s8 2.4 8 6.2v1H4v-1z"/></svg>';
+ const NEW_RELEASE_CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12시간 주기 자동 체크
+ let cachedNewReleaseItems = [];
+ let isCheckingNewReleases = false;
+
+ function getFollowedAuthors() {
+   const arr = safeReadJson('followedAuthors', []);
+   return Array.isArray(arr) ? arr.map(s => String(s || '').trim()).filter(Boolean) : [];
+ }
+
+ function saveFollowedAuthors(list) {
+   const uniq = Array.from(new Set((list || []).map(s => String(s || '').trim()).filter(Boolean)));
+   try { localStorage.setItem('followedAuthors', JSON.stringify(uniq)); } catch (e) {}
+   pushSyncStateToSheet(true);
+   return uniq;
+ }
+
+ function isAuthorFollowed(authorName) {
+   const key = String(authorName || '').trim().toLowerCase().replace(/\s+/g, '');
+   if (!key) return false;
+   return getFollowedAuthors().some(a => a.toLowerCase().replace(/\s+/g, '') === key);
+ }
+
+ function getDismissedNewReleases() {
+   const arr = safeReadJson('dismissedNewReleases', []);
+   return Array.isArray(arr) ? arr.map(s => String(s || '').trim()).filter(Boolean) : [];
+ }
+
+ function dismissNewRelease(isbnOrKey) {
+   const k = String(isbnOrKey || '').trim();
+   if (!k) return;
+   const list = getDismissedNewReleases();
+   if (!list.includes(k)) {
+     list.push(k);
+     try { localStorage.setItem('dismissedNewReleases', JSON.stringify(list.slice(-300))); } catch (e) {}
+     pushSyncStateToSheet(true);
+   }
+   cachedNewReleaseItems = cachedNewReleaseItems.filter(it => (normalizeIsbn(it.isbn) || it.title) !== k);
+   renderHomeNewReleaseCard();
+   showToast('해당 신간 알림을 숨겼습니다.');
+ }
+
+ function updateFollowButtonEl(btnEl, authorName) {
+   if (!btnEl) return;
+   const clean = String(authorName || '').trim();
+   if (!clean || clean === '저자 미상') {
+     btnEl.classList.add('hidden');
+     btnEl.dataset.author = '';
+     return;
+   }
+   btnEl.dataset.author = clean;
+   btnEl.classList.remove('hidden');
+   const followed = isAuthorFollowed(clean);
+   btnEl.classList.toggle('is-following', followed);
+   btnEl.innerHTML = followed ? `${FOLLOW_HEART_SVG}<span>FOLLOWING</span>` : `${FOLLOW_HEART_SVG}<span>FOLLOW</span>`;
+   btnEl.title = followed ? `${clean} 작가 팔로우 해제` : `${clean} 작가 신간 알림 팔로우`;
+ }
+
+ function toggleFollowAuthorByName(authorName) {
+   const clean = String(authorName || '').trim();
+   if (!clean || clean === '저자 미상') return;
+   const cur = getFollowedAuthors();
+   const key = clean.toLowerCase().replace(/\s+/g, '');
+   const exists = cur.some(a => a.toLowerCase().replace(/\s+/g, '') === key);
+   if (exists) {
+     saveFollowedAuthors(cur.filter(a => a.toLowerCase().replace(/\s+/g, '') !== key));
+     showToast(`'${clean}' 작가 팔로우를 해제했습니다.`);
+   } else {
+     saveFollowedAuthors([...cur, clean]);
+     showToast(`♥ '${clean}' 작가를 팔로우했습니다! 신간을 확인해 볼게요.`, 'success');
+     checkFollowedAuthorsNewReleases(true);
+   }
+   refreshAllFollowButtonsUI();
+   renderFollowedAuthorsModalList();
+   renderHomeNewReleaseCard();
+ }
+
+ function toggleFollowCurrentMainAuthor() {
+   const btn = document.getElementById('mainBookFollowBtn');
+   if (btn?.dataset?.author) toggleFollowAuthorByName(btn.dataset.author);
+ }
+
+ function toggleFollowModalAuthor() {
+   const btn = document.getElementById('ownedModalFollowBtn');
+   if (btn?.dataset?.author) toggleFollowAuthorByName(btn.dataset.author);
+ }
+
+ function refreshAllFollowButtonsUI() {
+   const mainBtn = document.getElementById('mainBookFollowBtn');
+   if (mainBtn && mainBtn.dataset.author) updateFollowButtonEl(mainBtn, mainBtn.dataset.author);
+   const modalBtn = document.getElementById('ownedModalFollowBtn');
+   if (modalBtn && modalBtn.dataset.author) updateFollowButtonEl(modalBtn, modalBtn.dataset.author);
+ }
+
+ function openFollowedAuthorsModal() {
+   renderFollowedAuthorsModalList();
+   const ov = document.getElementById('followedAuthorsModalOverlay');
+   if (ov) {
+     ov.classList.add('open');
+     pushModalHistory('followedAuthors');
+     refreshIcons(ov);
+   }
+ }
+
+ function closeFollowedAuthorsModal() {
+   const ov = document.getElementById('followedAuthorsModalOverlay');
+   if (ov) ov.classList.remove('open');
+   popModalHistory('followedAuthors');
+ }
+
+ function renderFollowedAuthorsModalList() {
+   const el = document.getElementById('followedAuthorsList');
+   if (!el) return;
+   const authors = getFollowedAuthors();
+   if (authors.length === 0) {
+     el.innerHTML = '<div style="font-size:12.5px; color:var(--sec-text); padding:6px 2px;">아직 팔로우한 작가가 없습니다. 책 정보나 위 입력창에서 작가를 팔로우해 보세요!</div>';
+     return;
+   }
+   el.innerHTML = authors.map(a => `
+     <span class="follow-author-chip">
+       <span>${escapeHtml(a)}</span>
+       <button type="button" onclick="toggleFollowAuthorByName('${escapeHtml(a).replace(/'/g, "\\'")}')" title="팔로우 해제">✕</button>
+     </span>
+   `).join('');
+ }
+
+ function addFollowedAuthorFromInput() {
+   const inp = document.getElementById('followAuthorAddInput');
+   const name = String(inp?.value || '').trim();
+   if (!name) return;
+   if (!isAuthorFollowed(name)) {
+     toggleFollowAuthorByName(name);
+   } else {
+     showToast(`'${name}' 작가는 이미 팔로우 중입니다.`);
+   }
+   inp.value = '';
+ }
+
+ function parseBookPubDateMs(book) {
+   const raw = String(book?.pubDate || book?.datetime || book?.publishDate || '').trim();
+   if (raw) {
+     const m = raw.match(/(\d{4})[-./]?(\d{2})[-./]?(\d{2})/);
+     if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getTime();
+     const parsed = Date.parse(raw);
+     if (!Number.isNaN(parsed)) return parsed;
+   }
+   return null;
+ }
+
+ function isWithinRecentOneMonth(book) {
+   const now = new Date();
+   const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime();
+   const maxFuture = now.getTime() + 45 * 24 * 60 * 60 * 1000; // 예약판매 신간 허용
+   const ms = parseBookPubDateMs(book);
+   if (ms !== null) {
+     return ms >= oneMonthAgo && ms <= maxFuture;
+   }
+   // API가 pubDate 없이 pubYear만 줄 경우: 현재 연도(또는 1월이면 작년) 책만 후보로 허용하지 않고 엄격 판별
+   return false;
+ }
+
+ async function checkFollowedAuthorsNewReleases(forceRefresh = false) {
+   const authors = getFollowedAuthors();
+   if (authors.length === 0) {
+     cachedNewReleaseItems = [];
+     renderHomeNewReleaseCard();
+     return;
+   }
+   if (isCheckingNewReleases) return;
+
+   const cacheObj = safeReadJson('followedNewReleasesCache', null);
+   const sig = authors.slice().sort().join('|');
+   if (!forceRefresh && cacheObj && cacheObj.sig === sig && cacheObj.ts && (Date.now() - cacheObj.ts < NEW_RELEASE_CACHE_TTL_MS)) {
+     cachedNewReleaseItems = Array.isArray(cacheObj.items) ? cacheObj.items : [];
+     renderHomeNewReleaseCard();
+     return;
+   }
+
+   isCheckingNewReleases = true;
+   try {
+     const found = [];
+     const seenKeys = new Set();
+     for (const authorName of authors.slice(0, 20)) {
+       try {
+         const res = await fetch(buildSheetGetUrl({ action: 'authorBooks', author: authorName }));
+         if (!res.ok) continue;
+         const data = await res.json();
+         const books = Array.isArray(data?.books) ? data.books : [];
+         books.forEach(b => {
+           const title = String(b.title || b.bookname || '').trim();
+           if (!title || /체험판|e-?book|전자책|세트/i.test(title)) return;
+           if (!isWithinRecentOneMonth(b)) return;
+           const isbn = normalizeIsbn(b.isbn || b.isbn13 || '');
+           const key = isbn || normalizeBookTitle(title);
+           if (!key || seenKeys.has(key)) return;
+           seenKeys.add(key);
+           found.push({
+             title,
+             author: b.author || authorName,
+             followedAuthor: authorName,
+             publisher: b.publisher || '',
+             pubYear: b.pubYear || '',
+             pubDate: String(b.pubDate || b.datetime || '').slice(0, 10),
+             isbn,
+             cover: b.cover || ''
+           });
+         });
+       } catch (e) {}
+     }
+     found.sort((a, b) => String(b.pubDate || '').localeCompare(String(a.pubDate || '')));
+     cachedNewReleaseItems = found;
+     try {
+       localStorage.setItem('followedNewReleasesCache', JSON.stringify({ ts: Date.now(), sig, items: found }));
+     } catch (e) {}
+     if (forceRefresh) {
+       const activeCnt = getVisibleNewReleaseItems().length;
+       showToast(activeCnt > 0 ? `신간 ${activeCnt}권을 발견했어요!` : '최근 1개월 이내 미소장 신간이 없습니다.', activeCnt > 0 ? 'success' : '');
+     }
+   } finally {
+     isCheckingNewReleases = false;
+     renderHomeNewReleaseCard();
+   }
+ }
+
+ function getVisibleNewReleaseItems() {
+   const dismissed = new Set(getDismissedNewReleases());
+   const followedSet = new Set(getFollowedAuthors().map(a => a.toLowerCase().replace(/\s+/g, '')));
+   return (cachedNewReleaseItems || []).filter(it => {
+     const authorKey = String(it.followedAuthor || '').toLowerCase().replace(/\s+/g, '');
+     if (followedSet.size > 0 && authorKey && !followedSet.has(authorKey)) return false;
+     const key = normalizeIsbn(it.isbn) || it.title;
+     if (dismissed.has(key)) return false;
+     // 내 서재에 이미 보유한 ISBN 또는 도서 제외
+     if (it.isbn && myOwnedBooksIndex.byIsbn.has(normalizeIsbn(it.isbn))) return false;
+     if (findOwnedMatch({ bookname: it.title, authors: it.author, isbn13: it.isbn })) return false;
+     return true;
+   });
+ }
+
+ function searchNewReleaseBook(idx) {
+   const items = getVisibleNewReleaseItems();
+   const b = items[idx];
+   if (!b) return;
+   const kw = b.isbn || extractMainTitleForSearch(b.title) || b.title;
+   document.getElementById('searchInput').value = b.title;
+   executeSearch(kw);
+ }
+
+ function bookmarkNewReleaseBook(idx) {
+   const items = getVisibleNewReleaseItems();
+   const b = items[idx];
+   if (!b) return;
+   const isbn = normalizeIsbn(b.isbn) || ('NEW_' + Date.now());
+   const bookmarks = mergeBookmarksWithMeta(safeReadJson('myBookmarks', []));
+   if (bookmarks.some(x => String(x.isbn) === String(isbn))) {
+     showToast('이미 북마크에 저장된 책입니다.');
+     return;
+   }
+   const newBm = {
+     title: b.title,
+     isbn,
+     cover: normalizeCoverUrl(b.cover),
+     keyword: b.title,
+     author: b.author || b.followedAuthor || '',
+     pubYear: b.pubYear || (b.pubDate ? b.pubDate.slice(0, 4) : ''),
+     memo: `${b.followedAuthor} 작가 신간`
+   };
+   bookmarks.push(newBm);
+   try { localStorage.setItem('myBookmarks', JSON.stringify(bookmarks)); } catch (e) {}
+   loadBookmarks(false);
+   sendSheetPost({ action: 'add', book: newBm }).catch(() => {});
+   showToast(`'${b.title}' 북마크에 저장했어요.`, 'success');
+ }
+
+ function renderHomeNewReleaseCard() {
+   const card = document.getElementById('homeNewReleaseCard');
+   if (!card) return;
+   const items = getVisibleNewReleaseItems();
+   if (isSearchActive || items.length === 0) {
+     card.classList.add('hidden');
+     card.innerHTML = '';
+     return;
+   }
+   card.classList.remove('hidden');
+   const firstTitle = items[0].title;
+   const previewLine = items.length === 1 ? `『${firstTitle}』` : `『${firstTitle}』 외 ${items.length - 1}권`;
+
+   const rowsHtml = items.slice(0, 6).map((b, idx) => {
+     const dismissKey = escapeHtml(normalizeIsbn(b.isbn) || b.title).replace(/'/g, "\\'");
+     return `
+       <div class="new-rel-row">
+         <img class="new-rel-thumb" src="${escapeHtml(normalizeCoverUrl(b.cover))}" alt="" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG">
+         <div class="new-rel-info">
+           <p class="new-rel-book-title"><span class="match-pill" style="background:#ffe4e6; color:#e11d38; margin-right:4px;">NEW</span>${escapeHtml(b.title)}</p>
+           <p class="new-rel-book-meta">${escapeHtml(b.author || b.followedAuthor)}${b.pubDate ? ' · ' + escapeHtml(b.pubDate) : ''}</p>
+         </div>
+         <div class="new-rel-actions">
+           <button type="button" class="owned-chip-btn indigo" onclick="searchNewReleaseBook(${idx})">검색</button>
+           <button type="button" class="owned-chip-btn" onclick="bookmarkNewReleaseBook(${idx})" title="북마크 저장">☆</button>
+           <button type="button" class="owned-chip-btn" onclick="dismissNewRelease('${dismissKey}')" title="숨김">✕</button>
+         </div>
+       </div>
+     `;
+   }).join('');
+
+   card.innerHTML = `
+     <div class="new-rel-header">
+       <div class="new-rel-title-wrap">
+         <span class="new-rel-bubble" aria-label="관심 작가 신간 ${items.length}권">${PERSON_ICON_SVG}<span>${items.length}</span></span>
+         <div class="new-rel-headline">
+           <span class="new-rel-headline-main">관심 작가 신간 도착</span>
+           <span class="new-rel-headline-sub">${escapeHtml(previewLine)}</span>
+         </div>
+       </div>
+       <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
+         <button type="button" class="owned-chip-btn" onclick="openFollowedAuthorsModal()" title="관심 작가 관리">팔로우 ${getFollowedAuthors().length}</button>
+         <button type="button" class="mylib-ghost-icon-btn" onclick="checkFollowedAuthorsNewReleases(true)" title="신간 새로고침"><i data-lucide="refresh-cw" size="14"></i></button>
+       </div>
+     </div>
+     <div class="new-rel-list">${rowsHtml}</div>
+   `;
+   refreshIcons(card);
+ }
+
  window.onload = async function () {
  renderApiUsagePill();
 
  loadBookmarks(false);
  await loadCachedOwnedBooks();
  renderHomeReadingDashboard();
- syncAllFromSheet(false);
+ await syncAllFromSheet(false);
+ checkFollowedAuthorsNewReleases(false);
  };
 
  if ('serviceWorker' in navigator) {

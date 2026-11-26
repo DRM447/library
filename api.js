@@ -1512,11 +1512,12 @@ async function quickDeleteOwnedByIndex(idx) {
  }
  });
 
- // 일치한 도서 또는 API 검색 결과 저자의 다른 보유 도서(동일 저자·참여작) 함께 표시
+ // 일치한 도서 또는 API 검색 결과 저자의 다른 보유 도서(실제 저자만, 옮긴이/감수 제외) 함께 표시
  const seedPeople = [];
  const seenPersonKeys = new Set();
  const addSeedPeopleFromText = (txt, defaultRole = '저자') => {
  extractPersonRoleEntries(txt, defaultRole).forEach(p => {
+ if (p.role !== '저자') return;
  if (p.clean && p.clean.length >= 2 && !seenPersonKeys.has(p.clean)) {
  seenPersonKeys.add(p.clean);
  seedPeople.push(p);
@@ -1533,17 +1534,17 @@ async function quickDeleteOwnedByIndex(idx) {
  if (aStr) addSeedPeopleFromText(aStr, '저자');
  });
 
- if (seedPeople.length > 0) {
+ // 검색어 자체가 특정 저자명과 일치하면(예: '닐 슈빈') 공저자 대신 검색한 저자 본인만 기준으로 삼음
+ const directQuerySeeds = qCompact.length >= 2
+ ? seedPeople.filter(sp => personKeysMatch(sp.clean, qCompact))
+ : [];
+ const activeSeeds = directQuerySeeds.length > 0 ? directQuerySeeds : seedPeople;
+
+ if (activeSeeds.length > 0) {
  myOwnedBooks.forEach(b => {
  if (matchedBooksSet.has(b)) return;
- const ownedAuthorPeople = extractPersonRoleEntries(b.author, '저자');
- const transStr = String(b.translator || '').trim();
- const ownedTransPeople = transStr ? extractPersonRoleEntries(transStr, detectRoleFromSegment(transStr) || '옮긴이') : [];
- const memoAndSeries = `${getOwnedMemo(b)} ; ${getOwnedSeries(b)}`;
- const ownedNotePeople = extractPersonRoleEntries(memoAndSeries, detectRoleFromSegment(memoAndSeries) || '참여');
- const ownedAllPeople = [...ownedAuthorPeople, ...ownedTransPeople, ...ownedNotePeople];
-
- const hitPerson = seedPeople.find(sp => ownedAllPeople.some(op => personKeysMatch(sp.clean, op.clean)));
+ const ownedAuthorPeople = extractPersonRoleEntries(b.author, '저자').filter(op => op.role === '저자');
+ const hitPerson = activeSeeds.find(sp => ownedAuthorPeople.some(op => personKeysMatch(sp.clean, op.clean)));
  if (hitPerson) {
  scored.push({ book: b, score: 50, kind: 'same_author', personName: hitPerson.name });
  matchedBooksSet.add(b);

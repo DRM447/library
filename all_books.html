@@ -408,8 +408,7 @@
  background: linear-gradient(180deg, #ecfdf5 0%, #f0fdf4 100%);
  border: 1.5px solid #6ee7b7;
  padding: 15px 17px;
- max-width: 1200px;
- margin: 0 auto 16px auto;
+ margin: 0;
  }
  .owned-search-summary {
  display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -485,6 +484,15 @@
  }
  .cover-badge.owned { background-color: #059669; }
  .cover-badge.ebook { background-color: #7c3aed; }
+ .cover-badge.add-lib {
+ background-color: #ffffff; color: #059669; border: 1px solid #a7f3d0;
+ box-shadow: 0 2px 6px rgba(15, 23, 42, 0.22);
+ }
+ .cover-badge-btn {
+ pointer-events: auto; cursor: pointer; border: none; font-family: inherit;
+ line-height: 1.2; transition: transform 0.1s, filter 0.14s;
+ }
+ .cover-badge-btn:active { transform: scale(0.92); }
 
 
  .search-results-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 6px 2px 10px 2px; margin-top: 6px; }
@@ -2116,17 +2124,6 @@
  </div>
  </div>
 
- <!-- 검색 실행 시 검색 결과 최상단 내 보유 도서 알림 카드 -->
- <div id="ownedSearchCard" class="card owned-search-card hidden">
- <details id="ownedSearchDetails" open>
- <summary class="owned-search-summary">
- <span class="owned-search-title" id="ownedSearchTitle">📚 내 서재 보유 도서</span>
- <span class="owned-search-toggle"></span>
- </summary>
- <div id="ownedSearchList" class="owned-search-list"></div>
- </details>
- </div>
-
  <div class="main-container">
  <div class="left-panel">
 
@@ -2149,13 +2146,13 @@
  <div class="main-book-profile">
  <div class="main-book-cover-col">
  <div id="mainBookCoverWrap" style="position:relative; width:100%; aspect-ratio:2/3; border-radius:10px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.1); border:1px solid var(--border); background:#f3f4f6;">
- <span id="mainBookCoverBadge" class="cover-badge hidden"></span>
+ <button type="button" id="mainBookCoverBadge" class="cover-badge cover-badge-btn hidden"></button>
  <div id="mainBookCoverObi" class="cover-own-obi hidden"></div>
  <div id="mainBookCoverDoneStamp" class="cover-done-stamp hidden" aria-label="완독"></div>
  <div id="mainBookCoverStopStamp" class="cover-stop-stamp hidden" aria-label="중단"></div>
  <img id="mainBookCover" src="" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.onerror=null;this.src=NO_COVER_SVG">
  </div>
- <button type="button" id="mainBookAddLibBtn" class="bookmark-move-btn hidden" style="width:100%; margin-top:6px; padding:5px 6px; font-size:11px;" onclick="openOwnedAddModalForCurrent()">+보유 도서</button>
+ <div id="mainBookCoverRating" class="mylib-thumb-rating hidden" style="margin-top:6px; font-size:12px; letter-spacing:-0.5px;"></div>
  </div>
  <div class="main-book-info">
  <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px;">
@@ -2168,16 +2165,21 @@
  </div>
  </div>
 
- <!-- 선택 도서 보유 여부 / 서재 추가 / 독서 상태·평점·완독일·한줄평 바 -->
- <div id="mainBookOwnedBar" class="owned-status-bar hidden"></div>
-
- <!-- 내가 보유한 이 저자·옮긴이·감수·엮은이의 다른 도서 -->
- <div id="sameAuthorOwnedBox" class="same-author-box hidden"></div>
-
  <div id="mainBookMemoBox" class="saved-memo-box hidden">
  <div class="saved-memo-text" id="mainBookMemoText"></div>
- <button class="saved-memo-edit-btn" onclick="openBookmarkMemoModalForCurrent()">메모 수정</button>
+ <button class="saved-memo-edit-btn" onclick="openBookmarkMemoModalForCurrent()">수정</button>
  </div>
+ </div>
+
+ <!-- 검색 실행 시 내 서재 관련 도서 알림 카드 (선택 도서 정보 아래) -->
+ <div id="ownedSearchCard" class="card owned-search-card hidden">
+ <details id="ownedSearchDetails" open>
+ <summary class="owned-search-summary">
+ <span class="owned-search-title" id="ownedSearchTitle">📚 내 서재 보유 도서</span>
+ <span class="owned-search-toggle"></span>
+ </summary>
+ <div id="ownedSearchList" class="owned-search-list"></div>
+ </details>
  </div>
 
  <div id="linksCard" class="card hidden">
@@ -2256,8 +2258,8 @@
  <div class="section-title" style="justify-content: space-between; gap: 6px;">
  <span style="display:flex; align-items:center; gap:8px; min-width:0; overflow:hidden;"><i data-lucide="user-round-search" style="flex-shrink:0;"></i> <span id="sameAuthorApiTitle" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">저자의 다른 도서</span></span>
  <div style="display:inline-flex; align-items:center; gap:5px; flex-shrink:0;">
- <a id="sameAuthorAladinLink" href="#" target="_blank" rel="noopener" class="author-aladin-btn hidden" title="알라딘 국내도서에서 저자 전권 검색" aria-label="알라딘 국내도서에서 저자 전권 검색"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="aladin" alt="알라딘"></a>
  <button type="button" id="sameAuthorSubBtn" class="author-sub-btn hidden" onclick="toggleSubscribeSameAuthor()"></button>
+ <a id="sameAuthorAladinLink" href="#" target="_blank" rel="noopener" class="author-aladin-btn hidden" title="알라딘 국내도서에서 저자 전권 검색" aria-label="알라딘 국내도서에서 저자 전권 검색"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="aladin" alt="알라딘"></a>
  </div>
  </div>
  <div id="sameAuthorScroll" class="recommend-scroll">
@@ -5221,7 +5223,7 @@
  </div>
  </div>
  `;
- }).join('') + (matches.length > 20 ? `<div style="grid-column:1/-1; text-align:center; font-size:11.5px; color:#047857; padding:4px;">외 ${matches.length - 20}권 더 있음 (우측 하단 내 서재에서 전체 확인)</div>` : '');
+ }).join('') + (matches.length > 20 ? `<div style="grid-column:1/-1; text-align:center; font-size:11.5px; color:#047857; padding:4px;">외 ${matches.length - 20}권 더 있음</div>` : '');
  }
 
  function renderSameAuthorOwnedBox(book) {
@@ -5279,44 +5281,27 @@
  }
 
  function renderMainBookOwnedBar(book) {
- const bar = document.getElementById('mainBookOwnedBar');
- const addBtn = document.getElementById('mainBookAddLibBtn');
- if (!bar) return;
-
- if (myOwnedBooks.length === 0) {
- bar.classList.remove('hidden');
- if (addBtn) addBtn.classList.add('hidden');
- bar.className = 'owned-status-bar not-owned';
- bar.onclick = null;
- bar.title = '';
- bar.innerHTML = `
- <div class="owned-status-left">
- <div class="owned-status-heading">⏳ 내 서재 데이터를 불러오지 못했습니다</div>
- <div class="owned-status-sub">통합 Code.gs를 새 버전으로 배포했는지, 우측 하단 내 서재(⚙️) URL이 맞는지 확인해 주세요.</div>
- </div>
- <button class="owned-action-btn add" onclick="syncAllFromSheet(true)">다시 동기화</button>
- `;
- return;
- }
-
- const matched = findOwnedMatch(book);
- if (matched) {
- bar.classList.remove('hidden');
- if (addBtn) addBtn.classList.add('hidden');
- const owned = matched.owned;
  const mbWrap = document.getElementById('mainBookCoverWrap');
+ const mbBadge = document.getElementById('mainBookCoverBadge');
+ const mbObi = document.getElementById('mainBookCoverObi');
+ const mbRating = document.getElementById('mainBookCoverRating');
+
+ const matched = (book && myOwnedBooks.length > 0) ? findOwnedMatch(book) : null;
+ if (matched && matched.owned) {
+ const owned = matched.owned;
+ const ownedIdx = myOwnedBooks.indexOf(owned);
  if (mbWrap) {
  mbWrap.classList.remove('cover-status-planned', 'cover-status-reading', 'cover-status-done', 'cover-status-stop');
  const stCls = getCoverStatusBorderCls(owned);
  if (stCls) mbWrap.classList.add(stCls);
  }
- const mbBadge = document.getElementById('mainBookCoverBadge');
  if (mbBadge) {
  const ebFlag = isOwnedEbook(owned);
- mbBadge.className = `cover-badge ${ebFlag ? 'ebook' : 'owned'}`;
+ mbBadge.className = `cover-badge cover-badge-btn ${ebFlag ? 'ebook' : 'owned'}`;
  mbBadge.textContent = ebFlag ? 'e-book' : '서재';
+ mbBadge.title = '내 서재 기록 열기';
+ mbBadge.onclick = (e) => { e.stopPropagation(); if (ownedIdx > -1) openOwnedEditModalByIndex(ownedIdx); };
  }
- const mbObi = document.getElementById('mainBookCoverObi');
  if (mbObi) {
  if (isOwnedSold(owned)) { mbObi.className = 'cover-own-obi red-tag'; mbObi.textContent = '판매'; }
  else if (isOwnedReturned(owned)) { mbObi.className = 'cover-own-obi red-tag'; mbObi.textContent = '반납'; }
@@ -5331,50 +5316,23 @@
  const mbSt = normalizeReadingStatus(owned.status);
  document.getElementById('mainBookCoverDoneStamp')?.classList.toggle('hidden', mbSt !== '완독');
  document.getElementById('mainBookCoverStopStamp')?.classList.toggle('hidden', mbSt !== '중단' && mbSt !== '중지');
- const ebook = isOwnedEbook(owned);
- const borrowed = isOwnedBorrowed(owned);
- const sold = isOwnedSold(owned);
- const dueBadge = getDueDateBadgeHtml(owned);
- const ownedIdx = myOwnedBooks.indexOf(owned);
- const st = normalizeReadingStatus(owned.status);
- const statusText = st ? `상태: ${escapeHtml(st)}` : '상태 미기록';
- const ratingShort = formatRatingShort(owned.rating);
- const ratingText = ratingShort ? ` · ${ratingShort}` : '';
- const periodStr = formatReadingPeriod(owned.startDate, owned.finishDate); const dateText = periodStr ? ` · 📅 ${escapeHtml(periodStr)}` : '';
- const seriesVal = getOwnedSeries(owned); const memoVal = getOwnedMemo(owned); const noteText = (seriesVal ? ` · ${escapeHtml(seriesVal)}` : '') + (memoVal ? ` · ${escapeHtml(memoVal)}` : '');
- const extraCount = (matched.allMatches && matched.allMatches.length > 1) ? matched.allMatches.length - 1 : 0;
-
- bar.className = `owned-status-bar ${sold ? 'is-sold' : (borrowed ? 'is-borrowed' : (ebook ? 'is-ebook' : 'is-owned'))}`;
- bar.onclick = () => openOwnedEditModalByIndex(ownedIdx);
- bar.title = '클릭하여 기록 수정';
- const headingText = sold
- ? '🏷️ 판매 완료 도서'
- : (borrowed
- ? (ebook ? '🏛️ 대여 도서 (e-book)' : '🏛️ 대여 도서')
- : (ebook ? '📱 내 서재 보유 중 (e-book)' : '✅ 내 서재 보유 중'));
- bar.innerHTML = `
- <div class="owned-status-left">
- <div class="owned-status-heading">
- ${headingText} ${dueBadge}
- ${extraCount > 0 ? `<span style="font-size:10.5px; font-weight:700; opacity:0.85;">(외 기록 ${extraCount}건)</span>` : ''}
- ${matched.matchType === 'title' ? '<span style="font-size:10.5px; font-weight:600; opacity:0.85;">(다른 판본 가능)</span>' : ''}
- </div>
- <div class="owned-status-sub">${statusText}${ratingText}${dateText}${noteText}</div>
- ${owned.review ? `<div class="owned-review-quote">💬 ${escapeHtml(owned.review)}</div>` : ''}
- </div>
- <span class="action-icon-pill lib-pill" title="내 서재 기록 열기" aria-hidden="true"><i data-lucide="library" size="15"></i></span>
- `;
- refreshIcons(bar);
+ if (mbRating) {
+ const rShort = formatRatingShort(owned.rating);
+ mbRating.textContent = rShort;
+ mbRating.classList.toggle('hidden', !rShort);
+ }
  } else {
- bar.classList.add('hidden');
- bar.onclick = null;
- bar.innerHTML = '';
- if (addBtn) addBtn.classList.remove('hidden');
- document.getElementById('mainBookCoverWrap')?.classList.remove('cover-status-planned', 'cover-status-reading', 'cover-status-done', 'cover-status-stop');
- document.getElementById('mainBookCoverBadge')?.classList.add('hidden');
- document.getElementById('mainBookCoverObi')?.classList.add('hidden');
+ if (mbWrap) mbWrap.classList.remove('cover-status-planned', 'cover-status-reading', 'cover-status-done', 'cover-status-stop');
+ if (mbBadge) {
+ mbBadge.className = 'cover-badge cover-badge-btn add-lib';
+ mbBadge.textContent = '+추가';
+ mbBadge.title = '내 서재에 추가';
+ mbBadge.onclick = (e) => { e.stopPropagation(); openOwnedAddModalForCurrent(); };
+ }
+ if (mbObi) { mbObi.className = 'cover-own-obi hidden'; mbObi.textContent = ''; }
  document.getElementById('mainBookCoverDoneStamp')?.classList.add('hidden');
  document.getElementById('mainBookCoverStopStamp')?.classList.add('hidden');
+ if (mbRating) { mbRating.textContent = ''; mbRating.classList.add('hidden'); }
  }
  }
 
@@ -6648,6 +6606,30 @@
  document.getElementById('liveOwnedDropdown').classList.add('hidden');
  document.getElementById('searchInput').value = cleanTitle;
  executeSearch(cleanTitle);
+ }
+
+ function openOwnedAddModalForSearchIndex(index) {
+ const item = currentBooksList[index];
+ if (!item || !item.doc) return;
+ const doc = item.doc;
+ const parsedPeople = splitAuthorAndTranslator(doc.authors || '');
+ openOwnedEditModal({
+ mode: 'add',
+ book: {
+ title: doc.bookname || '',
+ author: parsedPeople.author,
+ translator: parsedPeople.translator,
+ publisher: doc.publisher || '',
+ tags: extractTagsFromDoc(doc).join(', '),
+ series: '', memo: '', status: '예정', rating: '',
+ isbn: String(doc.isbn13 || doc.isbn || ''),
+ pubYear: doc.publication_year || '',
+ cover: doc.bookImageURL || '',
+ description: doc.description || '',
+ kdc: doc.class_nm || '',
+ finishDate: '', review: ''
+ }
+ });
  }
 
  function openOwnedAddModalForCurrent() {
@@ -8633,15 +8615,19 @@
 
  const ownedMatch = findOwnedMatch(book);
  const ownedObj = ownedMatch ? ownedMatch.owned : null;
+ const ownedIdx = ownedObj ? myOwnedBooks.indexOf(ownedObj) : -1;
 
  const isEbookResult = ownedObj ? isOwnedEbook(ownedObj) : /e-?book|전자책|체험판/i.test(`${book.bookname || ''} ${book.publisher || ''}`);
  const fmtPillHtml = isEbookResult
  ? '<span class="search-fmt-pill ebook">e-book</span>'
  : '<span class="search-fmt-pill paper">종이책</span>';
+ const coverBadgeHtml = ownedObj
+ ? `<button type="button" class="cover-badge cover-badge-btn ${isOwnedEbook(ownedObj) ? 'ebook' : 'owned'}" onclick="event.stopPropagation(); openOwnedEditModalByIndex(${ownedIdx})" title="내 서재 기록 열기">${isOwnedEbook(ownedObj) ? 'e-book' : '서재'}</button>`
+ : `<button type="button" class="cover-badge cover-badge-btn add-lib" onclick="event.stopPropagation(); openOwnedAddModalForSearchIndex(${index})" title="내 서재에 추가">+추가</button>`;
  listHtml += `
  <div class="search-result-item" id="book-item-${index}" onclick="selectBook(${index})">
  <div class="cover-wrap ${ownedObj ? getCoverStatusBorderCls(ownedObj) : ''}" style="border-radius:8px; overflow:hidden;">
- ${ownedObj ? `<span class="cover-badge ${isOwnedEbook(ownedObj) ? 'ebook' : 'owned'}">${isOwnedEbook(ownedObj) ? 'e-book' : '서재'}</span>` : ''}
+ ${coverBadgeHtml}
  ${ownedObj ? getCoverOwnershipObiHtml(ownedObj) : ''}
  ${ownedObj ? getCoverDoneStampHtml(ownedObj) : ''}
  <img src="${escapeHtml(normalizeCoverUrl(book.bookImageURL))}" onerror="this.onerror=null;this.src=NO_COVER_SVG">

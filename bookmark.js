@@ -1388,9 +1388,40 @@ async function fetchWikidataAuthorCandidates(queryStr) {
         title: label || koTitle || enTitle,
         description: desc,
         photoUrl,
+        enTitle: enTitle || '',
         lang: chosenLang
       });
     }
+  }
+  return out;
+}
+
+async function fetchWikimediaCommonsPortraits(nameQuery) {
+  const clean = String(nameQuery || '').trim();
+  if (!clean) return [];
+  const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(clean)}&gsrlimit=8&prop=imageinfo&iiprop=url|mime&iiurlwidth=300&format=json&origin=*`;
+  const res = await fetch(url);
+  if (!res.ok) return [];
+  const data = await res.json();
+  const pages = data?.query?.pages ? Object.values(data.query.pages) : [];
+  pages.sort((a, b) => (a.index || 99) - (b.index || 99));
+  const SKIP_RE = /(book|cover|logo|signature|autograph|map|diagram|chart|flag|coat|seal|stamp|icon|poster|flyer|page|scan|pdf|svg)/i;
+  const out = [];
+  for (const p of pages) {
+    const title = String(p?.title || '');
+    const info = Array.isArray(p?.imageinfo) ? p.imageinfo[0] : null;
+    const mime = String(info?.mime || '').toLowerCase();
+    const photoUrl = String(info?.thumburl || info?.url || '').trim();
+    if (!photoUrl) continue;
+    if (!/^image\/(jpeg|jpg|png|webp)$/.test(mime)) continue;
+    if (SKIP_RE.test(title)) continue;
+    out.push({
+      title: '위키미디어',
+      description: '',
+      photoUrl,
+      lang: 'WIKI'
+    });
+    if (out.length >= 4) break;
   }
   return out;
 }
@@ -1402,50 +1433,105 @@ async function searchWikiAuthorCandidates() {
   const googleLinkEl = document.getElementById('googleImgSearchLink');
   if (!rawQ || !statusEl || !gridEl) return;
 
-  const searchQuery = /작가|저자|교수|소설가|시인|학자/.test(rawQ) ? rawQ : `${rawQ} 작가`;
+  const hasCustomHint = /(사진|얼굴|인물|인터뷰|프로필|강연|portrait|photo|face|author|writer)/i.test(rawQ);
+  const googleQuery = hasCustomHint ? rawQ : `${rawQ} 인물 사진`;
   if (googleLinkEl) {
-    googleLinkEl.href = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchQuery)}`;
+    googleLinkEl.href = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(googleQuery)}`;
   }
 
-  statusEl.textContent = `'${rawQ}' 이미지 검색 중...`;
-  gridEl.innerHTML = '<div class="loading-msg" style="padding:14px;">이미지 후보를 불러오는 중입니다...</div>';
+  statusEl.textContent = `'${rawQ}' 인물 사진 검색 중...`;
+  gridEl.innerHTML = '<div class="loading-msg" style="padding:14px;">인물 사진 후보를 불러오는 중입니다...</div>';
 
   try {
-    let candidates = [];
-    // 1순위: Apps Script 경유 카카오 이미지 검색 (추가 API 키 불필요)
-    try {
-      const reqUrl = buildSheetGetUrl({ action: 'searchAuthorImages', query: searchQuery });
-      if (reqUrl) {
-        const res = await fetch(reqUrl);
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data?.images) && data.images.length > 0) {
-            candidates = data.images;
-          }
-        }
-      }
-    } catch (e) {}
-
-    // 2순위(폴백): code.gs 미재배포 또는 결과 없을 때 Wikidata + 제목 일치 위키백과
-    if (candidates.length === 0) {
-      const isKorean = /[가-힣]/.test(rawQ);
+    const isKorean = /[가-힣]/.test(rawQ);
+    // 1) 위키데이터·위키백과 인물 사진과 영문명 확보 (외국인 저자 얼굴 사진에 가장 정확)
+    const wikiPromise = (async () => {
       const [wdRes, exactPage] = await Promise.all([
         fetchWikidataAuthorCandidates(rawQ).catch(() => []),
         isKorean ? fetchWikiPageByTitle('ko', rawQ).catch(() => null) : fetchWikiPageByTitle('en', rawQ).catch(() => null)
       ]);
-      const rawList = [...wdRes];
-      if (exactPage && exactPage.photoUrl) rawList.push(exactPage);
-      else if (exactPage && exactPage.enTitle) {
-        const enPage = await fetchWikiPageByTitle('en', exactPage.enTitle).catch(() => null);
-        if (enPage?.photoUrl) rawList.push({ title: exactPage.title, description: enPage.description, photoUrl: enPage.photoUrl, lang: 'EN' });
+      const wikiItems = [];
+      let detectedEnName = '';
+      if (exactPage?.enTitle) detectedEnName = exactPage.enTitle;
+      for (const item of wdRes) {
+        if (!detectedEnName && item.enTitle) detectedEnName = item.enTitle;
+        if (item.photoUrl) wikiItems.push({ ...item, title: item.title || '위키백과' });
       }
-      const seen = new Set();
-      rawList.forEach(item => {
+      if (exactPage?.photoUrl) {
+        wikiItems.unshift({ title: exactPage.title || '위키백과', description: exactPage.description, photoUrl: exactPage.photoUrl, lang: 'WIKI' });
+      } else if (exactPage?.enTitle) {
+        const enPage = await fetchWikiPageByTitle('en', exactPage.enTitle).catch(() => null);
+        if (enPage?.photoUrl) {
+          wikiItems.unshift({ title: exactPage.title || enPage.title, description: enPage.description, photoUrl: enPage.photoUrl, lang: 'WIKI' });
+        }
+      }
+      // 영문명이 확보되었거나 영문 검색어면 위키미디어 공용 인물 사진도 추가
+      const commonsQuery = detectedEnName || (!isKorean ? rawQ : '');
+      if (commonsQuery) {
+        const commonsItems = await fetchWikimediaCommonsPortraits(commonsQuery).catch(() => []);
+        wikiItems.push(...commonsItems);
+      }
+      return { wikiItems, detectedEnName };
+    })();
+
+    // 2) 카카오 이미지 검색 (서점·책표지 제외, 인터뷰/인물 우선)
+    const kakaoBasePromise = (async () => {
+      try {
+        const reqUrl = buildSheetGetUrl({
+          action: 'searchAuthorImages',
+          query: rawQ,
+          exact: hasCustomHint ? '1' : '0'
+        });
+        if (!reqUrl) return [];
+        const res = await fetch(reqUrl);
+        if (!res.ok) return [];
+        const data = await res.json();
+        return Array.isArray(data?.images) ? data.images : [];
+      } catch (e) {
+        return [];
+      }
+    })();
+
+    const [wikiResult, kakaoImages] = await Promise.all([wikiPromise, kakaoBasePromise]);
+
+    // 영문명이 발견되었고 결과가 적으면 영문명으로도 카카오 이미지 추가 검색
+    let extraEnImages = [];
+    if (wikiResult.detectedEnName && !hasCustomHint && kakaoImages.length < 6) {
+      try {
+        const enReqUrl = buildSheetGetUrl({
+          action: 'searchAuthorImages',
+          query: wikiResult.detectedEnName,
+          enName: wikiResult.detectedEnName,
+          exact: '0'
+        });
+        if (enReqUrl) {
+          const res = await fetch(enReqUrl);
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data?.images)) extraEnImages = data.images;
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (googleLinkEl && wikiResult.detectedEnName && !hasCustomHint) {
+      googleLinkEl.href = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(wikiResult.detectedEnName + ' portrait')}`;
+    }
+
+    const candidates = [];
+    const seen = new Set();
+    const pushUnique = (list) => {
+      (list || []).forEach(item => {
         if (!item?.photoUrl || seen.has(item.photoUrl)) return;
         seen.add(item.photoUrl);
         candidates.push(item);
       });
-    }
+    };
+
+    // 위키백과·위키미디어 확정 인물 사진을 맨 앞에 배치, 그 다음 필터링된 웹/뉴스 사진
+    pushUnique(wikiResult.wikiItems);
+    pushUnique(kakaoImages);
+    pushUnique(extraEnImages);
 
     if (candidates.length === 0) {
       statusEl.textContent = '검색 결과가 없습니다. 우측 구글 이미지에서 찾아 URL을 붙여넣거나 기기에서 첨부해 주세요.';
@@ -1453,7 +1539,7 @@ async function searchWikiAuthorCandidates() {
       return;
     }
 
-    statusEl.textContent = `이미지 후보 ${candidates.length}건 (원하는 사진을 터치하면 바로 적용됩니다)`;
+    statusEl.textContent = `인물 사진 후보 ${candidates.length}건 (원하는 사진을 터치하면 바로 적용됩니다)`;
     gridEl.innerHTML = candidates.map((c, i) => `
       <div class="wiki-photo-card" data-wiki-idx="${i}">
         <img src="${escapeHtml(c.photoUrl)}" alt="${escapeHtml(c.title || rawQ)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.wiki-photo-card').style.display='none'">

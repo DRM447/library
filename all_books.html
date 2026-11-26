@@ -4992,8 +4992,14 @@
  };
 
  const prevSet = new Set(currentRandomPicks);
- const borrowedPool = eligible.filter(b => isOwnedBorrowed(b));
- const readingPool = eligible.filter(b => normalizeReadingStatus(b.status) === '읽는 중' && !isOwnedBorrowed(b));
+ const isQualifyingBorrowed = (b) => {
+ if (!isOwnedBorrowed(b)) return false;
+ if (!isOwnedEbook(b)) return true;
+ const diff = getDueDaysDiff(b.dueDate);
+ return diff !== null && diff < 60;
+ };
+ const borrowedPool = eligible.filter(isQualifyingBorrowed);
+ const readingPool = eligible.filter(b => normalizeReadingStatus(b.status) === '읽는 중' && !isQualifyingBorrowed(b));
 
  let picked = [];
  if (borrowedPool.length > 0) {

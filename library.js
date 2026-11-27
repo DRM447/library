@@ -994,6 +994,14 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
 
   const popThumb = getOwnedBookThumbUrl(b);
   menu.innerHTML = `
+    <div class="quick-popover-book-header">
+      <img class="quick-popover-book-thumb" src="${escapeHtml(popThumb)}" alt="" onerror="this.onerror=null;this.src=NO_COVER_SVG">
+      <div class="quick-popover-book-meta">
+        <p class="quick-popover-book-title">${escapeHtml(formatOwnedTitle(b))}</p>
+        <p class="quick-popover-book-author">${escapeHtml(formatAuthorText(b.author))}</p>
+      </div>
+    </div>
+    <div class="quick-popover-divider"></div>
     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); openOwnedEditModalByIndex(${idx});">
       <i data-lucide="pencil" size="15" color="#4f46e5"></i><span>수정</span>
     </button>
@@ -1005,14 +1013,6 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
     <div class="quick-popover-status-grid">${statusBtns}</div>
     <div class="quick-popover-section-label" style="margin-top:2px;">소장 상태</div>
     <div class="quick-popover-status-grid">${ownBtns}</div>
-    <div class="quick-popover-divider"></div>
-    <div class="quick-popover-book-header">
-      <img class="quick-popover-book-thumb" src="${escapeHtml(popThumb)}" alt="" onerror="this.onerror=null;this.src=NO_COVER_SVG">
-      <div class="quick-popover-book-meta">
-        <p class="quick-popover-book-title">${escapeHtml(formatOwnedTitle(b))}</p>
-        <p class="quick-popover-book-author">${escapeHtml(formatAuthorText(b.author))}</p>
-      </div>
-    </div>
   `;
   backdrop.classList.remove('hidden');
   positionQuickPopover(ev.currentTarget);
@@ -2334,7 +2334,7 @@ function toggleOwnedPlotExpand() {
    body.classList.remove('is-clamped');
    body.innerHTML = `<textarea id="ownedPlotDescTextarea" class="owned-plot-desc-textarea" rows="5" placeholder="책 소개(줄거리)를 입력해 주세요." oninput="currentModalDescription = this.value;" onclick="event.stopPropagation()">${escapeHtml(cleanDesc)}</textarea>`;
  } else {
-   const editPencilHtml = `<button type="button" class="owned-plot-edit-btn" onclick="event.stopPropagation(); toggleOwnedPlotEditMode(true);" title="책 소개·시리즈 수정" aria-label="책 소개 및 시리즈 수정"><i data-lucide="pencil" size="12"></i></button>`;
+   const editPencilHtml = `<button type="button" class="owned-plot-edit-btn" onclick="event.stopPropagation(); toggleOwnedPlotEditMode(true);" title="책 소개·시리즈 수정" aria-label="책 소개 및 시리즈 수정"><i data-lucide="pencil" size="11"></i></button>`;
    const seriesBadgeHtml = (seriesVal && volHash)
    ? `<span class="mylib-badge series">${escapeHtml(seriesVal)} ${escapeHtml(volHash)}</span>`
    : (seriesVal ? `<span class="mylib-badge series">${escapeHtml(seriesVal)}</span>` : (volHash ? `<span class="mylib-badge series">${escapeHtml(volHash)}</span>` : ''));

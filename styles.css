@@ -2966,20 +2966,18 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   padding: 0;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #64748b;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
   cursor: pointer;
-  transition: background-color 0.14s, color 0.14s, border-color 0.14s;
+  transition: color 0.14s;
   flex-shrink: 0;
 }
 .owned-plot-edit-btn:hover {
-  background: #eef2ff;
-  border-color: #a5b4fc;
+  background: transparent;
   color: #4338ca;
 }
 .owned-plot-done-btn {

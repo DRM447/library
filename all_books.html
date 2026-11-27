@@ -29,8 +29,8 @@
   </div>
 
   <div class="barcode-corner">
-    <button type="button" class="barcode-icon-btn" onclick="openBarcodeScanner('search')" title="ISBN 바코드 스캔" aria-label="ISBN 바코드 스캔">
-      <i data-lucide="scan-barcode" size="18"></i>
+    <button type="button" id="fullscreenToggleBtn" class="barcode-icon-btn" onclick="toggleAppFullscreen()" title="전체화면 전환" aria-label="전체화면 전환">
+      <i data-lucide="maximize" size="17"></i>
     </button>
   </div>
 
@@ -59,12 +59,8 @@
         <button class="search-btn" onclick="executeSearch()" aria-label="도서 검색"><i data-lucide="search" size="19"></i></button>
       </div>
 
-      <!-- 최근 검색어 & 입력 중 유사 최근 검색어 드롭다운 -->
+      <!-- 최근 검색어 & 입력 중 유사 최근 검색어 드롭다운 (키패드 가림 방지를 위해 헤더 문구 행 제거) -->
       <div id="recentSearchArea" class="hidden">
-        <div class="recent-tags-header">
-          <div class="section-title" id="recentSearchHeading"><i data-lucide="clock" size="18" color="var(--primary)"></i> 최근 검색어</div>
-          <button id="recentDeleteAllBtn" class="delete-all-btn" onclick="deleteAllSearches()" title="최근 검색어 전체 삭제" aria-label="최근 검색어 전체 삭제"><i data-lucide="trash-2" size="15"></i></button>
-        </div>
         <div class="recent-tags" id="recent-tags-container"></div>
       </div>
     </div>
@@ -75,9 +71,9 @@
         <span class="post-search-owned-title-wrap">
           <i data-lucide="library" size="15" color="#059669"></i>
           <span id="postSearchOwnedTitle">내 서재에 관련 도서 0권</span>
-          <span class="post-search-owned-chevron"><i data-lucide="chevron-down" size="15"></i></span>
+          <span id="postSearchOwnedPills" class="post-search-owned-pills" onclick="event.stopPropagation()"></span>
         </span>
-        <div id="postSearchOwnedPills" class="post-search-owned-pills" onclick="event.stopPropagation()"></div>
+        <span class="post-search-owned-chevron"><i data-lucide="chevron-down" size="15"></i></span>
       </div>
       <div id="postSearchOwnedBody" class="post-search-owned-body hidden">
         <div id="postSearchOwnedList" class="mylib-list"></div>
@@ -143,9 +139,10 @@
             </div>
             <p class="author" id="mainBookAuthor">저자명</p>
             <div id="mainBookMetaChips" class="mylib-item-badges" style="margin-top:2px;"></div>
-            <p class="plot" id="mainBookPlot">줄거리</p>
-            <button type="button" id="mainBookPlotToggleBtn" class="main-plot-toggle-btn hidden" onclick="toggleMainBookPlot()">더보기</button>
           </div>
+        </div>
+        <div id="mainBookPlotBox" class="main-book-plot-box" onclick="toggleMainBookPlot()" title="터치해서 책 소개 펼치기/접기">
+          <p class="plot" id="mainBookPlot">줄거리</p>
         </div>
 
         <div id="mainBookMemoBox" class="saved-memo-box hidden">
@@ -285,10 +282,10 @@
         <h3 class="memo-modal-title" id="authorPhotoModalTitle" style="margin:0;"><i data-lucide="image" size="17" color="#4f46e5"></i> 관심 저자 사진 교체</h3>
         <button type="button" class="setup-close-btn" onclick="closeAuthorPhotoModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="16"></i></button>
       </div>
-      <div class="mylib-setup-row" style="margin-bottom:8px;">
-        <input type="text" id="wikiAuthorSearchInput" class="form-input" placeholder="저자 이름 또는 검색어 (예: 닐 슈빈 인터뷰)" onkeydown="if(event.key==='Enter') searchWikiAuthorCandidates()">
-        <button type="button" class="memo-btn memo-btn-save" style="white-space:nowrap; padding:8px 12px;" onclick="searchWikiAuthorCandidates()">검색</button>
-      </div>
+      <form class="mylib-setup-row" action="javascript:void(0)" onsubmit="event.preventDefault(); document.getElementById('wikiAuthorSearchInput')?.blur(); searchWikiAuthorCandidates();" style="margin-bottom:8px;">
+        <input type="search" id="wikiAuthorSearchInput" class="form-input" enterkeyhint="search" autocomplete="off" placeholder="저자 이름 또는 검색어 (예: 닐 슈빈)" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur(); searchWikiAuthorCandidates();}">
+        <button type="submit" class="memo-btn memo-btn-save" style="white-space:nowrap; padding:8px 12px;">검색</button>
+      </form>
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px;">
         <div id="wikiAuthorPhotoStatus" style="font-size:11.5px; color:var(--sec-text); min-width:0; flex:1;">이미지 후보를 불러오는 중입니다...</div>
         <a id="googleImgSearchLink" href="#" target="_blank" rel="noopener" class="owned-chip-btn indigo" style="text-decoration:none; flex-shrink:0;">구글 이미지 ↗</a>
@@ -305,6 +302,38 @@
           </button>
           <input type="file" id="authorPhotoFileInput" accept="image/*" class="hidden" onchange="handleAuthorPhotoFileSelect(event)">
           <button type="button" class="owned-chip-btn danger" onclick="resetAuthorPhotoToDefault()">기본 이미지로 초기화</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 책 표지 교체 모달 (관심 저자 사진 교체와 동일 레이아웃) -->
+  <div id="bookCoverModalOverlay" class="memo-modal-overlay" style="z-index: 2390;" data-close-fn="closeBookCoverModal">
+    <div class="memo-modal-box" style="max-width: 480px;">
+      <div class="owned-edit-top-bar" style="align-items:center; margin-bottom:6px;">
+        <h3 class="memo-modal-title" id="bookCoverModalTitle" style="margin:0;"><i data-lucide="image" size="17" color="#4f46e5"></i> 책 표지 교체</h3>
+        <button type="button" class="setup-close-btn" onclick="closeBookCoverModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="16"></i></button>
+      </div>
+      <form class="mylib-setup-row" action="javascript:void(0)" onsubmit="event.preventDefault(); document.getElementById('bookCoverSearchInput')?.blur(); searchBookCoverCandidates();" style="margin-bottom:8px;">
+        <input type="search" id="bookCoverSearchInput" class="form-input" enterkeyhint="search" autocomplete="off" placeholder="도서명 또는 저자명 입력" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur(); searchBookCoverCandidates();}">
+        <button type="submit" class="memo-btn memo-btn-save" style="white-space:nowrap; padding:8px 12px;">검색</button>
+      </form>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px;">
+        <div id="bookCoverPhotoStatus" style="font-size:11.5px; color:var(--sec-text); min-width:0; flex:1;">표지 후보를 불러오는 중입니다...</div>
+        <a id="aladinCoverSearchLink" href="#" target="_blank" rel="noopener" class="owned-chip-btn indigo" style="text-decoration:none; flex-shrink:0;">알라딘 검색 ↗</a>
+      </div>
+      <div id="bookCoverPhotoGrid" class="wiki-photo-grid"></div>
+      <div style="border-top:1px dashed var(--border); padding-top:10px; margin-top:6px; display:flex; flex-direction:column; gap:7px;">
+        <div class="mylib-setup-row">
+          <input type="url" id="customBookCoverUrlInput" class="form-input" placeholder="이미지 주소 또는 알라딘 상품 URL 입력" onkeydown="if(event.key==='Enter'){event.preventDefault(); applyCustomBookCoverUrl();}">
+          <button type="button" class="memo-btn memo-btn-cancel" style="white-space:nowrap; color:#1e293b;" onclick="applyCustomBookCoverUrl()">적용</button>
+        </div>
+        <div style="display:flex; gap:6px; justify-content:space-between; align-items:center;">
+          <button type="button" class="owned-chip-btn indigo" onclick="closeBookCoverModal(); triggerOwnedCoverUpload();">
+            <span style="display:inline-flex; align-items:center; gap:4px;"><i data-lucide="upload" size="13"></i> 기기에서 사진 첨부</span>
+          </button>
+          <button type="button" class="owned-chip-btn danger" onclick="clearOwnedCoverManual(); closeBookCoverModal();">표지 삭제</button>
         </div>
       </div>
     </div>
@@ -426,8 +455,6 @@
 
       <div id="myLibActiveChipsBar" class="mylib-active-chips hidden"></div>
 
-      <div class="mylib-scroll-body" id="myLibScrollBody">
-        <div id="myLibPtrIndicator" class="mylib-ptr-indicator">당겨서 시트 동기화</div>
         <div id="myLibFilterDrawer" class="mylib-filter-drawer hidden">
           <div id="myLibStatusFilters">
             <div class="ridi-filter-row">
@@ -485,6 +512,8 @@
           </div>
         </div>
 
+      <div class="mylib-scroll-body" id="myLibScrollBody">
+        <div id="myLibPtrIndicator" class="mylib-ptr-indicator">당겨서 시트 동기화</div>
         <div class="mylib-count-bar">
           <span id="myLibResultInfo">불러오는 중...</span>
           <span id="myLibSyncStatus" class="hidden"></span>
@@ -577,7 +606,7 @@
 
       <label id="removeBookmarkCheckRow" class="checkbox-row hidden">
         <input type="checkbox" id="removeBookmarkOnMove" checked>
-        <span>내 서재에 저장 후 북마크에서 자동 제거하기</span>
+        <span>내 서재에 저장 후 북마크 자동 해제하기</span>
       </label>
 
       <div class="owned-edit-cover-wrap">

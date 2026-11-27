@@ -813,7 +813,7 @@ function openBookmarkMorePopover(ev, isbn, hasOwned) {
     </button>` : ''}
     <div class="quick-popover-divider"></div>
     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); removeBookmark('${safeIsbn}');">
-      <i data-lucide="trash-2" size="15"></i><span>북마크 해제</span>
+      <i data-lucide="bookmark-x" size="15"></i><span>북마크 해제</span>
     </button>
   `;
   backdrop.classList.remove('hidden');
@@ -1199,18 +1199,23 @@ function removeBookmark(isbn) {
 
  let activePhotoEditAuthor = '';
 
+function promptAddFollowedAuthor() {
+  const entered = prompt('관심 저자로 추가할 저자 이름을 입력해 주세요.');
+  if (entered === null) return;
+  const clean = String(entered || '').trim();
+  if (!clean) return;
+  const authors = getFollowedAuthors();
+  if (authors.some(a => String(a).trim().toLowerCase() === clean.toLowerCase())) {
+    showToast(`'${clean}' 저자는 이미 관심 저자에 등록되어 있습니다.`);
+    return;
+  }
+  toggleFollowAuthorByName(clean);
+}
+
 function renderBookmarkFollowedAuthors() {
   const box = document.getElementById('bookmarkFollowedAuthorsBox');
   if (!box) return;
   const authors = getFollowedAuthors();
-  if (authors.length === 0) {
-    box.innerHTML = `
-      <div class="bm-followed-header">
-        <span style="display:inline-flex; align-items:center; gap:5px;">${HEART_FILLED_SVG} 관심 저자 (0명)</span>
-      </div>
-    `;
-    return;
-  }
   const cardsHtml = authors.map(a => {
     const safe = escapeHtml(a).replace(/'/g, "\\'");
     const photo = getCachedAuthorPhoto(a);
@@ -1228,13 +1233,22 @@ function renderBookmarkFollowedAuthors() {
       </div>
     `;
   }).join('');
+  const addCardHtml = `
+    <div class="bm-author-card bm-author-add-card" onclick="promptAddFollowedAuthor()" title="관심 저자 추가" aria-label="관심 저자 추가">
+      <div class="bm-author-photo-wrap bm-author-add-wrap">
+        <i data-lucide="plus" size="22" color="#be123c"></i>
+      </div>
+      <span class="bm-author-name" style="color:#be123c; font-weight:700;">추가</span>
+    </div>
+  `;
   box.innerHTML = `
     <div class="bm-followed-header">
       <span style="display:inline-flex; align-items:center; gap:5px;">${HEART_FILLED_SVG} 관심 저자 (${authors.length}명)</span>
     </div>
-    <div class="bm-followed-cards">${cardsHtml}</div>
+    <div class="bm-followed-cards">${cardsHtml}${addCardHtml}</div>
   `;
-  ensureFollowedAuthorPhotos(authors);
+  refreshIcons(box);
+  if (authors.length > 0) ensureFollowedAuthorPhotos(authors);
 }
 
 function openFollowedAuthorMorePopover(ev, authorName) {
@@ -1265,7 +1279,7 @@ function openFollowedAuthorMorePopover(ev, authorName) {
     </button>
     <div class="quick-popover-divider"></div>
     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); toggleFollowAuthorByName('${safe}');">
-      <i data-lucide="trash-2" size="15"></i><span>관심 저자 해제</span>
+      <i data-lucide="user-minus" size="15"></i><span>관심 저자 해제</span>
     </button>
   `;
   backdrop.classList.remove('hidden');
@@ -1434,9 +1448,8 @@ async function searchWikiAuthorCandidates() {
   if (!rawQ || !statusEl || !gridEl) return;
 
   const hasCustomHint = /(사진|얼굴|인물|인터뷰|프로필|강연|portrait|photo|face|author|writer)/i.test(rawQ);
-  const googleQuery = hasCustomHint ? rawQ : `${rawQ} 인물 사진`;
   if (googleLinkEl) {
-    googleLinkEl.href = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(googleQuery)}`;
+    googleLinkEl.href = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(rawQ)}`;
   }
 
   statusEl.textContent = `'${rawQ}' 인물 사진 검색 중...`;
@@ -1514,9 +1527,7 @@ async function searchWikiAuthorCandidates() {
       } catch (e) {}
     }
 
-    if (googleLinkEl && wikiResult.detectedEnName && !hasCustomHint) {
-      googleLinkEl.href = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(wikiResult.detectedEnName + ' portrait')}`;
-    }
+
 
     const candidates = [];
     const seen = new Set();

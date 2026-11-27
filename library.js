@@ -476,10 +476,7 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
  drawer.classList.toggle('hidden', !willOpen);
  btn.classList.toggle('is-open', willOpen);
  btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
- if (willOpen) {
- const scrollBody = document.getElementById('myLibScrollBody');
- if (scrollBody) scrollBody.scrollTop = 0;
- }
+
  }
 
  function renderMyLibActiveChips() {
@@ -1008,6 +1005,9 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
     <div class="quick-popover-section-label" style="margin-top:2px;">소장 상태</div>
     <div class="quick-popover-status-grid">${ownBtns}</div>
     <div class="quick-popover-divider"></div>
+    <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); enterMyLibMultiSelectMode(myOwnedBooks[${idx}]?.row);">
+      <i data-lucide="check-square" size="15" color="#4f46e5"></i><span>선택</span>
+    </button>
     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); quickDeleteOwnedByIndex(${idx});">
       <i data-lucide="trash-2" size="15"></i><span>이 책 삭제</span>
     </button>
@@ -1663,15 +1663,16 @@ async function quickChangeOwnedStatus(idx, newStatus) {
  let presets = [];
  let showField = false;
 
- if (selectedOwnedIsBorrowed && selectedOwnedIsEbook) {
+ const isBorrowOrReturn = selectedOwnedIsBorrowed || selectedOwnedIsReturned;
+ if (isBorrowOrReturn && selectedOwnedIsEbook) {
  showField = true;
  label.innerText = '대여처';
  presets = EBOOK_BORROW_SOURCES;
- } else if (selectedOwnedIsBorrowed && !selectedOwnedIsEbook) {
+ } else if (isBorrowOrReturn && !selectedOwnedIsEbook) {
  showField = true;
  label.innerText = '대여처';
  presets = OFFLINE_BORROW_SOURCES;
- } else if (!selectedOwnedIsBorrowed && !selectedOwnedIsSold && selectedOwnedIsEbook) {
+ } else if (!isBorrowOrReturn && !selectedOwnedIsSold && selectedOwnedIsEbook) {
  showField = true;
  label.innerText = '소장처';
  presets = EBOOK_OWNED_SOURCES;
@@ -2608,11 +2609,11 @@ function toggleOwnedPlotExpand() {
    if (!menu || !backdrop) return;
    const hasCover = !!currentModalCoverUrl;
    menu.innerHTML = `
-     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); triggerOwnedCoverUpload();">
-       <i data-lucide="image-plus" size="15"></i><span>사진 첨부하기</span>
+     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); openBookCoverModal();">
+       <i data-lucide="images" size="15" color="#4f46e5"></i><span>표지 교체하기</span>
      </button>
-     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); openOwnedCoverPicker();">
-       <i data-lucide="images" size="15"></i><span>표지 검색하기</span>
+     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); triggerOwnedCoverUpload();">
+       <i data-lucide="image-plus" size="15" color="#059669"></i><span>기기에서 사진 첨부</span>
      </button>
      ${hasCover ? `<div class="quick-popover-divider"></div>
      <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); clearOwnedCoverManual();">
@@ -2667,9 +2668,16 @@ function toggleOwnedPlotExpand() {
  }
 
  ownedBookCandidatesList = books;
+ const aladinMoreCardHtml = `
+ <a class="owned-cand-card owned-cand-aladin-card" href="https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=All&SearchWord=${encodeURIComponent(title)}" target="_blank" rel="noopener" title="알라딘에서 찾아보기" style="text-decoration:none;">
+ <div class="owned-cand-add-box"><i data-lucide="plus" size="22" color="#4f46e5"></i></div>
+ <p style="white-space:normal; line-height:1.25; color:#4f46e5;">알라딘에서<br>찾아보기</p>
+ </a>
+ `;
  if (books.length === 0) {
  titleEl.innerText = '검색된 도서 후보 없음';
- listEl.innerHTML = '<div style="font-size:11.5px; color:var(--sec-text); padding:8px 4px;">일치하는 책이 없습니다. 제목을 조금 줄여 검색해 보세요.</div>';
+ listEl.innerHTML = aladinMoreCardHtml;
+ refreshIcons(box);
  return;
  }
 
@@ -2694,7 +2702,7 @@ function toggleOwnedPlotExpand() {
  <p class="sub">${b.pubYear ? escapeHtml(b.pubYear) + '년' : ''}</p>
  </div>
  `;
- }).join('');
+ }).join('') + aladinMoreCardHtml;
  refreshIcons(box);
  } catch (e) {
  titleEl.innerText = '후보 조회 실패';
@@ -3147,4 +3155,136 @@ function toggleOwnedPlotExpand() {
   } catch (e) {
     showToast('삭제 요청에 실패했습니다.', 'error');
   }
+}
+
+
+/* =========================================================
+ * 책 표지 교체 모달 (관심 저자 사진 교체와 동일 레이아웃 + 알라딘 URL 지원)
+ * ========================================================= */
+function openBookCoverModal() {
+  const overlay = document.getElementById('bookCoverModalOverlay');
+  const titleEl = document.getElementById('bookCoverModalTitle');
+  const searchInp = document.getElementById('bookCoverSearchInput');
+  const urlInp = document.getElementById('customBookCoverUrlInput');
+  const curTitle = (document.getElementById('ownedInputTitle')?.value || '').trim();
+  if (!overlay) return;
+  if (titleEl) {
+    titleEl.innerHTML = `<i data-lucide="image" size="17" color="#4f46e5"></i> ${curTitle ? escapeHtml(curTitle) + ' 표지 교체' : '책 표지 교체'}`;
+  }
+  if (searchInp) searchInp.value = curTitle;
+  if (urlInp) urlInp.value = currentModalCoverUrl || '';
+  overlay.classList.add('open');
+  pushModalHistory('bookCover');
+  refreshIcons(overlay);
+  if (curTitle) {
+    searchBookCoverCandidates();
+  } else {
+    const statusEl = document.getElementById('bookCoverPhotoStatus');
+    const gridEl = document.getElementById('bookCoverPhotoGrid');
+    const aladinLink = document.getElementById('aladinCoverSearchLink');
+    if (statusEl) statusEl.textContent = '책 제목을 입력해 표지를 검색하거나 URL을 붙여넣어 주세요.';
+    if (gridEl) gridEl.innerHTML = '';
+    if (aladinLink) aladinLink.href = 'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=All';
+  }
+}
+
+function closeBookCoverModal() {
+  document.getElementById('bookCoverModalOverlay')?.classList.remove('open');
+  popModalHistory('bookCover');
+}
+
+async function searchBookCoverCandidates() {
+  const q = (document.getElementById('bookCoverSearchInput')?.value || document.getElementById('ownedInputTitle')?.value || '').trim();
+  const statusEl = document.getElementById('bookCoverPhotoStatus');
+  const gridEl = document.getElementById('bookCoverPhotoGrid');
+  const aladinLink = document.getElementById('aladinCoverSearchLink');
+  if (!statusEl || !gridEl) return;
+  if (aladinLink) {
+    aladinLink.href = `https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=All&SearchWord=${encodeURIComponent(q)}`;
+  }
+  if (!q || q.length < 2) {
+    statusEl.textContent = '검색어를 2글자 이상 입력해 주세요.';
+    gridEl.innerHTML = '';
+    return;
+  }
+  statusEl.textContent = `'${q}' 표지 검색 중...`;
+  gridEl.innerHTML = '<div class="loading-msg" style="padding:14px;">표지 후보를 불러오는 중입니다...</div>';
+
+  try {
+    const cacheKey = 'v2:' + q.toLowerCase();
+    let books = getApiCache('kakaoCand', cacheKey, API_CACHE_TTL_MS);
+    if (!Array.isArray(books)) {
+      const res = await fetch(buildSheetGetUrl({ action: 'searchBooks', query: q }));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      books = Array.isArray(data?.books) ? data.books : [];
+      if (books.length > 0) setApiCache('kakaoCand', cacheKey, books, 200);
+    }
+    const withCovers = books.filter(b => b && b.cover);
+    if (withCovers.length === 0) {
+      statusEl.textContent = '검색된 표지가 없습니다. 우측 알라딘에서 찾아 URL을 붙여넣거나 기기에서 첨부해 주세요.';
+      gridEl.innerHTML = '';
+      return;
+    }
+    statusEl.textContent = `표지 후보 ${withCovers.length}건 (원하는 표지를 터치하면 바로 적용됩니다)`;
+    gridEl.innerHTML = withCovers.map((b, i) => `
+      <div class="wiki-photo-card" data-cover-idx="${i}" title="${escapeHtml(b.title || '')}">
+        <img src="${escapeHtml(normalizeCoverUrl(b.cover))}" alt="${escapeHtml(b.title || '')}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.wiki-photo-card').style.display='none'">
+        <span class="wiki-photo-card-title">${escapeHtml(b.title || '표지')}</span>
+      </div>
+    `).join('');
+    gridEl.querySelectorAll('.wiki-photo-card').forEach(el => {
+      const idx = Number(el.getAttribute('data-cover-idx'));
+      el.addEventListener('click', () => {
+        const picked = withCovers[idx];
+        if (!picked?.cover) return;
+        setOwnedCoverDisplay(picked.cover);
+        saveBookCoverCache(normalizeIsbn(document.getElementById('ownedInputIsbn')?.value || picked.isbn) || normalizeBookTitle(document.getElementById('ownedInputTitle')?.value || picked.title), picked.cover);
+        showToast('선택한 표지를 적용했습니다. 저장을 눌러 반영해 주세요.', 'success');
+        closeBookCoverModal();
+      });
+    });
+  } catch (e) {
+    statusEl.textContent = '표지 검색 중 오류가 발생했습니다. URL을 직접 입력해 주세요.';
+    gridEl.innerHTML = '';
+  }
+}
+
+async function applyCustomBookCoverUrl() {
+  const inp = document.getElementById('customBookCoverUrlInput');
+  const rawVal = (inp?.value || '').trim();
+  if (!rawVal || !/^https?:\/\//i.test(rawVal)) {
+    showToast('올바른 이미지 주소 또는 알라딘 상품 URL(http/https)을 입력해 주세요.', 'error');
+    return;
+  }
+
+  let finalCoverUrl = rawVal;
+  const looksLikeImage = /\.(jpe?g|png|webp|gif|bmp)(\?.*)?$/i.test(rawVal) || /image\.aladin\.co\.kr|contents\.kyobobook|image\.yes24|search1\.kakaocdn|bookthumb-phinf/i.test(rawVal);
+
+  if (!looksLikeImage) {
+    showToast('페이지에서 표지 이미지를 추출하는 중입니다...');
+    try {
+      const reqUrl = buildSheetGetUrl({ action: 'extractCoverUrl', url: rawVal });
+      if (reqUrl) {
+        const res = await fetch(reqUrl);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.status === 'ok' && data.coverUrl) {
+            finalCoverUrl = data.coverUrl;
+          } else {
+            showToast('해당 URL에서 표지 이미지를 찾지 못했습니다. 이미지 주소를 직접 복사해 넣어 주세요.', 'error');
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      showToast('URL에서 표지 이미지를 가져오지 못했습니다.', 'error');
+      return;
+    }
+  }
+
+  setOwnedCoverDisplay(finalCoverUrl);
+  saveBookCoverCache(normalizeIsbn(document.getElementById('ownedInputIsbn')?.value) || normalizeBookTitle(document.getElementById('ownedInputTitle')?.value), finalCoverUrl);
+  showToast('표지를 변경했습니다. 저장을 눌러 반영해 주세요.', 'success');
+  closeBookCoverModal();
 }

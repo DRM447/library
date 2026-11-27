@@ -98,24 +98,16 @@ function renderPostSearchOwnedItems() {
 
 function toggleMainBookPlot() {
   const plotEl = document.getElementById('mainBookPlot');
-  const btn = document.getElementById('mainBookPlotToggleBtn');
-  if (!plotEl || !btn) return;
+  if (!plotEl) return;
   isMainBookPlotExpanded = !isMainBookPlotExpanded;
   plotEl.classList.toggle('is-expanded', isMainBookPlotExpanded);
-  btn.textContent = isMainBookPlotExpanded ? '접기' : '더보기';
 }
 
 function updateMainBookPlotToggleBtn() {
   const plotEl = document.getElementById('mainBookPlot');
-  const btn = document.getElementById('mainBookPlotToggleBtn');
-  if (!plotEl || !btn) return;
+  if (!plotEl) return;
   isMainBookPlotExpanded = false;
   plotEl.classList.remove('is-expanded');
-  btn.textContent = '더보기';
-  requestAnimationFrame(() => {
-    const isOverflow = plotEl.scrollHeight > plotEl.clientHeight + 2;
-    btn.classList.toggle('hidden', !isOverflow);
-  });
 }
 
  function renderMainBookOwnedBar(book) {
@@ -1156,8 +1148,6 @@ searchInputEl.addEventListener('input', function () {
 function loadRecentSearches(filterText = '') {
   const searches = safeReadJson('recentBooks', []);
   const container = document.getElementById('recent-tags-container');
-  const headingEl = document.getElementById('recentSearchHeading');
-  const delAllBtn = document.getElementById('recentDeleteAllBtn');
   if (!container) return;
   container.innerHTML = '';
 
@@ -1170,8 +1160,6 @@ function loadRecentSearches(filterText = '') {
       const kLow = String(kw || '').toLowerCase();
       return kLow.includes(qLow) || (qCompact.length >= 1 && kLow.replace(/\s+/g, '').includes(qCompact));
     });
-    if (headingEl) headingEl.innerHTML = '<i data-lucide="search" size="16" color="var(--primary)"></i> 최근 검색어 추천';
-    if (delAllBtn) delAllBtn.classList.add('hidden');
 
     if (matched.length === 0) {
       document.getElementById('recentSearchArea')?.classList.add('hidden');
@@ -1187,7 +1175,7 @@ function loadRecentSearches(filterText = '') {
       if (idx > -1) {
         highlighted = escapeHtml(keyword.slice(0, idx)) + '<mark>' + escapeHtml(keyword.slice(idx, idx + q.length)) + '</mark>' + escapeHtml(keyword.slice(idx + q.length));
       }
-      row.innerHTML = `<span class="recent-match-left"><i data-lucide="clock" size="14" color="#94a3b8"></i><span class="recent-match-text">${highlighted}</span></span>`;
+      row.innerHTML = `<span class="recent-match-left"><i data-lucide="clock" size="14" color="var(--primary)"></i><span class="recent-match-text">${highlighted}</span></span>`;
       const delBtn = document.createElement('span');
       delBtn.style.cssText = 'display:inline-flex; align-items:center; color:#94a3b8; padding:2px;';
       delBtn.innerHTML = CLOSE_ICON_SVG_14;
@@ -1203,15 +1191,19 @@ function loadRecentSearches(filterText = '') {
     return;
   }
 
-  if (headingEl) headingEl.innerHTML = '<i data-lucide="clock" size="18" color="var(--primary)"></i> 최근 검색어';
-  if (delAllBtn) delAllBtn.classList.toggle('hidden', searches.length === 0);
   container.className = 'recent-tags';
 
   if (searches.length === 0) {
-    container.innerHTML = '<p style="color:var(--sec-text); font-size:13px; margin:0;">최근 검색 기록이 없습니다. 새로운 책을 찾아보세요!</p>';
+    container.innerHTML = '<span class="recent-inline-clock" title="최근 검색어"><i data-lucide="clock" size="14"></i></span><p style="color:var(--sec-text); font-size:13px; margin:0; align-self:center;">최근 검색 기록이 없습니다.</p>';
     refreshIcons(document.getElementById('recentSearchArea'));
     return;
   }
+
+  const clockBadge = document.createElement('span');
+  clockBadge.className = 'recent-inline-clock';
+  clockBadge.title = '최근 검색어';
+  clockBadge.innerHTML = '<i data-lucide="clock" size="14"></i>';
+  container.appendChild(clockBadge);
 
   searches.forEach(keyword => {
     const tag = document.createElement('div');
@@ -1232,6 +1224,16 @@ function loadRecentSearches(filterText = '') {
     tag.addEventListener('click', () => executeSearch(keyword));
     container.appendChild(tag);
   });
+
+  const delAllInline = document.createElement('button');
+  delAllInline.type = 'button';
+  delAllInline.className = 'recent-inline-delall';
+  delAllInline.title = '최근 검색어 전체 삭제';
+  delAllInline.setAttribute('aria-label', '최근 검색어 전체 삭제');
+  delAllInline.innerHTML = '<i data-lucide="trash-2" size="13"></i>';
+  delAllInline.onclick = (e) => { e.stopPropagation(); deleteAllSearches(); };
+  container.appendChild(delAllInline);
+
   refreshIcons(document.getElementById('recentSearchArea'));
 }
 

@@ -145,18 +145,7 @@ refreshIcons();
    const ptrEl = document.getElementById('myLibPtrIndicator');
    if (!scrollEl) return;
 
-   // 컨테이너 1곳에 passive 이벤트 위임으로 롱프레스 처리 (카드별 인라인 리스너 제거)
-   const listContainer = document.getElementById('myLibListContainer');
-   if (listContainer) {
-     listContainer.addEventListener('pointerdown', (e) => {
-       const card = e.target.closest('.mylib-item[data-book-idx]');
-       if (!card) return;
-       handleMyLibCardPointerDown(e, Number(card.getAttribute('data-book-idx')));
-     }, { passive: true });
-     listContainer.addEventListener('pointermove', (e) => handleMyLibCardPointerMove(e), { passive: true });
-     listContainer.addEventListener('pointerup', () => cancelMyLibCardLongPress(), { passive: true });
-     listContainer.addEventListener('pointercancel', () => cancelMyLibCardLongPress(), { passive: true });
-   }
+   // 멀티 셀렉트는 카드 ··· 메뉴의 '선택' 항목으로 이동됨 (롱프레스 제거)
 
    // 스크롤 중 롱프레스 차단 + 바닥 900px 전에 미리 부드럽게 append (관성 스크롤 끊김 방지)
    let autoLoadBusy = false;
@@ -262,3 +251,40 @@ refreshIcons();
  });
  }
  
+
+
+/* =========================================================
+ * 홈 화면 상단 우측 전체화면 토글
+ * ========================================================= */
+function updateFullscreenBtnIcon() {
+  const btn = document.getElementById('fullscreenToggleBtn');
+  if (!btn) return;
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  btn.innerHTML = `<i data-lucide="${isFs ? 'minimize' : 'maximize'}" size="17"></i>`;
+  btn.title = isFs ? '전체화면 종료' : '전체화면 전환';
+  btn.setAttribute('aria-label', isFs ? '전체화면 종료' : '전체화면 전환');
+  refreshIcons(btn);
+}
+
+function toggleAppFullscreen() {
+  const docEl = document.documentElement;
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  if (!isFs) {
+    const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
+    if (typeof req === 'function') {
+      Promise.resolve(req.call(docEl)).catch(() => {
+        showToast('이 브라우저에서는 전체화면 전환을 지원하지 않습니다.', 'error');
+      });
+    } else {
+      showToast('이 브라우저에서는 전체화면 전환을 지원하지 않습니다.', 'error');
+    }
+  } else {
+    const exit = document.exitFullscreen || document.webkitExitFullscreen;
+    if (typeof exit === 'function') {
+      Promise.resolve(exit.call(document)).catch(() => {});
+    }
+  }
+}
+
+document.addEventListener('fullscreenchange', updateFullscreenBtnIcon);
+document.addEventListener('webkitfullscreenchange', updateFullscreenBtnIcon);

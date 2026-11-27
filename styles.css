@@ -2753,11 +2753,14 @@
   color: #ffffff !important;
 }
 
-/* 6. 북마크: 폴드7 펼침(>=660px) 시 한 줄에 6개 */
-@media (min-width: 660px) {
+/* 6. 북마크: 폴드7 펼침(>=540px) 시 한 줄에 6개 */
+@media (min-width: 540px) {
+  .bookmark-modal-box {
+    max-width: min(95vw, 860px) !important;
+  }
   .bookmark-modal-content {
     grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-    gap: 10px !important;
+    gap: 8px !important;
   }
 }
 
@@ -2810,3 +2813,143 @@
 .new-rel-row.clickable { cursor: pointer; transition: border-color 0.14s, background-color 0.14s, transform 0.1s; }
 .new-rel-row.clickable:hover { border-color: #fda4af; background: #fff1f2; }
 .new-rel-row.clickable:active { transform: scale(0.99); }
+
+/* =========================================================
+ * v4 UI/UX 개선 스타일 (검색창·검색결과·북마크·내서재·표지)
+ * ========================================================= */
+/* 최근 검색어 인라인 시계 아이콘 */
+.recent-inline-clock {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.recent-inline-delall {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: all 0.15s;
+}
+.recent-inline-delall:hover, .recent-inline-delall:active {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #e11d48;
+}
+
+/* 선택 도서 책 소개: 카드 하단 중앙 정렬 + 터치 토글 */
+.main-book-plot-box {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.main-book-plot-box:active {
+  background: #f1f5f9;
+}
+.main-book-plot-box .plot {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #4b5563;
+  text-align: center;
+  word-break: keep-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.main-book-plot-box .plot.is-expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+}
+
+/* 내 서재 관련 도서 헤더: 제목 + 일치 버튼(좌측), 접기/펼치기 화살표(우측 끝) */
+.post-search-owned-title-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+  flex: 1;
+}
+.post-search-owned-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+/* 북마크 관심 저자 우측 끝 '+' 추가 버튼 (사진과 동일 58x58 크기) */
+.bm-author-add-card {
+  cursor: pointer;
+}
+.bm-author-add-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff1f2 !important;
+  border: 1.5px dashed #fda4af !important;
+  box-shadow: none !important;
+  transition: background-color 0.15s, border-color 0.15s, transform 0.12s;
+}
+.bm-author-add-card:hover .bm-author-add-wrap,
+.bm-author-add-card:active .bm-author-add-wrap {
+  background: #ffe4e6 !important;
+  border-color: #fb7185 !important;
+  transform: scale(0.96);
+}
+
+/* 내 서재 필터 드로어: 스크롤 영역 바깥 상단 고정 (필터 열 때 스크롤 점프 방지) */
+.mylib-filter-drawer {
+  flex-shrink: 0;
+  max-height: 46vh;
+  overflow-y: auto;
+  margin-bottom: 6px;
+}
+
+/* 도서 후보 가로스크롤 끝 '알라딘에서 찾아보기' '+' 카드 (표지와 동일 64x92 크기) */
+.owned-cand-add-box {
+  width: 64px;
+  height: 92px;
+  border-radius: 6px;
+  border: 1.5px dashed #a5b4fc;
+  background: #eef2ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 4px auto;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.owned-cand-aladin-card:hover .owned-cand-add-box,
+.owned-cand-aladin-card:active .owned-cand-add-box {
+  background: #e0e7ff;
+  border-color: #6366f1;
+}
+
+/* 책 표지 교체 모달 썸네일 비율 (2:3 책 표지) */
+#bookCoverPhotoGrid .wiki-photo-card img {
+  aspect-ratio: 2 / 3;
+  height: auto;
+  object-fit: cover;
+}

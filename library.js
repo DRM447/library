@@ -2141,7 +2141,22 @@ async function quickChangeOwnedStatus(idx, newStatus) {
   }
  }
 
+ let ownedPlotBlurTimer = null;
+
+ function scheduleOwnedPlotEditAutoFinish() {
+  if (ownedPlotBlurTimer) clearTimeout(ownedPlotBlurTimer);
+  ownedPlotBlurTimer = setTimeout(() => {
+    ownedPlotBlurTimer = null;
+    if (!isOwnedPlotEditing) return;
+    const box = document.getElementById('ownedMetaPlotBox');
+    const active = document.activeElement;
+    if (box && active && box.contains(active)) return;
+    finishOwnedPlotEditMode();
+  }, 120);
+ }
+
  function finishOwnedPlotEditMode() {
+  if (ownedPlotBlurTimer) { clearTimeout(ownedPlotBlurTimer); ownedPlotBlurTimer = null; }
   const ta = document.getElementById('ownedPlotDescTextarea');
   if (ta) currentModalDescription = ta.value.trim();
   syncPlotSeriesToHidden();
@@ -2325,16 +2340,20 @@ function toggleOwnedPlotExpand() {
    heading.innerHTML = `
      <span class="owned-plot-title-group">
        ${titleLabelHtml}
-       <button type="button" class="owned-plot-done-btn" onclick="event.stopPropagation(); finishOwnedPlotEditMode();" title="책 소개·시리즈 수정 완료">완료</button>
      </span>
      <span class="owned-plot-series-edit-wrap" onclick="event.stopPropagation()">
-       <input type="text" id="ownedPlotSeriesInput" class="owned-plot-series-input" value="${escapeHtml(seriesVal)}" placeholder="시리즈명" oninput="syncPlotSeriesToHidden()" onkeydown="if(event.key==='Enter'){event.preventDefault(); finishOwnedPlotEditMode();}">
-       <input type="text" id="ownedPlotVolInput" class="owned-plot-vol-input" inputmode="numeric" value="${escapeHtml(volVal)}" placeholder="넘버" oninput="syncPlotSeriesToHidden()" onkeydown="if(event.key==='Enter'){event.preventDefault(); finishOwnedPlotEditMode();}">
+       <input type="text" id="ownedPlotSeriesInput" class="owned-plot-series-input" value="${escapeHtml(seriesVal)}" placeholder="시리즈명" oninput="syncPlotSeriesToHidden()" onblur="scheduleOwnedPlotEditAutoFinish()" onkeydown="if(event.key==='Enter'){event.preventDefault(); finishOwnedPlotEditMode();}">
+       <input type="text" id="ownedPlotVolInput" class="owned-plot-vol-input" inputmode="numeric" value="${escapeHtml(volVal)}" placeholder="넘버" oninput="syncPlotSeriesToHidden()" onblur="scheduleOwnedPlotEditAutoFinish()" onkeydown="if(event.key==='Enter'){event.preventDefault(); finishOwnedPlotEditMode();}">
      </span>
    `;
    syncInlineMetaButtons();
    body.classList.remove('is-clamped');
-   body.innerHTML = `<textarea id="ownedPlotDescTextarea" class="owned-plot-desc-textarea" rows="5" placeholder="책 소개(줄거리)를 입력해 주세요." oninput="currentModalDescription = this.value;" onclick="event.stopPropagation()">${escapeHtml(cleanDesc)}</textarea>`;
+   body.innerHTML = `
+     <textarea id="ownedPlotDescTextarea" class="owned-plot-desc-textarea" rows="5" placeholder="책 소개(줄거리)를 입력해 주세요." oninput="currentModalDescription = this.value;" onblur="scheduleOwnedPlotEditAutoFinish()" onclick="event.stopPropagation()">${escapeHtml(cleanDesc)}</textarea>
+     <div class="owned-plot-edit-footer" onclick="event.stopPropagation()">
+       <button type="button" class="owned-plot-done-btn" onmousedown="event.preventDefault()" onclick="event.stopPropagation(); finishOwnedPlotEditMode();" title="책 소개·시리즈 수정 완료">완료</button>
+     </div>
+   `;
  } else {
    const editPencilHtml = `<button type="button" class="owned-plot-edit-btn" onclick="event.stopPropagation(); toggleOwnedPlotEditMode(true);" title="책 소개·시리즈 수정" aria-label="책 소개 및 시리즈 수정"><i data-lucide="pencil" size="11"></i></button>`;
    const seriesBadgeHtml = (seriesVal && volHash)

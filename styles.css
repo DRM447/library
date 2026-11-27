@@ -3489,3 +3489,10 @@ body[data-tab="library"] .app-tab-library {
 #mainBookPlot {
   text-align: left !important;
 }
+
+
+.owned-plot-edit-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}

@@ -3482,3 +3482,10 @@ body[data-tab="library"] .app-tab-library {
 .toast-banner {
   bottom: calc(74px + env(safe-area-inset-bottom)) !important;
 }
+
+
+/* === 선택 도서 정보 줄거리 왼쪽 정렬 === */
+.main-book-plot-box,
+#mainBookPlot {
+  text-align: left !important;
+}

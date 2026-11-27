@@ -174,11 +174,15 @@ refreshIcons();
      new MutationObserver(() => observeLoadMoreBtn()).observe(listEl, { childList: true });
    }
 
-   // 스크롤 상태만 최소한으로 갱신 (레이아웃 읽기 없음)
+   // 스크롤 상태 갱신 + 필터창 열린 상태로 아래로 스크롤 시 자동 숨김
    scrollEl.addEventListener('scroll', () => {
      isMyLibActivelyScrolling = true;
      if (myLibScrollIdleTimer) clearTimeout(myLibScrollIdleTimer);
      myLibScrollIdleTimer = setTimeout(() => { isMyLibActivelyScrolling = false; }, 140);
+     const filterDrawer = document.getElementById('myLibFilterDrawer');
+     if (filterDrawer && !filterDrawer.classList.contains('hidden') && scrollEl.scrollTop > 20) {
+       if (typeof toggleMyLibFilterDrawer === 'function') toggleMyLibFilterDrawer(false);
+     }
    }, { passive: true });
 
    // 최상단 Pull-to-Refresh: 세로 당김이 확실할 때만 동작 + touchcancel 정리 + rAF 배치

@@ -68,7 +68,7 @@
     <div id="postSearchOwnedCard" class="post-search-owned-card hidden">
       <div class="post-search-owned-header" onclick="togglePostSearchOwnedPanel()">
         <span class="post-search-owned-title-wrap">
-          <i data-lucide="library" size="15" color="#059669"></i>
+          
           <span id="postSearchOwnedTitle">내 서재에 관련 도서 0권</span>
           <span id="postSearchOwnedPills" class="post-search-owned-pills" onclick="event.stopPropagation()"></span>
         </span>
@@ -93,7 +93,7 @@
       </div>
       <div class="card">
         <div class="section-title" style="justify-content: space-between; margin-bottom: 10px;">
-          <span class="home-title-with-illust"><img id="homeWhatToReadIcon" class="home-mini-illust" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt=""><span>오늘 뭐 읽지?</span></span>
+          <span>오늘 뭐 읽지?</span>
           <button class="owned-chip-btn indigo icon-trash-btn" onclick="pickRandomUnreadBook(true)" title="다시 뽑기" aria-label="다시 뽑기"><i data-lucide="dices" size="15"></i></button>
         </div>
         <div id="homeRandomPickContainer"></div>
@@ -105,14 +105,14 @@
     <div class="left-panel">
 
       <div id="searchResultsCard" class="card hidden">
-        <div class="section-title"><i data-lucide="list"></i> <span id="searchResultCountText">검색 결과</span></div>
+        <div class="section-title"><span id="searchResultCountText">검색 결과</span></div>
         <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">*원하시는 도서 표지를 <b style="color:var(--primary)">터치</b>하면 상세 정보와 대출 여부를 확인할 수 있습니다.</p>
         <div id="searchResultsList" class="search-results-scroll"></div>
       </div>
 
       <div id="mainBookResultCard" class="card hidden">
         <div class="section-title" style="justify-content: space-between;">
-          <span style="display:flex; align-items:center; gap:8px;"><i data-lucide="info"></i> 선택 도서 정보</span>
+          <span style="display:flex; align-items:center; gap:8px;">선택 도서 정보</span>
           <span id="mainBookStoreLinks" class="owned-title-store-links hidden">
             <a id="mainKakaoIconLink" href="#" target="_blank" rel="noopener" class="owned-title-store-icon" title="다음 책 정보에서 보기" aria-label="다음 책 정보에서 보기"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="daum" alt="다음 도서"></a>
             <a id="mainKyoboIconLink" href="#" target="_blank" rel="noopener" class="owned-title-store-icon" title="교보문고에서 보기" aria-label="교보문고에서 보기"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="kyobo" alt="교보문고"></a>
@@ -151,60 +151,57 @@
       </div>
 
       <div id="linksCard" class="card hidden">
-        <div class="section-title"><i data-lucide="book-open"></i> e-book 둘러보기</div>
+        <div class="section-title">e-book 둘러보기</div>
         <div class="links-container" style="border-top: none; padding-top: 0;">
 
           <div class="link-group">
-            <div class="link-group-title"><i data-lucide="smartphone" size="16" color="#f59e0b"></i> 1. 즐겨찾는 도서관</div>
-            <div class="fav-lib-grid">
-              <a href="#" class="link-pill color-lib dynamic-link" data-template="https://www.millie.co.kr/v3/search/result/{kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="millie" class="site-logo" alt="logo"> 밀리의 서재</a>
-              <a href="#" class="link-pill color-used dynamic-link" data-template="https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Used&KeyWord={kw}&OutStock=0&ViewType=Detail&KeyFullWord={kw}&KeyLastWord={kw}&CategorySearch=&chkKeyTitle=&chkKeyAuthor=&chkKeyPublisher=&chkKeyISBN=&chkKeyTag=&chkKeyTOC=&chkKeySubject=" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="aladin_used" class="site-logo" alt="logo"> 알라딘 중고</a>
-              <a href="#" class="link-pill color-lib dynamic-link" data-template="https://elib.seoul.go.kr/contents/search/content?t=EB&k={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="seoul_lib" class="site-logo" alt="logo"> 서울시 전자도서관</a>
-              <a href="#" class="link-pill color-lib dynamic-link" data-template="https://e-lib.sen.go.kr/contents/search?type=&searchOpt=0&searchKeyword={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="seoul_edu" class="site-logo" alt="logo"> 서울교육청 도서관</a>
-              <a href="#" class="link-pill color-lib dynamic-link" style="grid-column: 1 / -1;" data-template="https://lib.ewha.ac.kr/searchA/ebz?st=KWRD&si=TOTAL&q={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="ewha" class="site-logo" alt="logo"> 이화여대 전자도서관</a>
+            <div class="link-group-title">즐겨찾는 도서관</div>
+            <div class="link-grid ebook-icon-grid">
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://www.millie.co.kr/v3/search/result/{kw}" target="_blank" rel="noopener" title="밀리의 서재" aria-label="밀리의 서재"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="millie" class="site-logo" alt="밀리의 서재"></a>
+              <a href="#" class="link-pill icon-only-pill color-used dynamic-link" data-template="https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Used&KeyWord={kw}&OutStock=0&ViewType=Detail&KeyFullWord={kw}&KeyLastWord={kw}&CategorySearch=&chkKeyTitle=&chkKeyAuthor=&chkKeyPublisher=&chkKeyISBN=&chkKeyTag=&chkKeyTOC=&chkKeySubject=" target="_blank" rel="noopener" title="알라딘 중고" aria-label="알라딘 중고"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="aladin_used" class="site-logo" alt="알라딘 중고"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elib.seoul.go.kr/contents/search/content?t=EB&k={kw}" target="_blank" rel="noopener" title="서울시 전자도서관" aria-label="서울시 전자도서관"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="seoul_lib" class="site-logo" alt="서울시 전자도서관"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://e-lib.sen.go.kr/contents/search?type=&searchOpt=0&searchKeyword={kw}" target="_blank" rel="noopener" title="서울교육청 도서관" aria-label="서울교육청 도서관"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="seoul_edu" class="site-logo" alt="서울교육청 도서관"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://lib.ewha.ac.kr/searchA/ebz?st=KWRD&si=TOTAL&q={kw}" target="_blank" rel="noopener" title="이화여대 전자도서관" aria-label="이화여대 전자도서관"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="ewha" class="site-logo" alt="이화여대 전자도서관"></a>
             </div>
           </div>
 
           <div class="link-group">
-            <div class="link-group-title">
-              <i data-lucide="map-pin" size="16" color="#10b981"></i> 2. 서울시 자치구 전자도서관
-              <span class="link-group-sub">(2026.11.22 기준)</span>
-            </div>
-            <div class="link-grid district-grid">
-              <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ydplib.dkyobobook.co.kr/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yeongdeungpo" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">영등포구</span><span class="pill-count">258,824권</span></span></a>
-              <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://splib.dkyobobook.co.kr/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="songpa" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">송파구</span><span class="pill-count">199,300권</span></span></a>
-              <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://gdlib.dkyobobook.co.kr/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangdong_a" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">강동구A</span><span class="pill-count">188,678권</span></span></a>
-              <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.jungnanglib.seoul.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="jungnang" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">중랑구</span><span class="pill-count">16,499권</span></span></a>
-              <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://e-book.l4d.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="dongdaemun" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">동대문구</span><span class="pill-count">15,900권</span></span></a>
-              <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://elibrary.sblib.seoul.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="seongbuk" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">성북구</span><span class="pill-count">10,082권</span></span></a>
-              <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://e-lib.gwanak.go.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gwanak" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">관악구</span><span class="pill-count">8,617권</span></span></a>
-              <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.yslibrary.or.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yongsan" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">용산구</span><span class="pill-count">7,610권</span></span></a>
-              <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.gdlibrary.or.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangdong_b" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">강동구B</span><span class="pill-count">7,230권</span></span></a>
-              <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://eb.nowonlib.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="nowon" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">노원구</span><span class="pill-count">6,133권</span></span></a>
-              <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.mapo.go.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="mapo" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">마포구</span><span class="pill-count">5,996권</span></span></a>
+            <div class="link-group-title">서울시 자치구 전자도서관</div>
+            <div class="link-grid ebook-icon-grid">
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ydplib.dkyobobook.co.kr/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="영등포구" aria-label="영등포구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yeongdeungpo" class="site-logo" alt="영등포구"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://splib.dkyobobook.co.kr/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="송파구" aria-label="송파구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="songpa" class="site-logo" alt="송파구"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://gdlib.dkyobobook.co.kr/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener" title="강동구A" aria-label="강동구A"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangdong_a" class="site-logo" alt="강동구A"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.jungnanglib.seoul.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="중랑구" aria-label="중랑구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="jungnang" class="site-logo" alt="중랑구"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://e-book.l4d.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="동대문구" aria-label="동대문구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="dongdaemun" class="site-logo" alt="동대문구"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elibrary.sblib.seoul.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="성북구" aria-label="성북구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="seongbuk" class="site-logo" alt="성북구"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://e-lib.gwanak.go.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener" title="관악구" aria-label="관악구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gwanak" class="site-logo" alt="관악구"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.yslibrary.or.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener" title="용산구" aria-label="용산구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yongsan" class="site-logo" alt="용산구"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.gdlibrary.or.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener" title="강동구B" aria-label="강동구B"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangdong_b" class="site-logo" alt="강동구B"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://eb.nowonlib.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="노원구" aria-label="노원구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="nowon" class="site-logo" alt="노원구"></a>
 
               <details class="hidden-districts">
                 <summary>미가입 자치구 펼치기</summary>
-                <div class="link-grid district-grid" style="margin-top: 8px;">
-                  <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://elib.dobong.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="dobong" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">도봉구</span><span class="pill-count">21,572권</span></span></a>
-                  <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.gangseo.seoul.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangseo" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">강서구</span><span class="pill-count">20,581권</span></span></a>
-                  <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://elib.jongno.go.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="jongno" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">종로구</span><span class="pill-count">20,456권</span></span></a>
-                  <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.dongjak.go.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="dongjak" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">동작구</span><span class="pill-count">11,609권</span></span></a>
-                  <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://elib.geumcheonlib.seoul.kr/FxLibrary/m/product/search/?searchstr={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="geumcheon" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">금천구</span><span class="pill-count">11,348권</span></span></a>
-                  <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.guro.go.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="guro" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">구로구</span><span class="pill-count">10,718권</span></span></a>
-                  <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.junggulib.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="junggu" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">중구</span><span class="pill-count">8,632권</span></span></a>
-                  <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.yangcheon.or.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yangcheon" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">양천구</span><span class="pill-count">6,446권</span></span></a>
-                  <a href="#" class="link-pill district-pill color-lib dynamic-link" data-template="https://ebook.gblib.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangbuk" class="site-logo" alt="logo"><span class="pill-info"><span class="pill-name">강북구</span><span class="pill-count">5,871권</span></span></a>
+                <div class="link-grid ebook-icon-grid" style="margin-top: 8px;">
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.mapo.go.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener" title="마포구" aria-label="마포구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="mapo" class="site-logo" alt="마포구"></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elib.dobong.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="도봉구" aria-label="도봉구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="dobong" class="site-logo" alt="도봉구"></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.gangseo.seoul.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener" title="강서구" aria-label="강서구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangseo" class="site-logo" alt="강서구"></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elib.jongno.go.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener" title="종로구" aria-label="종로구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="jongno" class="site-logo" alt="종로구"></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.dongjak.go.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="동작구" aria-label="동작구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="dongjak" class="site-logo" alt="동작구"></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elib.geumcheonlib.seoul.kr/FxLibrary/m/product/search/?searchstr={kw}" target="_blank" rel="noopener" title="금천구" aria-label="금천구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="geumcheon" class="site-logo" alt="금천구"></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.guro.go.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="구로구" aria-label="구로구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="guro" class="site-logo" alt="구로구"></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.junggulib.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="중구" aria-label="중구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="junggu" class="site-logo" alt="중구"></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.yangcheon.or.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener" title="양천구" aria-label="양천구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yangcheon" class="site-logo" alt="양천구"></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.gblib.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="강북구" aria-label="강북구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangbuk" class="site-logo" alt="강북구"></a>
                 </div>
               </details>
             </div>
           </div>
 
           <div class="link-group">
-            <div class="link-group-title"><i data-lucide="archive" size="16" color="#8b5cf6"></i> 3. 그 외</div>
-            <div class="link-grid other-links-grid">
-              <a href="#" class="link-pill color-store dynamic-link" data-template="https://play.google.com/store/search?q={kw}&c=books&hl=ko" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="googleplaybook" class="site-logo" alt="logo"> 구글 플레이북</a>
-              <a href="#" class="link-pill color-free dynamic-link" data-template="https://archive.org/search?query={kw}&and%5B%5D=mediatype%3A%22texts%22" target="_blank" rel="noopener"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="internetarchive" class="site-logo" alt="logo"> 인터넷 아카이브</a>
+            <div class="link-group-title">그 외</div>
+            <div class="link-grid ebook-icon-grid">
+              <a href="#" class="link-pill icon-only-pill color-store dynamic-link" data-template="https://play.google.com/store/search?q={kw}&c=books&hl=ko" target="_blank" rel="noopener" title="구글 플레이북" aria-label="구글 플레이북"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="googleplaybook" class="site-logo" alt="구글 플레이북"></a>
+              <a href="#" class="link-pill icon-only-pill color-free dynamic-link" data-template="https://archive.org/search?query={kw}&and%5B%5D=mediatype%3A%22texts%22" target="_blank" rel="noopener" title="인터넷 아카이브" aria-label="인터넷 아카이브"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="internetarchive" class="site-logo" alt="인터넷 아카이브"></a>
             </div>
           </div>
         </div>
@@ -216,7 +213,7 @@
 
       <div id="apiLibraryBox" class="card hidden" style="border: 2px solid var(--primary); box-shadow: 0 4px 20px rgba(79, 70, 229, 0.15);">
         <div class="section-title" style="color: var(--primary); align-items: center; justify-content: space-between; gap: 8px;">
-          <span style="display:flex; align-items:center; gap:8px; line-height: 1.3; min-width: 0;"><i data-lucide="bell-ring" style="flex-shrink:0;"></i> <span id="libBoxTitle">대출 현황</span></span>
+          <span style="display:flex; align-items:center; gap:8px; line-height: 1.3; min-width: 0;"><span id="libBoxTitle">대출 현황</span></span>
         </div>
         <p style="font-size:12px; color:var(--sec-text); margin: 0 0 10px 0;">근처 도서관의 대출 여부를 확인합니다.</p>
         <div id="libraryList" class="library-list"></div>
@@ -224,7 +221,7 @@
 
       <div id="apiSameAuthorBox" class="card hidden">
         <div class="section-title" style="justify-content: space-between; gap: 6px;">
-          <span style="display:flex; align-items:center; gap:8px; min-width:0; overflow:hidden;"><i data-lucide="user-round-search" style="flex-shrink:0;"></i> <span id="sameAuthorApiTitle" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">저자의 다른 도서</span></span>
+          <span style="display:flex; align-items:center; gap:8px; min-width:0; overflow:hidden;"><span id="sameAuthorApiTitle" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">저자의 다른 도서</span></span>
           <div style="display:inline-flex; align-items:center; gap:5px; flex-shrink:0;">
             <button type="button" id="sameAuthorSubBtn" class="author-sub-btn hidden" onclick="toggleSubscribeSameAuthor()"></button>
             <a id="sameAuthorAladinLink" href="#" target="_blank" rel="noopener" class="author-aladin-btn hidden" title="알라딘 국내도서에서 저자 전권 검색" aria-label="알라딘 국내도서에서 저자 전권 검색"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="aladin" alt="알라딘"></a>
@@ -236,7 +233,7 @@
       </div>
 
       <div id="apiRecommendBox" class="card hidden">
-        <div class="section-title"><i data-lucide="sparkles"></i> 관련 추천 도서</div>
+        <div class="section-title">관련 추천 도서</div>
         <div id="recommendScroll" class="recommend-scroll">
           <div class="loading-msg">추천 도서를 불러오는 중입니다...</div>
         </div>
@@ -254,7 +251,7 @@
   <div id="bookmarkModal" class="memo-modal-overlay" data-close-fn="closeBookmarkModal">
     <div class="bookmark-modal-box">
       <div class="mylib-header">
-        <h3 class="mylib-header-title" style="color:#d97706;"><i data-lucide="bookmark" fill="#f59e0b" color="#f59e0b" size="18"></i> 내 북마크</h3>
+        <h3 class="mylib-header-title" style="color:#d97706;">내 북마크</h3>
         <button type="button" class="mylib-ghost-icon-btn" onclick="closeBookmarkModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="18"></i></button>
       </div>
       <div id="bookmarkFollowedAuthorsBox" class="bm-followed-box"></div>
@@ -278,16 +275,20 @@
   <div id="authorPhotoModalOverlay" class="memo-modal-overlay" style="z-index: 2380;" data-close-fn="closeAuthorPhotoModal">
     <div class="memo-modal-box" style="max-width: 480px;">
       <div class="owned-edit-top-bar" style="align-items:center; margin-bottom:6px;">
-        <h3 class="memo-modal-title" id="authorPhotoModalTitle" style="margin:0;"><i data-lucide="image" size="17" color="#4f46e5"></i> 관심 저자 사진 교체</h3>
+        <h3 class="memo-modal-title" id="authorPhotoModalTitle" style="margin:0;">관심 저자 사진 교체</h3>
         <button type="button" class="setup-close-btn" onclick="closeAuthorPhotoModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="16"></i></button>
       </div>
       <form class="mylib-setup-row" action="javascript:void(0)" onsubmit="event.preventDefault(); document.getElementById('wikiAuthorSearchInput')?.blur(); searchWikiAuthorCandidates();" style="margin-bottom:8px;">
         <input type="search" id="wikiAuthorSearchInput" class="form-input" enterkeyhint="search" autocomplete="off" placeholder="저자 이름 또는 검색어 (예: 닐 슈빈)" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur(); searchWikiAuthorCandidates();}">
         <button type="submit" class="memo-btn memo-btn-save" style="white-space:nowrap; padding:8px 12px;">검색</button>
       </form>
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;">
         <div id="wikiAuthorPhotoStatus" style="font-size:11.5px; color:var(--sec-text); min-width:0; flex:1;">이미지 후보를 불러오는 중입니다...</div>
-        <a id="googleImgSearchLink" href="#" target="_blank" rel="noopener" class="owned-chip-btn indigo" style="text-decoration:none; flex-shrink:0;">교보 인물검색 ↗</a>
+        <div class="author-ext-search-icons">
+          <a id="kyoboAuthorSearchLink" href="#" target="_blank" rel="noopener" class="author-ext-icon-btn" title="교보문고 인물검색" aria-label="교보문고 인물검색"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="kyobo" alt="교보문고"></a>
+          <a id="namuwikiAuthorSearchLink" href="#" target="_blank" rel="noopener" class="author-ext-icon-btn" title="나무위키 검색" aria-label="나무위키 검색"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="namuwiki" alt="나무위키"></a>
+          <a id="googleImgSearchLink" href="#" target="_blank" rel="noopener" class="author-ext-icon-btn" title="구글 이미지 검색" aria-label="구글 이미지 검색"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="google" alt="구글 이미지"></a>
+        </div>
       </div>
       <div id="wikiAuthorPhotoGrid" class="wiki-photo-grid"></div>
       <div style="border-top:1px dashed var(--border); padding-top:10px; margin-top:6px; display:flex; flex-direction:column; gap:7px;">
@@ -297,7 +298,7 @@
         </div>
         <div style="display:flex; gap:6px; justify-content:space-between; align-items:center;">
           <button type="button" class="owned-chip-btn indigo" onclick="triggerAuthorPhotoFileUpload()">
-            <span style="display:inline-flex; align-items:center; gap:4px;"><i data-lucide="upload" size="13"></i> 사진 첨부하기</span>
+            <span style="display:inline-flex; align-items:center; gap:4px;">사진 첨부하기</span>
           </button>
           <input type="file" id="authorPhotoFileInput" accept="image/*" class="hidden" onchange="handleAuthorPhotoFileSelect(event)">
           <button type="button" class="owned-chip-btn danger" onclick="resetAuthorPhotoToDefault()">초기화</button>
@@ -311,7 +312,7 @@
   <div id="bookCoverModalOverlay" class="memo-modal-overlay" style="z-index: 2390;" data-close-fn="closeBookCoverModal">
     <div class="memo-modal-box" style="max-width: 480px;">
       <div class="owned-edit-top-bar" style="align-items:center; margin-bottom:6px;">
-        <h3 class="memo-modal-title" id="bookCoverModalTitle" style="margin:0;"><i data-lucide="image" size="17" color="#4f46e5"></i> 책 표지 교체</h3>
+        <h3 class="memo-modal-title" id="bookCoverModalTitle" style="margin:0;">책 표지 교체</h3>
         <button type="button" class="setup-close-btn" onclick="closeBookCoverModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="16"></i></button>
       </div>
       <form class="mylib-setup-row" action="javascript:void(0)" onsubmit="event.preventDefault(); document.getElementById('bookCoverSearchInput')?.blur(); searchBookCoverCandidates();" style="margin-bottom:8px;">
@@ -330,7 +331,7 @@
         </div>
         <div style="display:flex; gap:6px; justify-content:space-between; align-items:center;">
           <button type="button" class="owned-chip-btn indigo" onclick="closeBookCoverModal(); triggerOwnedCoverUpload();">
-            <span style="display:inline-flex; align-items:center; gap:4px;"><i data-lucide="upload" size="13"></i> 사진 첨부하기</span>
+            <span style="display:inline-flex; align-items:center; gap:4px;">사진 첨부하기</span>
           </button>
           <button type="button" class="owned-chip-btn danger" onclick="clearOwnedCoverManual(); closeBookCoverModal();">표지 삭제</button>
         </div>
@@ -353,7 +354,7 @@
   <div id="pinPromptModalOverlay" class="memo-modal-overlay" style="z-index: 2400;" data-close-fn="closePinPromptModal">
     <div class="memo-modal-box" style="max-width: 360px;">
       <div class="owned-edit-top-bar" style="align-items:center; margin-bottom:6px;">
-        <h3 class="memo-modal-title" style="margin:0;"><i data-lucide="lock" size="16" color="#475569"></i> 시트 쓰기 PIN 입력</h3>
+        <h3 class="memo-modal-title" style="margin:0;">시트 쓰기 PIN 입력</h3>
         <button type="button" class="setup-close-btn" onclick="closePinPromptModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="15"></i></button>
       </div>
       <p id="pinPromptDesc" style="font-size:12.5px; color:var(--sec-text); margin:0 0 12px 0; line-height:1.45;">도서 추가·수정·삭제를 위해 설정된 쓰기 PIN을 입력해 주세요. (한 번 입력하면 이 기기에 저장됩니다)</p>
@@ -369,7 +370,7 @@
   <div id="barcodeModalOverlay" class="memo-modal-overlay" style="z-index: 2300;" data-close-fn="closeBarcodeScanner">
     <div class="memo-modal-box">
       <div class="owned-edit-top-bar" style="align-items:center; margin-bottom:4px;">
-        <h3 class="memo-modal-title" style="margin:0;"><i data-lucide="scan-barcode" size="18" color="#4f46e5"></i> ISBN 바코드 스캔</h3>
+        <h3 class="memo-modal-title" style="margin:0;">ISBN 바코드 스캔</h3>
         <button type="button" class="setup-close-btn" onclick="closeBarcodeScanner()" title="닫기" aria-label="닫기"><i data-lucide="x" size="16"></i></button>
       </div>
       <p class="memo-modal-bookname">책 뒷면의 ISBN 바코드(978/979로 시작)를 사각형 안에 맞춰주세요.</p>
@@ -408,7 +409,7 @@
   <div id="myLibModalOverlay" class="memo-modal-overlay" data-close-fn="closeMyLibraryModal">
     <div class="mylib-modal-box">
       <div class="mylib-header">
-        <h3 class="mylib-header-title"><i data-lucide="library" size="18"></i> 내 서재</h3>
+        <h3 class="mylib-header-title">내 서재</h3>
         <div class="mylib-header-actions" style="gap:2px;">
           <button type="button" class="mylib-ghost-icon-btn" id="myLibDupFilterBtn" onclick="openMyLibManageSheet()" title="서재 관리 메뉴" aria-label="서재 관리 메뉴">
             <i data-lucide="more-horizontal" size="18"></i>
@@ -533,7 +534,7 @@
           <!-- 수정 클릭 시 펼쳐지는 일괄 수정 필터 패널 -->
           <div id="myLibBatchEditPanel" class="mylib-batch-panel hidden">
             <div class="mylib-batch-panel-head">
-              <span class="mylib-batch-panel-title"><i data-lucide="sliders-horizontal" size="14"></i> 선택한 도서 일괄 수정</span>
+              <span class="mylib-batch-panel-title">선택한 도서 일괄 수정</span>
               <span class="mylib-batch-panel-hint">변경할 항목만 선택하세요</span>
             </div>
             <div class="mylib-batch-panel-body">
@@ -598,10 +599,10 @@
           </div>
           <div class="mylib-multiselect-main-actions">
             <button type="button" class="mylib-ms-primary-btn" id="myLibBatchEditToggleBtn" onclick="toggleBatchEditPanel()">
-              <i data-lucide="pencil" size="14"></i><span>수정</span>
+              <span>수정</span>
             </button>
             <button type="button" class="mylib-ms-action-btn danger mylib-ms-delete-btn" onclick="batchDeleteSelectedBooks()">
-              <i data-lucide="trash-2" size="14"></i><span>삭제</span>
+              <span>삭제</span>
             </button>
           </div>
         </div>
@@ -882,16 +883,16 @@
       <h4 class="bottom-sheet-title">내 서재 관리</h4>
       <div class="bottom-sheet-list">
         <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); enterMyLibMultiSelectMode();">
-          <span class="bottom-sheet-item-left"><i data-lucide="check-square" size="17" color="#4f46e5"></i><span>선택</span></span>
+          <span class="bottom-sheet-item-left"><span>선택</span></span>
         </button>
         <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); setMyLibStatusFilter('duplicates');">
-          <span class="bottom-sheet-item-left"><i data-lucide="alert-triangle" size="17"></i><span>중복 도서 확인</span><span id="manageSheetDupBadge" class="bottom-sheet-badge hidden">0</span></span>
+          <span class="bottom-sheet-item-left"><span>중복 도서 확인</span><span id="manageSheetDupBadge" class="bottom-sheet-badge hidden">0</span></span>
         </button>
         <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); openGoogleSheetDirect();">
-          <span class="bottom-sheet-item-left"><i data-lucide="file-spreadsheet" size="17" color="#059669"></i><span>구글 시트 편집</span></span>
+          <span class="bottom-sheet-item-left"><span>구글 시트 편집</span></span>
         </button>
         <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); toggleMyLibSetupBox(true);">
-          <span class="bottom-sheet-item-left"><i data-lucide="key-round" size="17" color="#4f46e5"></i><span>API · PIN 설정</span></span>
+          <span class="bottom-sheet-item-left"><span>API · PIN 설정</span></span>
         </button>
       </div>
     </div>
@@ -902,7 +903,6 @@
   <div id="quickPopoverMenu" class="quick-popover-menu hidden" onclick="event.stopPropagation()"></div>
 
   <!-- 분리된 JS 모듈 로드 (순서 유지) -->
-  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
   <script src="icons.js"></script>
   <script src="api.js"></script>
   <script src="library.js"></script>

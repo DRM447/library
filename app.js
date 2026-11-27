@@ -326,3 +326,23 @@ function toggleAppFullscreen() {
 
 document.addEventListener('fullscreenchange', updateFullscreenBtnIcon);
 document.addEventListener('webkitfullscreenchange', updateFullscreenBtnIcon);
+
+
+/* =========================================================
+ * 폴더블(Z 폴드7) 접기/펼치기 화면 전환 대응
+ * ========================================================= */
+let lastFoldViewportW = window.innerWidth;
+let foldResizeRaf = 0;
+window.addEventListener('resize', () => {
+  if (foldResizeRaf) cancelAnimationFrame(foldResizeRaf);
+  foldResizeRaf = requestAnimationFrame(() => {
+    foldResizeRaf = 0;
+    const curW = window.innerWidth;
+    if (Math.abs(curW - lastFoldViewportW) >= 24) {
+      lastFoldViewportW = curW;
+      if (typeof closeQuickPopover === 'function') closeQuickPopover();
+      const rev = document.getElementById('ownedInputReview');
+      if (rev && typeof autoResizeTextarea === 'function') autoResizeTextarea(rev);
+    }
+  });
+}, { passive: true });

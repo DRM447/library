@@ -1003,10 +1003,10 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
     </div>
     <div class="quick-popover-divider"></div>
     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); openOwnedEditModalByIndex(${idx});">
-      <i data-lucide="pencil" size="15" color="#4f46e5"></i><span>수정</span>
+      <span>수정</span>
     </button>
     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); quickDeleteOwnedByIndex(${idx});">
-      <i data-lucide="trash-2" size="15"></i><span>서재에서 삭제</span>
+      <span>서재에서 삭제</span>
     </button>
     <div class="quick-popover-divider"></div>
     <div class="quick-popover-section-label">독서상태</div>
@@ -2900,14 +2900,14 @@ function toggleOwnedPlotExpand() {
    const hasCover = !!currentModalCoverUrl;
    menu.innerHTML = `
      <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); openBookCoverModal();">
-       <i data-lucide="images" size="15" color="#4f46e5"></i><span>표지 교체하기</span>
+       <span>표지 교체하기</span>
      </button>
      <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); triggerOwnedCoverUpload();">
-       <i data-lucide="image-plus" size="15" color="#059669"></i><span>기기에서 사진 첨부</span>
+       <span>사진 첨부하기</span>
      </button>
      ${hasCover ? `<div class="quick-popover-divider"></div>
      <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); clearOwnedCoverManual();">
-       <i data-lucide="trash-2" size="15"></i><span>표지 삭제</span>
+       <span>표지 삭제</span>
      </button>` : ''}
    `;
    backdrop.classList.remove('hidden');
@@ -3472,7 +3472,7 @@ function openBookCoverModal() {
   const curTitle = (document.getElementById('ownedInputTitle')?.value || '').trim();
   if (!overlay) return;
   if (titleEl) {
-    titleEl.innerHTML = `<i data-lucide="image" size="17" color="#4f46e5"></i> ${curTitle ? escapeHtml(curTitle) + ' 표지 교체' : '책 표지 교체'}`;
+    titleEl.innerHTML = `${curTitle ? escapeHtml(curTitle) + ' 표지 교체' : '책 표지 교체'}`;
   }
   if (searchInp) searchInp.value = curTitle;
   if (urlInp) urlInp.value = currentModalCoverUrl || '';

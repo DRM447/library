@@ -32,8 +32,46 @@ function getSecret_(key) {
 
 function isPinAuthorized_(providedPin) {
   const configuredPin = getSecret_('WRITE_PIN');
-  if (!configuredPin) return true;
+  // 보안: WRITE_PIN 미설정 시 Fail-open 방지 (반드시 스크립트 속성에 WRITE_PIN 설정 필요)
+  if (!configuredPin) return false;
   return String(providedPin || '').trim() === configuredPin;
+}
+
+const SCRIPT_CACHE_TTL_SEC = 21600; // 6시간 (Apps Script CacheService 최대치)
+const SCRIPT_CACHE_MAX_BYTES = 95000;
+
+function makeCacheKey_(prefix, rawKey) {
+  const digest = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(rawKey || ''), Utilities.Charset.UTF_8);
+  const hex = digest.map(b => ('0' + ((b + 256) % 256).toString(16)).slice(-2)).join('');
+  return prefix + '_' + hex;
+}
+
+function getScriptCacheText_(key) {
+  try {
+    return CacheService.getScriptCache().get(key);
+  } catch (e) {
+    return null;
+  }
+}
+
+function setScriptCacheText_(key, text, ttlSec) {
+  try {
+    const str = String(text || '');
+    if (!str || Utilities.newBlob(str).getBytes().length > SCRIPT_CACHE_MAX_BYTES) return;
+    CacheService.getScriptCache().put(key, str, ttlSec || SCRIPT_CACHE_TTL_SEC);
+  } catch (e) {}
+}
+
+function getScriptCacheJson_(key) {
+  const raw = getScriptCacheText_(key);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch (e) { return null; }
+}
+
+function setScriptCacheJson_(key, obj, ttlSec) {
+  try {
+    setScriptCacheText_(key, JSON.stringify(obj), ttlSec);
+  } catch (e) {}
 }
 
 function jsonResponse(obj) {
@@ -179,6 +217,15 @@ function rowArrayToBookObject_(r, rowNum) {
   };
 }
 
+function normalizeSourceNameServer_(raw) {
+  const compact = String(raw || '').replace(/\s+/g, '').trim();
+  if (!compact) return '';
+  if (/^알라딘e-?book$/i.test(compact)) return '알라딘e-book';
+  if (/^교보e-?book$/i.test(compact)) return '교보e-book';
+  if (compact === '마포아현분관') return '마포평생아현분관';
+  return compact;
+}
+
 function buildLibraryRowArray(book) {
   return [
     String(book.title || '').trim(),
@@ -192,7 +239,7 @@ function buildLibraryRowArray(book) {
     sanitizeSeriesNumber_(book.vol),
     book.isSold ? '판매' : (book.isReturned ? '반납' : (book.isBorrowed ? '대여중' : '')),
     book.isEbook ? 'Y' : '',
-    String(book.source || book.borrowSource || '').trim(),
+    normalizeSourceNameServer_(book.source || book.borrowSource || ''),
     String(book.dueDate || '').trim(),
     String(book.status || '').trim(),
     String(book.rating || '').trim(),
@@ -765,6 +812,92 @@ function lookupAuthorPhoto_(authorName) {
   return '';
 }
 
+function searchAuthorImagesFromKakao_(query, enName, exactMode) {
+  const kakaoKey = getSecret_('KAKAO_REST_API_KEY');
+  const cleanQ = String(query || '').trim();
+  const cleanEn = String(enName || '').trim();
+  if (!kakaoKey || (!cleanQ && !cleanEn)) return [];
+
+  const BOOKSTORE_SITE_RE = /(교보문고|알라딘|예스24|yes24|인터파크|리디|영풍문고|반디앤루니스|네이버\s*(책|도서)|밀리의\s*서재|밀리의서재|윌라|북큐브|부크크|쿠팡|11번가|옥션|지마켓|g마켓|ssg|롯데온|위메프|티몬|스마트스토어|서점|도서몰|독서|책리뷰|서평)/i;
+  const BOOKSTORE_URL_RE = /(aladin\.co\.kr|yes24\.com|kyobobook\.co\.kr|interpark\.com|ridibooks\.com|bookthumb-phinf|shopping-phinf|ypbooks\.co\.kr|bandinlunis\.com|millie\.co\.kr|books\.google|bookdb\.co\.kr|coupangcdn\.com|gmarket\.co\.kr|11st\.co\.kr|ssgcdn\.com|bookcover|book_cover)/i;
+  const NEWS_SITE_RE = /(뉴스|일보|신문|방송|연합뉴스|한겨레|경향|중앙|동아|조선|매일경제|한국경제|kbs|mbc|sbs|jtbc|ytn|위키|나무위키|wikimedia|wikipedia|ted|인터뷰|매거진|채널예스|youtube|유튜브)/i;
+
+  const queries = [];
+  if (exactMode) {
+    if (cleanQ) queries.push(cleanQ);
+  } else {
+    if (cleanQ) {
+      queries.push(cleanQ + ' 인터뷰');
+      queries.push(cleanQ + ' 인물');
+    }
+    if (cleanEn && cleanEn.toLowerCase() !== cleanQ.toLowerCase()) {
+      queries.push(cleanEn + ' portrait');
+    }
+  }
+
+  const scored = [];
+  const seen = {};
+
+  const fetchBatch = (qStr, size) => {
+    const url = 'https://dapi.kakao.com/v2/search/image?size=' + size + '&sort=accuracy&query=' + encodeURIComponent(qStr);
+    try {
+      const res = UrlFetchApp.fetch(url, {
+        method: 'get',
+        headers: { Authorization: 'KakaoAK ' + kakaoKey },
+        muteHttpExceptions: true
+      });
+      if (res.getResponseCode() !== 200) return;
+      const data = JSON.parse(res.getContentText() || '{}');
+      const docs = Array.isArray(data.documents) ? data.documents : [];
+      docs.forEach((d, idx) => {
+        const thumb = String(d.thumbnail_url || '').trim().replace(/^http:\/\//i, 'https://');
+        const full = String(d.image_url || '').trim().replace(/^http:\/\//i, 'https://');
+        const docUrl = String(d.doc_url || '').trim();
+        const site = String(d.display_sitename || '').trim();
+        const col = String(d.collection || '').toLowerCase();
+        const key = thumb || full;
+        if (!key || seen[key]) return;
+        if (BOOKSTORE_SITE_RE.test(site) || BOOKSTORE_URL_RE.test(full) || BOOKSTORE_URL_RE.test(docUrl)) return;
+
+        const w = Number(d.width) || 0;
+        const h = Number(d.height) || 0;
+        if (w > 0 && h > 0 && (w < 80 || h < 80)) return;
+
+        let score = 50 - Math.min(idx, 25);
+        if (col === 'news') score += 35;
+        if (NEWS_SITE_RE.test(site)) score += 20;
+        if (w > 0 && h > 0) {
+          const ratio = h / w;
+          // 책 표지 비율(약 1.35~1.62)인 일반 블로그 이미지는 후순위로 내림
+          if (col !== 'news' && ratio >= 1.35 && ratio <= 1.62) score -= 28;
+          // 인물 사진에 흔한 정사각형~가로형 뉴스컷은 소폭 우대
+          if (ratio >= 0.55 && ratio <= 1.25) score += 8;
+        }
+
+        seen[key] = true;
+        scored.push({
+          score: score,
+          item: {
+            title: site || (col === 'news' ? '뉴스' : '이미지'),
+            description: '',
+            photoUrl: thumb || full,
+            fullUrl: full || thumb,
+            lang: col === 'news' ? 'NEWS' : 'IMG'
+          }
+        });
+      });
+    } catch (e) {}
+  };
+
+  queries.forEach(q => fetchBatch(q, 25));
+  if (scored.length < 6 && cleanQ && !exactMode) {
+    fetchBatch(cleanQ + ' 사진', 25);
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, 14).map(x => x.item);
+}
+
 function lookupAuthorPhotoCandidates_(authorName) {
   const clean = String(authorName || '')
     .replace(/\([^)]*\)|\[[^\]]*\]/g, ' ')
@@ -858,20 +991,35 @@ function handleData4LibProxy_(params) {
     const v = String(params[k] || '').trim();
     if (v !== '') qs.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
   });
+  const cacheKey = makeCacheKey_('d4l', endpoint + '?' + qs.slice(2).sort().join('&'));
+  const cachedText = getScriptCacheText_(cacheKey);
+  if (cachedText) {
+    return ContentService.createTextOutput(cachedText).setMimeType(ContentService.MimeType.JSON);
+  }
   try {
     const res = UrlFetchApp.fetch('https://data4library.kr/api/' + endpoint + '?' + qs.join('&'), { method: 'get', muteHttpExceptions: true });
-    return ContentService.createTextOutput(res.getContentText() || '{}').setMimeType(ContentService.MimeType.JSON);
+    const text = res.getContentText() || '{}';
+    if (res.getResponseCode() === 200 && text.length > 2) {
+      setScriptCacheText_(cacheKey, text, SCRIPT_CACHE_TTL_SEC);
+    }
+    return ContentService.createTextOutput(text).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return jsonResponse({ status: 'error', message: String(err) });
   }
 }
 
 function uploadCoverImageToDrive_(imageDataUrl, fileName) {
-  const match = String(imageDataUrl || '').trim().match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
-  if (!match) throw new Error('올바른 이미지 데이터 형식이 아닙니다.');
+  const match = String(imageDataUrl || '').trim().match(/^data:(image\/(?:jpeg|jpg|png|webp|gif));base64,(.+)$/i);
+  if (!match) throw new Error('지원되는 이미지 형식(JPG/PNG/WebP/GIF)이 아닙니다.');
+  const mime = match[1].toLowerCase();
   const bytes = Utilities.base64Decode(match[2]);
-  const safeName = (String(fileName || 'cover').replace(/[^a-zA-Z0-9가-힣._-]/g, '_') || 'cover') + '_' + Date.now() + '.jpg';
-  const blob = Utilities.newBlob(bytes, match[1], safeName);
+  if (bytes.length > 3 * 1024 * 1024) {
+    throw new Error('표지 이미지는 최대 3MB 이하만 업로드할 수 있습니다.');
+  }
+  const extMap = { 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif', 'image/jpeg': '.jpg', 'image/jpg': '.jpg' };
+  const ext = extMap[mime] || '.jpg';
+  const safeName = (String(fileName || 'cover').replace(/[^a-zA-Z0-9가-힣._-]/g, '_') || 'cover') + '_' + Date.now() + ext;
+  const blob = Utilities.newBlob(bytes, mime, safeName);
 
   const folders = DriveApp.getFoldersByName(COVER_FOLDER_NAME);
   const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(COVER_FOLDER_NAME);
@@ -883,6 +1031,59 @@ function uploadCoverImageToDrive_(imageDataUrl, fileName) {
 /* =========================================================
  * Web App 엔드포인트 (doGet / doPost)
  * ========================================================= */
+
+function isAllowedCoverHost_(urlStr) {
+  const m = String(urlStr || '').match(/^https?:\/\/([^\/:?#]+)/i);
+  if (!m) return false;
+  const host = m[1].toLowerCase();
+  if (host === 'localhost' || /^(\d{1,3}\.){3}\d{1,3}$/.test(host) || host.indexOf(':') !== -1) return false;
+  const allowedDomains = [
+    'aladin.co.kr', 'kyobobook.co.kr', 'yes24.com', 'ridibooks.com', 'millie.co.kr',
+    'naver.com', 'pstatic.net', 'daum.net', 'kakao.com', 'kakaocdn.net',
+    'nl.go.kr', 'data4library.kr', 'google.com', 'googleapis.com', 'googleusercontent.com',
+    'amazon.com', 'interpark.com', 'bookcube.com', 'ypbooks.co.kr', 'seoul.go.kr'
+  ];
+  return allowedDomains.some(d => host === d || host.endsWith('.' + d));
+}
+
+function extractBookCoverFromUrl_(pageUrl) {
+  const cleanUrl = String(pageUrl || '').trim();
+  if (!/^https?:\/\//i.test(cleanUrl) || !isAllowedCoverHost_(cleanUrl)) return '';
+  if (/\.(jpe?g|png|webp|gif)(\?.*)?$/i.test(cleanUrl)) {
+    return cleanUrl.replace(/^http:\/\//i, 'https://');
+  }
+  try {
+    const res = UrlFetchApp.fetch(cleanUrl, {
+      method: 'get',
+      followRedirects: true,
+      muteHttpExceptions: true,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36'
+      }
+    });
+    if (res.getResponseCode() !== 200) return '';
+    const html = res.getContentText() || '';
+    const patterns = [
+      /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i,
+      /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
+      /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
+      /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
+      /(https?:\/\/image\.aladin\.co\.kr\/product\/[^"'\s<>]+\.(?:jpg|jpeg|png|webp))/i
+    ];
+    for (let i = 0; i < patterns.length; i++) {
+      const m = html.match(patterns[i]);
+      if (m && m[1]) {
+        let imgUrl = String(m[1]).trim().replace(/&amp;/g, '&').replace(/^http:\/\//i, 'https://');
+        if (imgUrl.indexOf('//') === 0) imgUrl = 'https:' + imgUrl;
+        // 알라딘 썸네일이면 고화질(cover500)로 승격
+        imgUrl = imgUrl.replace(/\/(coversum|cover150|cover200)\//i, '/cover500/');
+        return imgUrl;
+      }
+    }
+  } catch (e) {}
+  return '';
+}
+
 function doGet(e) {
   const params = (e && e.parameter) ? e.parameter : {};
   if (!isPinAuthorized_(params.pin)) {
@@ -892,11 +1093,32 @@ function doGet(e) {
   const action = params.action ? String(params.action).trim() : '';
   if (action === 'd4lProxy') return handleData4LibProxy_(params);
   if (action === 'searchBooks') return jsonResponse({ status: 'ok', source: 'kakao', books: searchBooksFromKakao_(params.query || '') });
-  if (action === 'authorBooks') return jsonResponse({ status: 'ok', source: 'kakao', books: lookupAuthorBooksFromKakao_(params.author || '') });
-  if (action === 'authorPhoto') return jsonResponse({ status: 'ok', photoUrl: lookupAuthorPhoto_(params.author || '') });
+  if (action === 'authorBooks') {
+    const aKey = makeCacheKey_('ab', params.author || '');
+    let books = getScriptCacheJson_(aKey);
+    if (!books) {
+      books = lookupAuthorBooksFromKakao_(params.author || '');
+      if (books && books.length > 0) setScriptCacheJson_(aKey, books, SCRIPT_CACHE_TTL_SEC);
+    }
+    return jsonResponse({ status: 'ok', source: 'kakao', books: books });
+  }
+  if (action === 'authorPhoto') {
+    const pKey = makeCacheKey_('ap', params.author || '');
+    const cachedPhoto = getScriptCacheJson_(pKey);
+    const photoUrl = (cachedPhoto !== null && typeof cachedPhoto.url === 'string') ? cachedPhoto.url : lookupAuthorPhoto_(params.author || '');
+    if (cachedPhoto === null && photoUrl) setScriptCacheJson_(pKey, { url: photoUrl }, SCRIPT_CACHE_TTL_SEC);
+    return jsonResponse({ status: 'ok', photoUrl: photoUrl });
+  }
   if (action === 'authorPhotoCandidates') return jsonResponse({ status: 'ok', candidates: lookupAuthorPhotoCandidates_(params.author || '') });
+  if (action === 'searchAuthorImages') return jsonResponse({ status: 'ok', images: searchAuthorImagesFromKakao_(params.query || '', params.enName || '', params.exact === '1') });
+  if (action === 'extractCoverUrl') return jsonResponse({ status: 'ok', coverUrl: extractBookCoverFromUrl_(params.url || '') });
   if (action === 'lookupBook') {
-    const book = lookupBookCombined_(params.isbn || '', params.title || '', params.author || '');
+    const lKey = makeCacheKey_('lb', (params.isbn || '') + '|' + (params.title || '') + '|' + (params.author || ''));
+    let book = getScriptCacheJson_(lKey);
+    if (!book) {
+      book = lookupBookCombined_(params.isbn || '', params.title || '', params.author || '');
+      if (book) setScriptCacheJson_(lKey, book, SCRIPT_CACHE_TTL_SEC);
+    }
     return jsonResponse({ status: 'ok', source: book ? book.source : 'none', book: book });
   }
 
@@ -910,20 +1132,32 @@ function doGet(e) {
 }
 
 function doPost(e) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(15000);
+  let payload;
   try {
-    const payload = JSON.parse(e.postData.contents || '{}');
-    if (!isPinAuthorized_(payload.pin)) {
-      return jsonResponse({ status: 'unauthorized', message: 'PIN이 일치하지 않습니다.' });
-    }
+    payload = JSON.parse((e && e.postData && e.postData.contents) ? e.postData.contents : '{}');
+  } catch (parseErr) {
+    return jsonResponse({ status: 'error', message: '잘못된 JSON 요청입니다.' });
+  }
+  if (!isPinAuthorized_(payload.pin)) {
+    return jsonResponse({ status: 'unauthorized', message: 'PIN이 일치하지 않습니다.' });
+  }
 
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const action = payload.action;
-
-    if (action === 'uploadCoverImage') {
+  const action = payload.action;
+  // Drive 업로드는 시트 락을 점유하지 않도록 락 획득 전 처리
+  if (action === 'uploadCoverImage') {
+    try {
       return jsonResponse({ status: 'ok', url: uploadCoverImageToDrive_(payload.imageDataUrl, payload.fileName) });
+    } catch (upErr) {
+      return jsonResponse({ status: 'error', message: String(upErr) });
     }
+  }
+
+  const lock = LockService.getScriptLock();
+  let lockAcquired = false;
+  try {
+    lock.waitLock(15000);
+    lockAcquired = true;
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
     if (action === 'saveSyncState') {
       return jsonResponse({ status: 'ok', syncState: writeSyncState(ss, payload.syncState || {}) });
     }
@@ -934,12 +1168,16 @@ function doPost(e) {
       const targetRow = findLibraryRow(sheet, payload.row, payload.origTitle, payload.origAuthor, payload.origIsbn, payload.origIsEbook);
       if (targetRow === -1) return jsonResponse({ status: 'error', message: '보강할 도서 행을 찾지 못했습니다.' });
 
-      if (payload.translator) sheet.getRange(targetRow, 3).setValue(String(payload.translator).trim());
-      if (payload.pubYear) { const c = sheet.getRange(targetRow, 5); c.setNumberFormat('@'); c.setValue(String(payload.pubYear).trim()); }
-      if (payload.kdc) sheet.getRange(targetRow, 7).setValue(String(payload.kdc).trim());
-      if (payload.vol) { const v = sheet.getRange(targetRow, 9); v.setNumberFormat('@'); v.setValue(sanitizeSeriesNumber_(payload.vol)); }
-      if (payload.cover) sheet.getRange(targetRow, 21).setValue(String(payload.cover).trim());
-      if (payload.description) sheet.getRange(targetRow, 22).setValue(String(payload.description).trim());
+      const rowRange = sheet.getRange(targetRow, 1, 1, LIBRARY_HEADERS.length);
+      const rowVals = rowRange.getValues()[0];
+      if (payload.translator) rowVals[2] = String(payload.translator).trim();
+      if (payload.pubYear) rowVals[4] = String(payload.pubYear).trim();
+      if (payload.kdc) rowVals[6] = String(payload.kdc).trim();
+      if (payload.vol) rowVals[8] = sanitizeSeriesNumber_(payload.vol);
+      if (payload.cover) rowVals[20] = String(payload.cover).trim();
+      if (payload.description) rowVals[21] = String(payload.description).trim();
+      rowRange.setNumberFormat('@');
+      rowRange.setValues([rowVals]);
 
       return jsonResponse({ status: 'ok', updatedBook: readSingleLibraryBook_(sheet, targetRow) });
     }
@@ -981,7 +1219,7 @@ function doPost(e) {
 
       const book = payload.book || {};
       const range = sheet.getRange(targetRow, 1, 1, LIBRARY_HEADERS.length);
-      [5, 6, 9, 13, 16, 17].forEach(col => sheet.getRange(targetRow, col).setNumberFormat('@'));
+      range.setNumberFormat('@');
       range.setValues([buildLibraryRowArray(book)]);
 
       const updatedBook = readSingleLibraryBook_(sheet, targetRow);
@@ -1032,15 +1270,18 @@ function doPost(e) {
       if (lastRow >= 2 && items.length > 0) {
         const map = {};
         items.forEach(it => { map[String(it.isbn || '').trim()] = it; });
-        const vals = bmSheet.getRange(2, 1, lastRow - 1, 7).getValues();
+        const range = bmSheet.getRange(2, 1, lastRow - 1, 7);
+        const vals = range.getValues();
+        let changed = false;
         for (let i = 0; i < vals.length; i++) {
           const hit = map[String(vals[i][0] || '').trim()];
           if (hit) {
-            if (hit.cover) bmSheet.getRange(i + 2, 3).setValue(String(hit.cover));
-            if (hit.author) bmSheet.getRange(i + 2, 6).setValue(String(hit.author));
-            if (hit.pubYear) bmSheet.getRange(i + 2, 7).setValue(String(hit.pubYear));
+            if (hit.cover) { vals[i][2] = String(hit.cover); changed = true; }
+            if (hit.author) { vals[i][5] = String(hit.author); changed = true; }
+            if (hit.pubYear) { vals[i][6] = String(hit.pubYear); changed = true; }
           }
         }
+        if (changed) range.setValues(vals);
       }
       return jsonResponse({ status: 'ok', bookmarks: readBookmarks(ss) });
     }
@@ -1051,23 +1292,50 @@ function doPost(e) {
     }
 
     if (action === 'removeMany') {
-      const isbns = Array.isArray(payload.isbns) ? payload.isbns : [];
-      isbns.forEach(id => removeBookmarkByIsbn(ss, id));
+      const isbnSet = {};
+      (Array.isArray(payload.isbns) ? payload.isbns : []).forEach(id => {
+        const s = String(id || '').trim();
+        if (s) isbnSet[s] = true;
+      });
+      const lastRow = bmSheet.getLastRow();
+      if (lastRow >= 2 && Object.keys(isbnSet).length > 0) {
+        const vals = bmSheet.getRange(2, 1, lastRow - 1, 7).getValues();
+        const kept = vals.filter(r => !isbnSet[String(r[0] || '').trim()]);
+        if (kept.length !== vals.length) {
+          bmSheet.getRange(2, 1, lastRow - 1, 7).clearContent();
+          if (kept.length > 0) {
+            const writeRange = bmSheet.getRange(2, 1, kept.length, 7);
+            writeRange.setNumberFormat('@');
+            writeRange.setValues(kept);
+          }
+        }
+      }
       return jsonResponse({ status: 'ok', bookmarks: readBookmarks(ss) });
     }
 
     if (action === 'addMany') {
-      const books = Array.isArray(payload.books) ? payload.books : [];
-      books.forEach(b => {
-        if (!b || !b.isbn) return;
-        removeBookmarkByIsbn(ss, b.isbn);
-        const nextRow = bmSheet.getLastRow() + 1;
-        bmSheet.getRange(nextRow, 1).setNumberFormat('@');
-        bmSheet.getRange(nextRow, 1, 1, 7).setValues([[
+      const books = (Array.isArray(payload.books) ? payload.books : []).filter(b => b && b.isbn);
+      if (books.length > 0) {
+        const incomingSet = {};
+        books.forEach(b => { incomingSet[String(b.isbn).trim()] = true; });
+        const lastRow = bmSheet.getLastRow();
+        const existing = lastRow >= 2 ? bmSheet.getRange(2, 1, lastRow - 1, 7).getValues() : [];
+        const kept = existing.filter(r => {
+          const id = String(r[0] || '').trim();
+          return id && !incomingSet[id];
+        });
+        const appended = books.map(b => [
           String(b.isbn || '').trim(), String(b.title || '').trim(), String(b.cover || '').trim(),
           String(b.keyword || '').trim(), String(b.memo || '').trim(), String(b.author || '').trim(), String(b.pubYear || '').trim()
-        ]]);
-      });
+        ]);
+        const mergedRows = kept.concat(appended);
+        if (lastRow >= 2) bmSheet.getRange(2, 1, lastRow - 1, 7).clearContent();
+        if (mergedRows.length > 0) {
+          const writeRange = bmSheet.getRange(2, 1, mergedRows.length, 7);
+          writeRange.setNumberFormat('@');
+          writeRange.setValues(mergedRows);
+        }
+      }
       return jsonResponse({ status: 'ok', bookmarks: readBookmarks(ss) });
     }
 
@@ -1075,7 +1343,7 @@ function doPost(e) {
   } catch (err) {
     return jsonResponse({ status: 'error', message: String(err) });
   } finally {
-    lock.releaseLock();
+    if (lockAcquired) lock.releaseLock();
   }
 }
 
@@ -1237,20 +1505,44 @@ function runDailyData4LibEnrich() {
       }
     } catch (e) {}
 
-    let rowChanged = false;
-    if (newKdc) {
-      sheet.getRange(rowNum, 7).setValue(newKdc); // G열: 분류
-      rowChanged = true;
+    if (newKdc || newTags || newDesc) {
+      // 행 밀림 방지: 쓰기 직전에만 짧게 락을 잡고 현재 시트에서 ISBN 일치 행을 재검증
+      const writeLock = LockService.getScriptLock();
+      let gotLock = false;
+      try {
+        writeLock.waitLock(10000);
+        gotLock = true;
+        const curLastRow = sheet.getLastRow();
+        let verifiedRow = -1;
+        if (rowNum >= 2 && rowNum <= curLastRow && normalizeIsbnServer_(sheet.getRange(rowNum, 6).getValue()) === isbn) {
+          verifiedRow = rowNum;
+        } else if (curLastRow >= 2) {
+          const isbnCol = sheet.getRange(2, 6, curLastRow - 1, 1).getValues();
+          for (let k = 0; k < isbnCol.length; k++) {
+            if (normalizeIsbnServer_(isbnCol[k][0]) === isbn) {
+              verifiedRow = k + 2;
+              break;
+            }
+          }
+        }
+        if (verifiedRow !== -1) {
+          const targetRange = sheet.getRange(verifiedRow, 1, 1, LIBRARY_HEADERS.length);
+          const targetVals = targetRange.getValues()[0];
+          if (newKdc) targetVals[6] = newKdc;   // G열: 분류 (의도적 덮어쓰기 유지)
+          if (newTags) targetVals[17] = newTags; // R열: 태그 (의도적 덮어쓰기 유지)
+          if (newDesc) targetVals[21] = newDesc; // V열: 줄거리 (의도적 덮어쓰기 유지)
+          targetRange.setValues([targetVals]);
+          lastProcessedRow = verifiedRow;
+          updatedCount++;
+        } else {
+          Logger.log('배치 중 삭제/변경된 ISBN 건너뜀: ' + isbn);
+        }
+      } catch (lockErr) {
+        Logger.log('배치 행 기록 락 실패(ISBN ' + isbn + '): ' + lockErr);
+      } finally {
+        if (gotLock) writeLock.releaseLock();
+      }
     }
-    if (newTags) {
-      sheet.getRange(rowNum, 18).setValue(newTags); // R열: 태그
-      rowChanged = true;
-    }
-    if (newDesc) {
-      sheet.getRange(rowNum, 22).setValue(newDesc); // V열: 줄거리
-      rowChanged = true;
-    }
-    if (rowChanged) updatedCount++;
 
     Utilities.sleep(150);
   }

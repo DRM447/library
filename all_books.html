@@ -11,7 +11,6 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <meta name="theme-color" content="#4f46e5">
 
-  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -531,6 +530,65 @@
 
         <div id="myLibListContainer" class="mylib-list" style="padding-bottom: 72px;"></div>
         <div id="myLibMultiSelectBar" class="mylib-multiselect-bar hidden">
+          <!-- 수정 클릭 시 펼쳐지는 일괄 수정 필터 패널 -->
+          <div id="myLibBatchEditPanel" class="mylib-batch-panel hidden">
+            <div class="mylib-batch-panel-head">
+              <span class="mylib-batch-panel-title"><i data-lucide="sliders-horizontal" size="14"></i> 선택한 도서 일괄 수정</span>
+              <span class="mylib-batch-panel-hint">변경할 항목만 선택하세요</span>
+            </div>
+            <div class="mylib-batch-panel-body">
+              <div class="ridi-filter-row">
+                <div class="ridi-filter-label">상태</div>
+                <div class="ridi-filter-options" id="batchOwnershipGroup">
+                  <button type="button" class="owned-ridi-chip" data-val="owned" onclick="toggleBatchEditField('ownership', 'owned')">소장</button>
+                  <button type="button" class="owned-ridi-chip" data-val="borrowed" onclick="toggleBatchEditField('ownership', 'borrowed')">대여중</button>
+                  <button type="button" class="owned-ridi-chip" data-val="returned" onclick="toggleBatchEditField('ownership', 'returned')">반납</button>
+                  <button type="button" class="owned-ridi-chip" data-val="sold" onclick="toggleBatchEditField('ownership', 'sold')">판매</button>
+                </div>
+              </div>
+              <div class="ridi-filter-row">
+                <div class="ridi-filter-label">형태</div>
+                <div class="ridi-filter-options" id="batchFormatGroup">
+                  <button type="button" class="owned-ridi-chip" data-val="paper" onclick="toggleBatchEditField('format', 'paper')">종이책</button>
+                  <button type="button" class="owned-ridi-chip" data-val="ebook" onclick="toggleBatchEditField('format', 'ebook')">e-book</button>
+                </div>
+              </div>
+              <div class="ridi-filter-row">
+                <div class="ridi-filter-label" id="batchSourceLabel">소장/대여처</div>
+                <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; padding:6px 8px;">
+                  <div class="ridi-filter-options" id="batchSourceChips" style="padding:0;"></div>
+                  <input type="text" id="batchSourceInput" class="mylib-batch-input" placeholder="직접 입력 (띄어쓰기 자동 정리)" oninput="batchEditState.source = this.value.trim(); renderBatchEditPanelUI();">
+                </div>
+              </div>
+              <div class="ridi-filter-row hidden" id="batchDueDateRow">
+                <div class="ridi-filter-label">반납일</div>
+                <div class="ridi-filter-options" style="justify-content:flex-start; gap:6px;">
+                  <input type="date" id="batchDueDateInput" class="mylib-batch-input" style="max-width:146px;" onchange="batchEditState.dueDate = this.value.trim();">
+                  <button type="button" class="quick-tag-pick" style="background:#e0f2fe; border-color:#7dd3fc; color:#0369a1;" onclick="setBatchDueDatePlus7Days()">+7일</button>
+                </div>
+              </div>
+              <div class="ridi-filter-row">
+                <div class="ridi-filter-label">진행도</div>
+                <div class="ridi-filter-options" id="batchStatusGroup">
+                  <button type="button" class="owned-ridi-chip" data-val="예정" onclick="toggleBatchEditField('status', '예정')">예정</button>
+                  <button type="button" class="owned-ridi-chip" data-val="읽는 중" onclick="toggleBatchEditField('status', '읽는 중')">읽는 중</button>
+                  <button type="button" class="owned-ridi-chip" data-val="완독" onclick="toggleBatchEditField('status', '완독')">완독</button>
+                  <button type="button" class="owned-ridi-chip" data-val="중단" onclick="toggleBatchEditField('status', '중단')">중단</button>
+                </div>
+              </div>
+              <div class="ridi-filter-row" style="border-bottom:none;">
+                <div class="ridi-filter-label">태그 추가</div>
+                <div style="flex:1; min-width:0; padding:6px 8px;">
+                  <input type="text" id="batchTagsInput" class="mylib-batch-input" placeholder="추가할 태그 (쉼표 또는 띄어쓰기 구분)" oninput="batchEditState.tags = this.value;">
+                </div>
+              </div>
+            </div>
+            <div class="mylib-batch-panel-footer">
+              <button type="button" class="mylib-ms-ghost-btn" onclick="resetBatchEditState()">초기화</button>
+              <button type="button" class="mylib-batch-apply-btn" id="myLibBatchApplyBtn" onclick="applyBatchEditChanges()">선택 항목 적용</button>
+            </div>
+          </div>
+
           <div class="mylib-multiselect-top">
             <span id="myLibMultiSelectCount">0권 선택됨</span>
             <div class="mylib-multiselect-top-btns">
@@ -538,18 +596,13 @@
               <button type="button" class="mylib-ms-ghost-btn" onclick="exitMyLibMultiSelectMode()">취소</button>
             </div>
           </div>
-          <div class="mylib-multiselect-actions">
-            <button type="button" class="mylib-ms-action-btn ms-own" onclick="batchUpdateSelectedOwnership('owned')">소장</button>
-            <button type="button" class="mylib-ms-action-btn ms-borrow" onclick="batchUpdateSelectedOwnership('borrowed')">대여중</button>
-            <button type="button" class="mylib-ms-action-btn ms-return" onclick="batchUpdateSelectedOwnership('returned')">반납</button>
-            <button type="button" class="mylib-ms-action-btn ms-sold" onclick="batchUpdateSelectedOwnership('sold')">판매</button>
-          </div>
-          <div class="mylib-multiselect-actions">
-            <button type="button" class="mylib-ms-action-btn" onclick="batchUpdateSelectedStatus('예정')">예정</button>
-            <button type="button" class="mylib-ms-action-btn" onclick="batchUpdateSelectedStatus('읽는 중')">읽는 중</button>
-            <button type="button" class="mylib-ms-action-btn" onclick="batchUpdateSelectedStatus('완독')">완독</button>
-            <button type="button" class="mylib-ms-action-btn" onclick="batchUpdateSelectedTags()">태그</button>
-            <button type="button" class="mylib-ms-action-btn danger" onclick="batchDeleteSelectedBooks()">삭제</button>
+          <div class="mylib-multiselect-main-actions">
+            <button type="button" class="mylib-ms-primary-btn" id="myLibBatchEditToggleBtn" onclick="toggleBatchEditPanel()">
+              <i data-lucide="pencil" size="14"></i><span>수정</span>
+            </button>
+            <button type="button" class="mylib-ms-action-btn danger mylib-ms-delete-btn" onclick="batchDeleteSelectedBooks()">
+              <i data-lucide="trash-2" size="14"></i><span>삭제</span>
+            </button>
           </div>
         </div>
       </div>
@@ -849,6 +902,7 @@
   <div id="quickPopoverMenu" class="quick-popover-menu hidden" onclick="event.stopPropagation()"></div>
 
   <!-- 분리된 JS 모듈 로드 (순서 유지) -->
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
   <script src="icons.js"></script>
   <script src="api.js"></script>
   <script src="library.js"></script>

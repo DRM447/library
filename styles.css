@@ -2795,16 +2795,16 @@
   animation: shimmerSweep 1.25s infinite linear;
 }
 
-/* === v4 연속 스크롤 120Hz 최적화 === */
+/* === 모바일 터치 스크롤 씹힘 방지 최적화 === */
 .mylib-scroll-body {
-  will-change: scroll-position;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
 }
-.mylib-item {
-  touch-action: auto !important;
-  contain: layout style paint;
+.mylib-item,
+.bookmark-item {
+  touch-action: pan-y !important;
+  contain: layout style;
 }
 .mylib-item:active {
   background: #ffffff;
@@ -2953,3 +2953,226 @@
   height: auto;
   object-fit: cover;
 }
+
+
+/* === 책 소개 · 시리즈 인라인 편집 UI === */
+.owned-plot-title-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.owned-plot-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition: background-color 0.14s, color 0.14s, border-color 0.14s;
+  flex-shrink: 0;
+}
+.owned-plot-edit-btn:hover {
+  background: #eef2ff;
+  border-color: #a5b4fc;
+  color: #4338ca;
+}
+.owned-plot-done-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid #818cf8;
+  background: #4f46e5;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.owned-plot-done-btn:hover {
+  background: #4338ca;
+}
+.owned-plot-series-edit-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  flex-wrap: nowrap;
+  max-width: 100%;
+}
+.owned-plot-series-input,
+.owned-plot-vol-input {
+  height: 24px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1.5px solid #a5b4fc;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.14s, box-shadow 0.14s, background-color 0.14s;
+}
+.owned-plot-series-input {
+  width: 118px;
+  min-width: 72px;
+}
+.owned-plot-vol-input {
+  width: 54px;
+  text-align: center;
+}
+.owned-plot-series-input::placeholder,
+.owned-plot-vol-input::placeholder {
+  color: #818cf8;
+  font-weight: 600;
+}
+.owned-plot-series-input:focus,
+.owned-plot-vol-input:focus {
+  border-color: #4f46e5;
+  background: #e0e7ff;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.16);
+}
+.owned-plot-desc-textarea {
+  width: 100%;
+  min-height: 92px;
+  margin-top: 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1.5px solid #a5b4fc;
+  background: #ffffff;
+  color: #334155;
+  font-size: 12.5px;
+  line-height: 1.55;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+}
+.owned-plot-desc-textarea:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.14);
+}
+
+
+/* === 멀티 선택 전면 개편 UI (수정/삭제 + 필터형 일괄 수정 패널) === */
+.mylib-multiselect-main-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.mylib-ms-primary-btn,
+.mylib-ms-delete-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  border-radius: 11px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.14s, border-color 0.14s, transform 0.1s;
+}
+.mylib-ms-primary-btn {
+  background: #4f46e5;
+  color: #ffffff;
+  border: 1px solid #4338ca;
+}
+.mylib-ms-primary-btn:hover,
+.mylib-ms-primary-btn.active {
+  background: #4338ca;
+}
+.mylib-ms-primary-btn:active,
+.mylib-ms-delete-btn:active {
+  transform: scale(0.98);
+}
+.mylib-batch-panel {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 2px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  animation: modalPopIn 0.16s ease-out;
+}
+.mylib-batch-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 11px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+.mylib-batch-panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #1e293b;
+}
+.mylib-batch-panel-hint {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+}
+.mylib-batch-panel-body {
+  max-height: 44dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+.mylib-batch-input {
+  width: 100%;
+  height: 30px;
+  padding: 4px 9px;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+.mylib-batch-input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.14);
+}
+.mylib-batch-panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+.mylib-batch-apply-btn {
+  flex: 1;
+  height: 34px;
+  border: none;
+  border-radius: 9px;
+  background: #4f46e5;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+}
+.mylib-batch-apply-btn:hover { background: #4338ca; }
+.mylib-batch-apply-btn:disabled { opacity: 0.6; cursor: not-allowed; }

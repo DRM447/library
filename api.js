@@ -66,6 +66,18 @@
  return { get, set };
  })();
 
+ 
+ async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+   if (typeof AbortController === 'undefined') return fetch(url, options);
+   const controller = new AbortController();
+   const timer = setTimeout(() => controller.abort(), timeoutMs);
+   try {
+     return await fetch(url, { ...options, signal: controller.signal });
+   } finally {
+     clearTimeout(timer);
+   }
+ }
+
  function buildSheetGetUrl(paramsObj = {}) {
  const sheetUrl = getUnifiedApiUrl();
  if (!sheetUrl) return '';
@@ -219,7 +231,7 @@ let syncStateDebounceTimer = null;
  async function data4LibProxyFetch(endpoint, paramsObj = {}, _retried = false) {
  const reqUrl = buildSheetGetUrl({ action: 'd4lProxy', endpoint, ...paramsObj });
  if (!reqUrl) throw new Error('시트 URL이 설정되지 않았습니다.');
- const res = await fetch(reqUrl);
+ const res = await fetchWithTimeout(reqUrl);
  if (!res.ok) {
  throw new Error(`HTTP ${res.status}`);
  }
@@ -289,7 +301,7 @@ let syncStateDebounceTimer = null;
  if (!reqUrl) return { ok: false, error: '시트 URL이 설정되지 않았습니다.' };
 
  try {
- const res = await fetch(reqUrl);
+ const res = await fetchWithTimeout(reqUrl);
  if (!res.ok) return { ok: false, error: `서버 응답 오류 (HTTP ${res.status})` };
  const data = await res.json();
  if (data && data.status === 'unauthorized') {
@@ -952,7 +964,17 @@ let lastSearchFromBarcode = false;
  return s;
  }
 
- function getOwnedSource(b) {
+  function normalizeSourceName(raw) {
+   const compact = String(raw || '').replace(/\s+/g, '').trim();
+   if (!compact) return '';
+   if (/^알라딘e-?book$/i.test(compact)) return '알라딘e-book';
+   if (/^교보e-?book$/i.test(compact)) return '교보e-book';
+   if (compact === '마포아현분관') return '마포평생아현분관';
+   return compact;
+ }
+
+function getOwnedSource(book) { return normalizeSourceName(getOwnedSourceRaw_(book)); }
+ function getOwnedSourceRaw_(b) {
  return normalizeSourceLabel(b?.source || b?.borrowSource || '');
  }
 
@@ -1366,6 +1388,7 @@ let lastSearchFromBarcode = false;
 async function quickDeleteOwnedByIndex(idx) {
   const target = myOwnedBooks[idx];
   if (!target) return;
+  if (!confirm(`'${formatOwnedTitle(target)}' 도서를 내 서재에서 삭제할까요?`)) return;
   const backup = { ...target };
   try {
     const res = await sendSheetPost({
@@ -1619,7 +1642,7 @@ async function quickDeleteOwnedByIndex(idx) {
 
  if (statusEl) statusEl.innerText = '동기화 중...';
  try {
- const res = await fetch(url);
+ const res = await fetchWithTimeout(url);
  const data = await res.json();
 
  if (data && data.status === 'unauthorized') {
@@ -1728,7 +1751,7 @@ async function quickDeleteOwnedByIndex(idx) {
  const pin = getSheetWritePin();
  const bodyPayload = pin ? { ...payload, pin } : payload;
 
- const res = await fetch(url, {
+ const res = await fetchWithTimeout(url, {
  method: 'POST',
  headers: { 'Content-Type': 'text/plain;charset=utf-8' },
  body: JSON.stringify(bodyPayload)

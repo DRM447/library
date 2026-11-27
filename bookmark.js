@@ -734,6 +734,7 @@ function toggleSelectAllBookmarks() {
 function batchDeleteSelectedBookmarks() {
   const targets = Array.from(bmSelectedIsbns);
   if (targets.length === 0) return;
+  if (!confirm(`선택한 북마크 ${targets.length}권을 삭제할까요?`)) return;
   const current = mergeBookmarksWithMeta(safeReadJson('myBookmarks', []));
   const removedItems = current.filter(b => targets.includes(String(b.isbn)));
   const remaining = current.filter(b => !targets.includes(String(b.isbn)));
@@ -932,10 +933,11 @@ function loadBookmarks(shouldEnrich = true) {
   }
 }
 
-function removeBookmark(isbn) {
+function removeBookmark(isbn, skipConfirm = false) {
   const targetIsbn = String(isbn);
   const current = mergeBookmarksWithMeta(safeReadJson('myBookmarks', []));
   const removed = current.find(b => String(b.isbn) === targetIsbn);
+  if (!skipConfirm && removed && !confirm(`'${removed.title || '이 도서'}' 북마크를 삭제할까요?`)) return;
   const next = current.filter(b => String(b.isbn) !== targetIsbn);
   localStorage.setItem('myBookmarks', JSON.stringify(next));
   loadBookmarks(false);
@@ -1115,7 +1117,7 @@ function removeBookmark(isbn) {
    try {
      const reqUrl = buildSheetGetUrl({ action: 'authorPhoto', author: clean });
      if (reqUrl) {
-       const res = await fetch(reqUrl);
+       const res = await fetchWithTimeout(reqUrl);
        if (res.ok) {
          const data = await res.json();
          if (data && typeof data.photoUrl === 'string' && data.photoUrl) {
@@ -1130,7 +1132,7 @@ function removeBookmark(isbn) {
    if (!photoUrl) {
      try {
        const wUrl = `https://ko.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(clean)}&prop=pageimages|langlinks&lllang=en&piprop=thumbnail&pithumbsize=160&redirects=1&format=json&origin=*`;
-       const wRes = await fetch(wUrl);
+       const wRes = await fetchWithTimeout(wUrl);
        if (wRes.ok) {
          const wData = await wRes.json();
          const pages = wData?.query?.pages ? Object.values(wData.query.pages) : [];
@@ -1147,7 +1149,7 @@ function removeBookmark(isbn) {
      for (const qStr of [clean + ' 작가', clean]) {
        try {
          const sUrl = `https://ko.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(qStr)}&gsrlimit=5&prop=pageimages|langlinks&lllang=en&piprop=thumbnail&pithumbsize=160&format=json&origin=*`;
-         const sRes = await fetch(sUrl);
+         const sRes = await fetchWithTimeout(sUrl);
          if (sRes.ok) {
            const sData = await sRes.json();
            const pages = sData?.query?.pages ? Object.values(sData.query.pages) : [];
@@ -1166,7 +1168,7 @@ function removeBookmark(isbn) {
    if (!photoUrl && enTitle) {
      try {
        const enUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(enTitle)}&prop=pageimages&piprop=thumbnail&pithumbsize=160&redirects=1&format=json&origin=*`;
-       const enRes = await fetch(enUrl);
+       const enRes = await fetchWithTimeout(enUrl);
        if (enRes.ok) {
          const enData = await enRes.json();
          const pages = enData?.query?.pages ? Object.values(enData.query.pages) : [];
@@ -1324,7 +1326,7 @@ function isTitleRelevantToQuery(title, query) {
 
 async function fetchWikiPageByTitle(lang, titleStr) {
   const url = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(titleStr)}&prop=pageimages|description|extracts|langlinks&lllang=en&exintro=1&explaintext=1&exsentences=1&piprop=thumbnail&pithumbsize=240&redirects=1&format=json&origin=*`;
-  const res = await fetch(url);
+  const res = await fetchWithTimeout(url);
   if (!res.ok) return null;
   const data = await res.json();
   const pages = data?.query?.pages ? Object.values(data.query.pages) : [];
@@ -1341,7 +1343,7 @@ async function fetchWikiPageByTitle(lang, titleStr) {
 
 async function fetchWikiTitleCandidates(lang, queryStr, limit = 8) {
   const url = `https://${lang}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent('intitle:' + queryStr)}&gsrlimit=${limit}&prop=pageimages|description|extracts|langlinks&lllang=en&exintro=1&explaintext=1&exsentences=1&piprop=thumbnail&pithumbsize=240&format=json&origin=*`;
-  const res = await fetch(url);
+  const res = await fetchWithTimeout(url);
   if (!res.ok) return [];
   const data = await res.json();
   const pages = data?.query?.pages ? Object.values(data.query.pages) : [];
@@ -1361,7 +1363,7 @@ async function fetchWikidataAuthorCandidates(queryStr) {
   const isKorean = /[가-힣]/.test(queryStr);
   const lang = isKorean ? 'ko' : 'en';
   const sUrl = `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(queryStr)}&language=${lang}&limit=6&format=json&origin=*`;
-  const res = await fetch(sUrl);
+  const res = await fetchWithTimeout(sUrl);
   if (!res.ok) return [];
   const data = await res.json();
   const items = Array.isArray(data?.search) ? data.search : [];
@@ -1369,7 +1371,7 @@ async function fetchWikidataAuthorCandidates(queryStr) {
 
   const ids = items.map(x => x.id).filter(Boolean).slice(0, 6);
   const eUrl = `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${ids.join('|')}&props=sitelinks|labels|descriptions&languages=ko|en&format=json&origin=*`;
-  const eRes = await fetch(eUrl);
+  const eRes = await fetchWithTimeout(eUrl);
   if (!eRes.ok) return [];
   const eData = await eRes.json();
   const entities = eData?.entities || {};
@@ -1414,7 +1416,7 @@ async function fetchWikimediaCommonsPortraits(nameQuery) {
   const clean = String(nameQuery || '').trim();
   if (!clean) return [];
   const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(clean)}&gsrlimit=8&prop=imageinfo&iiprop=url|mime&iiurlwidth=300&format=json&origin=*`;
-  const res = await fetch(url);
+  const res = await fetchWithTimeout(url);
   if (!res.ok) return [];
   const data = await res.json();
   const pages = data?.query?.pages ? Object.values(data.query.pages) : [];
@@ -1496,7 +1498,7 @@ async function searchWikiAuthorCandidates() {
           exact: hasCustomHint ? '1' : '0'
         });
         if (!reqUrl) return [];
-        const res = await fetch(reqUrl);
+        const res = await fetchWithTimeout(reqUrl);
         if (!res.ok) return [];
         const data = await res.json();
         return Array.isArray(data?.images) ? data.images : [];
@@ -1518,7 +1520,7 @@ async function searchWikiAuthorCandidates() {
           exact: '0'
         });
         if (enReqUrl) {
-          const res = await fetch(enReqUrl);
+          const res = await fetchWithTimeout(enReqUrl);
           if (res.ok) {
             const data = await res.json();
             if (Array.isArray(data?.images)) extraEnImages = data.images;
@@ -1690,7 +1692,7 @@ function resetAuthorPhotoToDefault() {
      const seenKeys = new Set();
      for (const authorName of authors.slice(0, 20)) {
        try {
-         const res = await fetch(buildSheetGetUrl({ action: 'authorBooks', author: authorName }));
+         const res = await fetchWithTimeout(buildSheetGetUrl({ action: 'authorBooks', author: authorName }));
          if (!res.ok) continue;
          const data = await res.json();
          const books = Array.isArray(data?.books) ? data.books : [];

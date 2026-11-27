@@ -403,7 +403,7 @@ searchInputEl.addEventListener('input', function () {
  const runKakaoSearch = async (q) => {
  const reqUrl = buildSheetGetUrl({ action: 'searchBooks', query: q });
  if (!reqUrl) return [];
- const res = await fetch(reqUrl);
+ const res = await fetchWithTimeout(reqUrl);
  if (!res.ok) return [];
  const data = await res.json();
  return Array.isArray(data?.books) ? data.books : [];
@@ -759,7 +759,7 @@ searchInputEl.addEventListener('input', function () {
 
  container.innerHTML = '<div class="loading-msg">카카오에서 동일 저자의 다른 도서를 불러오는 중입니다...</div>';
  try {
- const res = await fetch(buildSheetGetUrl({ action: 'authorBooks', author: authorName }));
+ const res = await fetchWithTimeout(buildSheetGetUrl({ action: 'authorBooks', author: authorName }));
  if (!res.ok) throw new Error(`HTTP ${res.status}`);
  const data = await res.json();
  if (sameAuthorPager.authorName !== authorName) return;

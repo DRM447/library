@@ -142,69 +142,111 @@ refreshIcons();
 
 (function initMyLibScrollAndPullToRefresh() {
    const scrollEl = document.getElementById('myLibScrollBody');
+   const listEl = document.getElementById('myLibListContainer');
    const ptrEl = document.getElementById('myLibPtrIndicator');
    if (!scrollEl) return;
 
-   // 멀티 셀렉트는 카드 ··· 메뉴의 '선택' 항목으로 이동됨 (롱프레스 제거)
-
-   // 스크롤 중 롱프레스 차단 + 바닥 900px 전에 미리 부드럽게 append (관성 스크롤 끊김 방지)
+   // 스크롤 중 강제 레이아웃(scrollHeight) 계산을 제거하고 IntersectionObserver로 부드럽게 추가 로드
    let autoLoadBusy = false;
+   let loadMoreObserver = null;
+   function observeLoadMoreBtn() {
+     if (!listEl || typeof IntersectionObserver === 'undefined') return;
+     const btn = listEl.querySelector('.mylib-load-more');
+     if (!btn) return;
+     if (!loadMoreObserver) {
+       loadMoreObserver = new IntersectionObserver((entries) => {
+         if (autoLoadBusy) return;
+         if (entries.some(entry => entry.isIntersecting)) {
+           autoLoadBusy = true;
+           requestAnimationFrame(() => {
+             try { loadMoreMyLibrary(); } finally {
+               autoLoadBusy = false;
+               observeLoadMoreBtn();
+             }
+           });
+         }
+       }, { root: scrollEl, rootMargin: '700px 0px' });
+     }
+     loadMoreObserver.disconnect();
+     loadMoreObserver.observe(btn);
+   }
+   if (listEl && typeof MutationObserver !== 'undefined') {
+     new MutationObserver(() => observeLoadMoreBtn()).observe(listEl, { childList: true });
+   }
+
+   // 스크롤 상태만 최소한으로 갱신 (레이아웃 읽기 없음)
    scrollEl.addEventListener('scroll', () => {
      isMyLibActivelyScrolling = true;
-     cancelMyLibCardLongPress();
      if (myLibScrollIdleTimer) clearTimeout(myLibScrollIdleTimer);
      myLibScrollIdleTimer = setTimeout(() => { isMyLibActivelyScrolling = false; }, 140);
-
-     if (autoLoadBusy) return;
-     if (scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 900) {
-       const loadMoreBtn = document.querySelector('#myLibListContainer .mylib-load-more');
-       if (loadMoreBtn) {
-         autoLoadBusy = true;
-         loadMoreMyLibrary();
-         requestAnimationFrame(() => { autoLoadBusy = false; });
-       }
-     }
    }, { passive: true });
 
-   // 최상단에서 아래로 끌어내려 시트 자동 동기화 (Pull-to-Refresh)
+   // 최상단 Pull-to-Refresh: 세로 당김이 확실할 때만 동작 + touchcancel 정리 + rAF 배치
+   let ptrStartX = 0;
    let ptrStartY = 0;
    let ptrPulling = false;
    let ptrTriggered = false;
    let ptrSyncing = false;
+   let ptrRaf = 0;
+
+   function resetPtrUI() {
+     ptrPulling = false;
+     ptrTriggered = false;
+     if (ptrRaf) { cancelAnimationFrame(ptrRaf); ptrRaf = 0; }
+     if (ptrEl) { ptrEl.style.height = '0px'; ptrEl.classList.remove('visible'); }
+   }
 
    scrollEl.addEventListener('touchstart', (e) => {
      if (ptrSyncing || scrollEl.scrollTop > 0 || e.touches.length !== 1) return;
+     ptrStartX = e.touches[0].clientX;
      ptrStartY = e.touches[0].clientY;
      ptrPulling = true;
      ptrTriggered = false;
    }, { passive: true });
 
    scrollEl.addEventListener('touchmove', (e) => {
-     if (!ptrPulling || ptrSyncing) return;
+     if (!ptrPulling || ptrSyncing || e.touches.length !== 1) return;
      if (scrollEl.scrollTop > 0) {
-       ptrPulling = false;
-       if (ptrEl) { ptrEl.style.height = '0px'; ptrEl.classList.remove('visible'); }
+       resetPtrUI();
        return;
      }
+     const dx = Math.abs(e.touches[0].clientX - ptrStartX);
      const dy = e.touches[0].clientY - ptrStartY;
-     if (dy > 28 && ptrEl) {
-       const h = Math.min(46, Math.round((dy - 28) * 0.55));
-       ptrEl.style.height = h + 'px';
-       ptrEl.classList.add('visible');
-       if (dy >= 72) {
-         ptrTriggered = true;
-         ptrEl.textContent = '놓아서 시트 동기화';
-       } else {
-         ptrTriggered = false;
-         ptrEl.textContent = '당겨서 시트 동기화';
+     if (dy <= 0) {
+       resetPtrUI();
+       return;
+     }
+     // 대각선/가로 제스처가 섞이면 PTR 즉시 해제해 일반 스크롤 방해 금지
+     if (dx > 18 && dy < dx * 1.6) {
+       resetPtrUI();
+       return;
+     }
+     if (dy > 36 && ptrEl) {
+       const h = Math.min(46, Math.round((dy - 36) * 0.55));
+       const ready = dy >= 82;
+       ptrTriggered = ready;
+       if (!ptrRaf) {
+         ptrRaf = requestAnimationFrame(() => {
+           ptrRaf = 0;
+           if (!ptrPulling || !ptrEl) return;
+           ptrEl.style.height = h + 'px';
+           ptrEl.classList.add('visible');
+           ptrEl.textContent = ready ? '놓아서 시트 동기화' : '당겨서 시트 동기화';
+         });
        }
      }
    }, { passive: true });
 
+   scrollEl.addEventListener('touchcancel', () => {
+     if (!ptrSyncing) resetPtrUI();
+   }, { passive: true });
+
    scrollEl.addEventListener('touchend', async () => {
      if (!ptrPulling) return;
+     const shouldSync = ptrTriggered && !ptrSyncing;
      ptrPulling = false;
-     if (ptrTriggered && !ptrSyncing) {
+     if (ptrRaf) { cancelAnimationFrame(ptrRaf); ptrRaf = 0; }
+     if (shouldSync) {
        ptrSyncing = true;
        if (ptrEl) {
          ptrEl.style.height = '38px';
@@ -213,14 +255,10 @@ refreshIcons();
        }
        try { await syncAllFromSheet(true); } finally {
          ptrSyncing = false;
-         if (ptrEl) {
-           ptrEl.style.height = '0px';
-           ptrEl.classList.remove('visible');
-         }
+         resetPtrUI();
        }
-     } else if (ptrEl) {
-       ptrEl.style.height = '0px';
-       ptrEl.classList.remove('visible');
+     } else {
+       resetPtrUI();
      }
    }, { passive: true });
  })();

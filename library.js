@@ -129,10 +129,10 @@ let myLibScrollIdleTimer = null;
    myLibFormatFilter = 'all';
    myLibOwnershipFilter = 'all';
    myLibReadingStatuses = [];
-   if (tab === 'paper') myLibFormatFilter = 'paper';
+   if (tab === 'unread') myLibReadingStatuses = ['예정'];
+   else if (tab === 'paper') myLibFormatFilter = 'paper';
    else if (tab === 'ebook') myLibFormatFilter = 'ebook';
    else if (tab === 'borrowed') myLibOwnershipFilter = '대여중';
-   else if (tab === 'done') myLibReadingStatuses = ['완독'];
    applyMyLibFilters();
  }
 
@@ -141,19 +141,20 @@ let myLibScrollIdleTimer = null;
  if (!bar) return;
  const stats = computeLibraryStats();
  const isAll = !myLibDuplicatesMode && myLibReadingStatuses.length === 0 && myLibOwnershipFilter === 'all' && myLibFormatFilter === 'all' && myLibRatingFilter === 'all' && myLibSelectedTags.length === 0 && myLibSelectedSources.length === 0;
+ const unreadCount = myOwnedBooks.filter(b => { const st = normalizeReadingStatus(b.status); return st === '예정' || st === ''; }).length;
  const activeBorrowedCount = myOwnedBooks.filter(b => isOwnedBorrowed(b) && !isOwnedSold(b) && !isOwnedReturned(b)).length;
  const activeTab = myLibDuplicatesMode ? ''
+ : (myLibReadingStatuses.length === 1 && myLibReadingStatuses[0] === '예정' && myLibFormatFilter === 'all' && myLibOwnershipFilter === 'all') ? 'unread'
  : (myLibOwnershipFilter === '대여중' && myLibFormatFilter === 'all' && myLibReadingStatuses.length === 0) ? 'borrowed'
  : (myLibFormatFilter === 'paper' && myLibOwnershipFilter === 'all' && myLibReadingStatuses.length === 0) ? 'paper'
  : (myLibFormatFilter === 'ebook' && myLibOwnershipFilter === 'all' && myLibReadingStatuses.length === 0) ? 'ebook'
- : (myLibReadingStatuses.length === 1 && myLibReadingStatuses[0] === '완독' && myLibFormatFilter === 'all' && myLibOwnershipFilter === 'all') ? 'done'
  : (isAll ? 'all' : '');
  bar.innerHTML = `
  <button type="button" class="mylib-top-tab ${activeTab === 'all' ? 'active' : ''}" onclick="selectMyLibTopTab('all')">전체 <strong>${stats.total}</strong></button>
+ <button type="button" class="mylib-top-tab ${activeTab === 'unread' ? 'active' : ''}" onclick="selectMyLibTopTab('unread')">읽지 않음 <strong>${unreadCount}</strong></button>
  <button type="button" class="mylib-top-tab ${activeTab === 'paper' ? 'active' : ''}" onclick="selectMyLibTopTab('paper')">종이책 <strong>${stats.paper}</strong></button>
  <button type="button" class="mylib-top-tab ${activeTab === 'ebook' ? 'active' : ''}" onclick="selectMyLibTopTab('ebook')">e-book <strong>${stats.ebooks}</strong></button>
  <button type="button" class="mylib-top-tab ${activeTab === 'borrowed' ? 'active' : ''}" onclick="selectMyLibTopTab('borrowed')">대여중 <strong>${activeBorrowedCount}</strong></button>
- <button type="button" class="mylib-top-tab ${activeTab === 'done' ? 'active' : ''}" onclick="selectMyLibTopTab('done')">완독 <strong>${stats.donePct}%</strong></button>
  `;
 
  
@@ -1130,10 +1131,235 @@ async function quickChangeOwnedStatus(idx, newStatus) {
    openOwnedEditModalByIndex(idx);
  }
 
+ const batchEditState = {
+   open: false,
+   ownership: '',
+   format: '',
+   source: '',
+   dueDate: '',
+   status: '',
+   tags: ''
+ };
+
+ function resetBatchEditState() {
+   batchEditState.ownership = '';
+   batchEditState.format = '';
+   batchEditState.source = '';
+   batchEditState.dueDate = '';
+   batchEditState.status = '';
+   batchEditState.tags = '';
+   const sIn = document.getElementById('batchSourceInput');
+   const dIn = document.getElementById('batchDueDateInput');
+   const tIn = document.getElementById('batchTagsInput');
+   if (sIn) sIn.value = '';
+   if (dIn) dIn.value = '';
+   if (tIn) tIn.value = '';
+   renderBatchEditPanelUI();
+ }
+
+ function toggleBatchEditPanel(forceState) {
+   if (myLibSelectedRows.size === 0 && forceState !== false) {
+     showToast('수정할 책을 먼저 선택해 주세요.', 'info');
+     return;
+   }
+   batchEditState.open = (typeof forceState === 'boolean') ? forceState : !batchEditState.open;
+   renderBatchEditPanelUI();
+ }
+
+ function toggleBatchEditField(field, val) {
+   batchEditState[field] = (batchEditState[field] === val) ? '' : val;
+   if (field === 'ownership' && batchEditState.ownership !== 'borrowed') {
+     batchEditState.dueDate = '';
+     const dIn = document.getElementById('batchDueDateInput');
+     if (dIn) dIn.value = '';
+   }
+   renderBatchEditPanelUI();
+ }
+
+ function selectBatchSourceChip(src) {
+   const norm = normalizeSourceName(src);
+   batchEditState.source = (batchEditState.source === norm) ? '' : norm;
+   const sIn = document.getElementById('batchSourceInput');
+   if (sIn) sIn.value = batchEditState.source;
+   renderBatchEditPanelUI();
+ }
+
+ function setBatchDueDatePlus7Days() {
+   const d = new Date();
+   d.setDate(d.getDate() + 7);
+   const y = d.getFullYear();
+   const m = String(d.getMonth() + 1).padStart(2, '0');
+   const day = String(d.getDate()).padStart(2, '0');
+   const val = `${y}-${m}-${day}`;
+   batchEditState.dueDate = val;
+   const dIn = document.getElementById('batchDueDateInput');
+   if (dIn) dIn.value = val;
+ }
+
+ function renderBatchEditPanelUI() {
+   const panel = document.getElementById('myLibBatchEditPanel');
+   const toggleBtn = document.getElementById('myLibBatchEditToggleBtn');
+   if (panel) panel.classList.toggle('hidden', !batchEditState.open);
+   if (toggleBtn) toggleBtn.classList.toggle('active', batchEditState.open);
+
+   const ownClsMap = { owned: 'active-owned', borrowed: 'active-borrowed', returned: 'active-returned', sold: 'active-sold' };
+   document.querySelectorAll('#batchOwnershipGroup .owned-ridi-chip').forEach(btn => {
+     const v = btn.getAttribute('data-val');
+     btn.classList.remove('active-owned', 'active-borrowed', 'active-returned', 'active-sold');
+     if (v === batchEditState.ownership && ownClsMap[v]) btn.classList.add(ownClsMap[v]);
+   });
+
+   const fmtClsMap = { paper: 'active-paper', ebook: 'active-ebook' };
+   document.querySelectorAll('#batchFormatGroup .owned-ridi-chip').forEach(btn => {
+     const v = btn.getAttribute('data-val');
+     btn.classList.remove('active-paper', 'active-ebook');
+     if (v === batchEditState.format && fmtClsMap[v]) btn.classList.add(fmtClsMap[v]);
+   });
+
+   const stClsMap = { '예정': 'active-planned', '읽는 중': 'active-reading', '완독': 'active-done', '중단': 'active-stop' };
+   document.querySelectorAll('#batchStatusGroup .owned-ridi-chip').forEach(btn => {
+     const v = btn.getAttribute('data-val');
+     btn.classList.remove('active-planned', 'active-reading', 'active-done', 'active-stop');
+     if (v === batchEditState.status && stClsMap[v]) btn.classList.add(stClsMap[v]);
+   });
+
+   const dueRow = document.getElementById('batchDueDateRow');
+   if (dueRow) dueRow.classList.toggle('hidden', batchEditState.ownership !== 'borrowed');
+
+   const srcLabel = document.getElementById('batchSourceLabel');
+   if (srcLabel) {
+     srcLabel.textContent = (batchEditState.ownership === 'borrowed' || batchEditState.ownership === 'returned') ? '대여처 *' : '소장/대여처';
+   }
+
+   const srcChipsEl = document.getElementById('batchSourceChips');
+   if (srcChipsEl) {
+     const isEbookMode = batchEditState.format === 'ebook';
+     const isBorrowMode = batchEditState.ownership === 'borrowed' || batchEditState.ownership === 'returned';
+     let pool = [];
+     if (isBorrowMode && isEbookMode) pool = EBOOK_BORROW_SOURCES;
+     else if (isBorrowMode && batchEditState.format === 'paper') pool = OFFLINE_BORROW_SOURCES;
+     else if (isEbookMode) pool = Array.from(new Set([...EBOOK_OWNED_SOURCES, ...EBOOK_BORROW_SOURCES]));
+     else pool = Array.from(new Set([...OFFLINE_BORROW_SOURCES, ...EBOOK_OWNED_SOURCES, ...EBOOK_BORROW_SOURCES]));
+     const curSrc = normalizeSourceName(batchEditState.source);
+     srcChipsEl.innerHTML = pool.map(src => {
+       const norm = normalizeSourceName(src);
+       const act = curSrc === norm ? 'active-owned' : '';
+       return `<button type="button" class="owned-ridi-chip ${act}" onclick="selectBatchSourceChip('${escapeHtml(norm)}')">${escapeHtml(norm)}</button>`;
+     }).join('');
+   }
+
+   const applyBtn = document.getElementById('myLibBatchApplyBtn');
+   if (applyBtn) {
+     applyBtn.textContent = `선택한 ${myLibSelectedRows.size}권 일괄 적용`;
+   }
+   if (panel && batchEditState.open) refreshIcons(panel);
+ }
+
+ async function applyBatchEditChanges() {
+   const targets = myOwnedBooks.filter(b => myLibSelectedRows.has(b.row));
+   if (targets.length === 0) { showToast('선택된 책이 없어요.', 'info'); return; }
+
+   const hasOwn = !!batchEditState.ownership;
+   const hasFmt = !!batchEditState.format;
+   const normSource = normalizeSourceName(batchEditState.source);
+   const hasSrc = !!normSource;
+   const hasDue = !!batchEditState.dueDate;
+   const hasSt = !!batchEditState.status;
+   const newTags = String(batchEditState.tags || '').split(/[,\s]+/).map(t => t.replace(/^#+/, '').trim()).filter(Boolean);
+   const hasTags = newTags.length > 0;
+
+   if (!hasOwn && !hasFmt && !hasSrc && !hasDue && !hasSt && !hasTags) {
+     showToast('변경할 항목을 하나 이상 선택해 주세요.', 'info');
+     return;
+   }
+
+   if (hasOwn && (batchEditState.ownership === 'borrowed' || batchEditState.ownership === 'returned') && !hasSrc) {
+     const missingSrcCount = targets.filter(b => !getOwnedSource(b)).length;
+     if (missingSrcCount > 0) {
+       showToast(`대여처가 없는 책 ${missingSrcCount}권이 있어 대여처를 선택해야 합니다.`, 'error');
+       return;
+     }
+   }
+
+   const applyBtn = document.getElementById('myLibBatchApplyBtn');
+   if (applyBtn) { applyBtn.disabled = true; applyBtn.textContent = '적용 중...'; }
+   showToast(`${targets.length}권 일괄 수정 중...`, 'info');
+
+   const today = getTodayDateStr();
+   let okCount = 0;
+   for (const b of targets) {
+     const nextIsEbook = hasFmt ? (batchEditState.format === 'ebook') : isOwnedEbook(b);
+     let nextBorrowed = isOwnedBorrowed(b);
+     let nextReturned = isOwnedReturned(b);
+     let nextSold = isOwnedSold(b);
+     if (hasOwn) {
+       nextBorrowed = (batchEditState.ownership === 'borrowed');
+       nextReturned = (batchEditState.ownership === 'returned');
+       nextSold = (batchEditState.ownership === 'sold');
+     }
+     const nextSource = nextSold ? '' : (hasSrc ? normSource : getOwnedSource(b));
+     const nextDue = nextBorrowed ? (hasDue ? batchEditState.dueDate : (b.dueDate || '')) : '';
+     const nextStatus = hasSt ? batchEditState.status : (b.status || '');
+     let nextStart = b.startDate || '';
+     let nextFinish = b.finishDate || '';
+     if (hasSt && nextStatus === '읽는 중' && !nextStart) nextStart = today;
+     if (hasSt && nextStatus === '완독' && !nextFinish) nextFinish = today;
+
+     let nextTagsStr = b.tags || '';
+     if (hasTags) {
+       const existing = String(b.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+       const merged = existing.slice();
+       newTags.forEach(t => { if (!merged.includes(t)) merged.push(t); });
+       nextTagsStr = merged.join(', ');
+     }
+
+     const updatedBook = {
+       ...b,
+       isEbook: nextIsEbook,
+       isBorrowed: nextBorrowed,
+       isReturned: nextReturned,
+       isSold: nextSold,
+       source: nextSource,
+       borrowSource: nextSource,
+       dueDate: nextDue,
+       status: nextStatus,
+       startDate: nextStart,
+       finishDate: nextFinish,
+       tags: nextTagsStr
+     };
+     setOwnedEbookFlag(updatedBook, nextIsEbook);
+     setOwnedBorrowFlag(updatedBook, nextBorrowed);
+     try {
+       const res = await sendSheetPost({
+         target: 'library',
+         action: 'lib_update',
+         row: b.row,
+         origTitle: b.title,
+         origAuthor: b.author,
+         origIsbn: b.isbn,
+         origIsEbook: isOwnedEbook(b),
+         book: updatedBook
+       });
+       if (res && res.status === 'ok') okCount++;
+     } catch (e) {}
+   }
+
+   if (applyBtn) applyBtn.disabled = false;
+   exitMyLibMultiSelectMode();
+   showToast(`${okCount}권을 일괄 수정했어요.`, 'success');
+ }
+
+ function getMultiSelectCandidateBooks() {
+   const filtered = Array.isArray(lastFilteredOwnedBooks) ? lastFilteredOwnedBooks : getFilteredOwnedBooks();
+   return filtered.filter(b => b && b.row !== undefined);
+ }
+
  function enterMyLibMultiSelectMode(initialRow) {
    myLibDuplicatesMode = false;
    myLibMultiSelectMode = true;
    myLibSelectedRows.clear();
+   batchEditState.open = false;
+   resetBatchEditState();
    if (initialRow !== undefined && initialRow !== null) myLibSelectedRows.add(initialRow);
    updateMyLibMultiSelectBar();
    renderMyLibraryList(false);
@@ -1142,6 +1368,8 @@ async function quickChangeOwnedStatus(idx, newStatus) {
  function exitMyLibMultiSelectMode() {
    myLibMultiSelectMode = false;
    myLibSelectedRows.clear();
+   batchEditState.open = false;
+   resetBatchEditState();
    updateMyLibMultiSelectBar();
    renderMyLibraryList(false);
  }
@@ -1156,20 +1384,21 @@ async function quickChangeOwnedStatus(idx, newStatus) {
    bar.classList.toggle('hidden', !myLibMultiSelectMode);
    if (cntEl) cntEl.textContent = `${myLibSelectedRows.size}권 선택됨`;
    if (allBtn) {
-     const visibleCards = document.querySelectorAll('#myLibListContainer .mylib-item[data-book-idx]');
-     const allSelected = visibleCards.length > 0 && myLibSelectedRows.size >= visibleCards.length;
-     allBtn.textContent = allSelected ? '전체해제' : '전체선택';
+     const candidates = getMultiSelectCandidateBooks();
+     const allSelected = candidates.length > 0 && candidates.every(b => myLibSelectedRows.has(b.row));
+     allBtn.textContent = allSelected ? '전체해제' : `전체선택 (${candidates.length})`;
    }
+   renderBatchEditPanelUI();
+   if (myLibMultiSelectMode) refreshIcons(bar);
  }
 
  function toggleSelectAllMyLib() {
-   const cards = Array.from(document.querySelectorAll('#myLibListContainer .mylib-item[data-book-idx]'));
-   const visibleRows = cards.map(el => myOwnedBooks[Number(el.getAttribute('data-book-idx'))]?.row).filter(r => r !== undefined);
-   const allSelected = visibleRows.length > 0 && visibleRows.every(r => myLibSelectedRows.has(r));
+   const candidates = getMultiSelectCandidateBooks();
+   const allSelected = candidates.length > 0 && candidates.every(b => myLibSelectedRows.has(b.row));
    if (allSelected) {
      myLibSelectedRows.clear();
    } else {
-     visibleRows.forEach(r => myLibSelectedRows.add(r));
+     candidates.forEach(b => myLibSelectedRows.add(b.row));
    }
    updateMyLibMultiSelectBar();
    renderMyLibraryList(false);
@@ -1275,6 +1504,7 @@ async function quickChangeOwnedStatus(idx, newStatus) {
  async function batchDeleteSelectedBooks() {
   const targets = myOwnedBooks.filter(b => myLibSelectedRows.has(b.row)).sort((a, b) => (Number(b.row) || 0) - (Number(a.row) || 0));
   if (targets.length === 0) { showToast('선택된 책이 없어요.', 'info'); return; }
+  if (!confirm(`선택한 ${targets.length}권의 도서를 내 서재에서 삭제할까요?`)) return;
   const backups = targets.map(t => ({ ...t }));
   let okCount = 0;
   showToast(`${targets.length}권 삭제 중...`, '');
@@ -1453,6 +1683,7 @@ async function quickChangeOwnedStatus(idx, newStatus) {
  currentModalLoanStats = String(b.loanStats || '').trim();
  currentModalKakaoUrl = '';
  isOwnedPlotExpanded = false;
+ isOwnedPlotEditing = false;
  const bioCache = getBookAuthorBioCache();
  const bioKey = normalizeIsbn(b.isbn) || normalizeBookTitle(b.title);
  currentModalAuthorBio = (bioKey && bioCache[bioKey]) ? bioCache[bioKey] : '';
@@ -1511,7 +1742,9 @@ async function quickChangeOwnedStatus(idx, newStatus) {
  memo: (document.getElementById('ownedInputMemo')?.value || '').trim(),
  isEbook: selectedOwnedIsEbook,
  isBorrowed: selectedOwnedIsBorrowed,
+ isReturned: selectedOwnedIsReturned,
  isSold: selectedOwnedIsSold,
+ description: currentModalDescription || '',
  cover: currentModalCoverUrl || ''
  });
  }
@@ -1872,10 +2105,47 @@ async function quickChangeOwnedStatus(idx, newStatus) {
  return parts.join(' · ');
  }
 
+ let isOwnedPlotEditing = false;
+
  function handleOwnedMetaPlotBoxClick(ev) {
-  if (ev.target.closest('a, button')) return;
+  if (isOwnedPlotEditing) return;
+  if (ev.target.closest('a, button, input, textarea')) return;
   toggleOwnedPlotExpand();
 }
+
+ function toggleOwnedPlotEditMode(editing) {
+  isOwnedPlotEditing = !!editing;
+  if (isOwnedPlotEditing) isOwnedPlotExpanded = true;
+  renderOwnedMetaPlotBox();
+  if (isOwnedPlotEditing) {
+    const ta = document.getElementById('ownedPlotDescTextarea');
+    if (ta) {
+      ta.focus();
+      ta.setSelectionRange(ta.value.length, ta.value.length);
+    }
+  }
+ }
+
+ function syncPlotSeriesToHidden() {
+  const sEl = document.getElementById('ownedPlotSeriesInput');
+  const vEl = document.getElementById('ownedPlotVolInput');
+  const hSeries = document.getElementById('ownedInputSeries');
+  const hVol = document.getElementById('ownedInputVol');
+  if (sEl && hSeries) hSeries.value = sEl.value.trim();
+  if (vEl && hVol) {
+    const cleanVol = String(vEl.value || '').replace(/[^0-9]/g, '');
+    hVol.value = cleanVol;
+    currentModalVol = cleanVol;
+  }
+ }
+
+ function finishOwnedPlotEditMode() {
+  const ta = document.getElementById('ownedPlotDescTextarea');
+  if (ta) currentModalDescription = ta.value.trim();
+  syncPlotSeriesToHidden();
+  isOwnedPlotEditing = false;
+  renderOwnedMetaPlotBox();
+ }
 
 function toggleOwnedPlotExpand() {
  isOwnedPlotExpanded = !isOwnedPlotExpanded;
@@ -2041,23 +2311,45 @@ function toggleOwnedPlotExpand() {
  const titleVal = (document.getElementById('ownedInputTitle')?.value || '').trim();
  const qKey = isbnVal || extractMainTitleForSearch(titleVal) || titleVal;
  const daumUrl = qKey ? (currentModalKakaoUrl || `https://search.daum.net/search?w=book&q=${encodeURIComponent(qKey)}`) : '';
+ const aladinUrl = (isbnVal.length === 10 || isbnVal.length === 13)
+   ? `https://www.aladin.co.kr/shop/wproduct.aspx?ISBN=${encodeURIComponent(isbnVal)}`
+   : (qKey ? `https://www.aladin.co.kr/m/msearch.aspx?SearchWord=${encodeURIComponent(qKey)}&SearchTarget=All&start=h_keyword` : '');
 
  const titleLabelHtml = daumUrl
  ? `<a href="${escapeHtml(daumUrl)}" target="_blank" rel="noopener" class="owned-plot-title-link" title="카카오 도서 검색으로 이동">책 소개</a>`
  : '<span>책 소개</span>';
- const seriesBadgeHtml = (seriesVal && volHash)
- ? `<span class="mylib-badge series">${escapeHtml(seriesVal)} ${escapeHtml(volHash)}</span>`
- : (seriesVal ? `<span class="mylib-badge series">${escapeHtml(seriesVal)}</span>` : (volHash ? `<span class="mylib-badge series">${escapeHtml(volHash)}</span>` : ''));
- heading.innerHTML = `${titleLabelHtml}${seriesBadgeHtml}`;
- syncInlineMetaButtons();
 
- const descText = cleanDesc || '등록된 줄거리 정보가 없습니다.';
-  const isTruncatedBySource = /([.]{3}|…)\s*$/.test(descText);
-  const fullLinkHtml = (daumUrl && isTruncatedBySource && isOwnedPlotExpanded)
-    ? ` <a href="${escapeHtml(daumUrl)}" target="_blank" rel="noopener" class="owned-author-bio-link" style="margin-left:3px;">전문 보기 ↗</a>`
-    : '';
-  body.classList.toggle('is-clamped', !isOwnedPlotExpanded);
-  body.innerHTML = `${escapeHtml(descText)}${fullLinkHtml}`;
+ if (isOwnedPlotEditing) {
+   heading.innerHTML = `
+     <span class="owned-plot-title-group">
+       ${titleLabelHtml}
+       <button type="button" class="owned-plot-done-btn" onclick="event.stopPropagation(); finishOwnedPlotEditMode();" title="책 소개·시리즈 수정 완료">완료</button>
+     </span>
+     <span class="owned-plot-series-edit-wrap" onclick="event.stopPropagation()">
+       <input type="text" id="ownedPlotSeriesInput" class="owned-plot-series-input" value="${escapeHtml(seriesVal)}" placeholder="시리즈명" oninput="syncPlotSeriesToHidden()" onkeydown="if(event.key==='Enter'){event.preventDefault(); finishOwnedPlotEditMode();}">
+       <input type="text" id="ownedPlotVolInput" class="owned-plot-vol-input" inputmode="numeric" value="${escapeHtml(volVal)}" placeholder="넘버" oninput="syncPlotSeriesToHidden()" onkeydown="if(event.key==='Enter'){event.preventDefault(); finishOwnedPlotEditMode();}">
+     </span>
+   `;
+   syncInlineMetaButtons();
+   body.classList.remove('is-clamped');
+   body.innerHTML = `<textarea id="ownedPlotDescTextarea" class="owned-plot-desc-textarea" rows="5" placeholder="책 소개(줄거리)를 입력해 주세요." oninput="currentModalDescription = this.value;" onclick="event.stopPropagation()">${escapeHtml(cleanDesc)}</textarea>`;
+ } else {
+   const editPencilHtml = `<button type="button" class="owned-plot-edit-btn" onclick="event.stopPropagation(); toggleOwnedPlotEditMode(true);" title="책 소개·시리즈 수정" aria-label="책 소개 및 시리즈 수정"><i data-lucide="pencil" size="12"></i></button>`;
+   const seriesBadgeHtml = (seriesVal && volHash)
+   ? `<span class="mylib-badge series">${escapeHtml(seriesVal)} ${escapeHtml(volHash)}</span>`
+   : (seriesVal ? `<span class="mylib-badge series">${escapeHtml(seriesVal)}</span>` : (volHash ? `<span class="mylib-badge series">${escapeHtml(volHash)}</span>` : ''));
+   heading.innerHTML = `<span class="owned-plot-title-group">${titleLabelHtml}${editPencilHtml}</span>${seriesBadgeHtml}`;
+   syncInlineMetaButtons();
+
+   const descText = cleanDesc || '등록된 줄거리 정보가 없습니다.';
+   const isTruncatedBySource = /([.]{3}|…)\s*$/.test(descText);
+   const fullLinkHtml = (aladinUrl && isTruncatedBySource && isOwnedPlotExpanded)
+     ? ` <a href="${escapeHtml(aladinUrl)}" target="_blank" rel="noopener" class="owned-author-bio-link" style="margin-left:3px;" title="알라딘 책 페이지로 이동">전문 보기 ↗</a>`
+     : '';
+   body.classList.toggle('is-clamped', !isOwnedPlotExpanded);
+   body.innerHTML = `${escapeHtml(descText)}${fullLinkHtml}`;
+ }
+ refreshIcons(box);
 
 
  const authorBioBox = document.getElementById('ownedAuthorBioBox');
@@ -2133,7 +2425,7 @@ function toggleOwnedPlotExpand() {
  const cacheKey = 'v2:' + primaryAuthor.toLowerCase();
  let books = getApiCache('kakaoAuthor', cacheKey, API_CACHE_TTL_MS);
  if (!Array.isArray(books)) {
- const res = await fetch(buildSheetGetUrl({ action: 'authorBooks', author: primaryAuthor }));
+ const res = await fetchWithTimeout(buildSheetGetUrl({ action: 'authorBooks', author: primaryAuthor }));
  if (!res.ok) throw new Error(`HTTP ${res.status}`);
  const data = await res.json();
  if (!data || !Array.isArray(data.books)) {
@@ -2653,7 +2945,7 @@ function toggleOwnedPlotExpand() {
  const cacheKey = 'v2:' + title.toLowerCase();
  let books = getApiCache('kakaoCand', cacheKey, API_CACHE_TTL_MS);
  if (!Array.isArray(books)) {
- const res = await fetch(buildSheetGetUrl({ action: 'searchBooks', query: title }));
+ const res = await fetchWithTimeout(buildSheetGetUrl({ action: 'searchBooks', query: title }));
  if (!res.ok) throw new Error(`HTTP ${res.status}`);
  const data = await res.json();
  if (!data || !Array.isArray(data.books)) {
@@ -2998,9 +3290,21 @@ function toggleOwnedPlotExpand() {
 
  async function saveOwnedBookFromModal() {
  if (!activeOwnedEditContext) return;
+ if (isOwnedPlotEditing) {
+ const ta = document.getElementById('ownedPlotDescTextarea');
+ if (ta) currentModalDescription = ta.value.trim();
+ syncPlotSeriesToHidden();
+ }
  const title = document.getElementById('ownedInputTitle').value.trim();
  if (!title) {
  showToast('책 제목을 입력해 주세요.', 'error');
+ return;
+ }
+ const isBorrowOrReturn = !selectedOwnedIsSold && (selectedOwnedIsBorrowed || selectedOwnedIsReturned);
+ const selectedSourceVal = (document.getElementById('ownedInputSource')?.value || '').trim();
+ if (isBorrowOrReturn && !selectedSourceVal) {
+ showToast('대여중/반납 상태에서는 대여처를 반드시 선택해 주세요.', 'error');
+ document.getElementById('ownedSourceField')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
  return;
  }
 
@@ -3021,8 +3325,8 @@ function toggleOwnedPlotExpand() {
  isSold: selectedOwnedIsSold,
  isReturned: selectedOwnedIsReturned && !selectedOwnedIsSold,
  isBorrowed: selectedOwnedIsBorrowed && !selectedOwnedIsSold && !selectedOwnedIsReturned,
- source: selectedOwnedIsSold ? '' : (document.getElementById('ownedInputSource')?.value.trim() || ''),
- borrowSource: selectedOwnedIsSold ? '' : (document.getElementById('ownedInputSource')?.value.trim() || ''),
+ source: selectedOwnedIsSold ? '' : normalizeSourceName(document.getElementById('ownedInputSource')?.value || ''),
+ borrowSource: selectedOwnedIsSold ? '' : normalizeSourceName(document.getElementById('ownedInputSource')?.value || ''),
  dueDate: (() => {
  const srcVal = document.getElementById('ownedInputSource')?.value.trim() || '';
  const finVal = document.getElementById('ownedInputFinishDate')?.value.trim() || '';
@@ -3129,6 +3433,7 @@ function toggleOwnedPlotExpand() {
  async function deleteOwnedBookFromModal() {
   if (!activeOwnedEditContext || activeOwnedEditContext.mode !== 'edit') return;
   const target = activeOwnedEditContext.book;
+  if (!confirm(`'${formatOwnedTitle(target)}' 도서를 내 서재에서 삭제할까요?`)) return;
   const backup = { ...target };
 
   try {
@@ -3212,7 +3517,7 @@ async function searchBookCoverCandidates() {
     const cacheKey = 'v2:' + q.toLowerCase();
     let books = getApiCache('kakaoCand', cacheKey, API_CACHE_TTL_MS);
     if (!Array.isArray(books)) {
-      const res = await fetch(buildSheetGetUrl({ action: 'searchBooks', query: q }));
+      const res = await fetchWithTimeout(buildSheetGetUrl({ action: 'searchBooks', query: q }));
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       books = Array.isArray(data?.books) ? data.books : [];
@@ -3264,7 +3569,7 @@ async function applyCustomBookCoverUrl() {
     try {
       const reqUrl = buildSheetGetUrl({ action: 'extractCoverUrl', url: rawVal });
       if (reqUrl) {
-        const res = await fetch(reqUrl);
+        const res = await fetchWithTimeout(reqUrl);
         if (res.ok) {
           const data = await res.json();
           if (data && data.status === 'ok' && data.coverUrl) {

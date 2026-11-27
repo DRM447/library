@@ -804,7 +804,7 @@ function openBookmarkMorePopover(ev, isbn, hasOwned) {
     </div>
     <div class="quick-popover-divider"></div>
     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); searchBookmarkByIsbn('${safeIsbn}');">
-      <i data-lucide="search" size="15" color="#4f46e5"></i><span>도서 검색</span>
+      <i data-lucide="search" size="15" color="#4f46e5"></i><span>책 찾아보기</span>
     </button>
     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); openMemoModalForIsbn('${safeIsbn}');">
       <i data-lucide="file-plus-2" size="15" color="#d97706"></i><span>${b.memo && b.memo.trim() ? '메모 수정' : '메모 추가'}</span>
@@ -814,7 +814,7 @@ function openBookmarkMorePopover(ev, isbn, hasOwned) {
     </button>` : ''}
     <div class="quick-popover-divider"></div>
     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); removeBookmark('${safeIsbn}');">
-      <i data-lucide="bookmark-x" size="15"></i><span>북마크 해제</span>
+      <i data-lucide="bookmark-x" size="15"></i><span>삭제</span>
     </button>
   `;
   backdrop.classList.remove('hidden');
@@ -1274,14 +1274,14 @@ function openFollowedAuthorMorePopover(ev, authorName) {
     </div>
     <div class="quick-popover-divider"></div>
     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); searchFollowedAuthorFromBookmark('${safe}');">
-      <i data-lucide="search" size="15" color="#4f46e5"></i><span>저자 이름으로 검색하기</span>
+      <i data-lucide="search" size="15" color="#4f46e5"></i><span>책 찾아보기</span>
     </button>
     <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); openAuthorPhotoModal('${safe}');">
       <i data-lucide="image" size="15" color="#059669"></i><span>사진 교체하기</span>
     </button>
     <div class="quick-popover-divider"></div>
     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); toggleFollowAuthorByName('${safe}');">
-      <i data-lucide="user-minus" size="15"></i><span>관심 저자 해제</span>
+      <i data-lucide="user-minus" size="15"></i><span>구독 해제</span>
     </button>
   `;
   backdrop.classList.remove('hidden');
@@ -1451,7 +1451,7 @@ async function searchWikiAuthorCandidates() {
 
   const hasCustomHint = /(사진|얼굴|인물|인터뷰|프로필|강연|portrait|photo|face|author|writer)/i.test(rawQ);
   if (googleLinkEl) {
-    googleLinkEl.href = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(rawQ)}`;
+    googleLinkEl.href = `https://store.kyobobook.co.kr/person/search?searchType=001&searchText=${encodeURIComponent(rawQ)}`;
   }
 
   statusEl.textContent = `'${rawQ}' 인물 사진 검색 중...`;
@@ -1547,7 +1547,7 @@ async function searchWikiAuthorCandidates() {
     pushUnique(extraEnImages);
 
     if (candidates.length === 0) {
-      statusEl.textContent = '검색 결과가 없습니다. 우측 구글 이미지에서 찾아 URL을 붙여넣거나 기기에서 첨부해 주세요.';
+      statusEl.textContent = '검색 결과가 없습니다. 우측 교보 인물검색에서 찾아 URL을 붙여넣거나 사진을 첨부해 주세요.';
       gridEl.innerHTML = '';
       return;
     }
@@ -1571,7 +1571,7 @@ async function searchWikiAuthorCandidates() {
       });
     });
   } catch (e) {
-    statusEl.textContent = '이미지 검색 중 오류가 발생했습니다. 구글 이미지에서 찾아 URL을 붙여넣어 주세요.';
+    statusEl.textContent = '이미지 검색 중 오류가 발생했습니다. 교보 인물검색에서 찾아 URL을 붙여넣어 주세요.';
     gridEl.innerHTML = '';
   }
 }

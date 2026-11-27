@@ -1006,7 +1006,7 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
       <i data-lucide="pencil" size="15" color="#4f46e5"></i><span>수정</span>
     </button>
     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); quickDeleteOwnedByIndex(${idx});">
-      <i data-lucide="trash-2" size="15"></i><span>서재에서 삭제</span>
+      <i data-lucide="trash-2" size="15"></i><span>삭제</span>
     </button>
     <div class="quick-popover-divider"></div>
     <div class="quick-popover-section-label">독서상태</div>

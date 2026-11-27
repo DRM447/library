@@ -828,6 +828,9 @@
       <div class="bottom-sheet-handle"></div>
       <h4 class="bottom-sheet-title">내 서재 관리</h4>
       <div class="bottom-sheet-list">
+        <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); enterMyLibMultiSelectMode();">
+          <span class="bottom-sheet-item-left"><i data-lucide="check-square" size="17" color="#4f46e5"></i><span>선택</span></span>
+        </button>
         <button type="button" class="bottom-sheet-item" onclick="closeMyLibManageSheet(); setMyLibStatusFilter('duplicates');">
           <span class="bottom-sheet-item-left"><i data-lucide="alert-triangle" size="17"></i><span>중복 도서 확인</span><span id="manageSheetDupBadge" class="bottom-sheet-badge hidden">0</span></span>
         </button>

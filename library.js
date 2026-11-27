@@ -861,7 +861,8 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
   let lastDupKey = '';
 
   const chunkHtml = slice.map(b => {
-    const idx = myOwnedBooks.indexOf(b);
+    let idx = myOwnedBooks.indexOf(b);
+    if (idx === -1 && b && b.row !== undefined) idx = myOwnedBooks.findIndex(x => x.row === b.row);
     let groupHeaderHtml = '';
     if (myLibDuplicatesMode) {
       const dupKey = normalizeBookTitle(b.title);
@@ -992,6 +993,18 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
 
   const popThumb = getOwnedBookThumbUrl(b);
   menu.innerHTML = `
+    <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); openOwnedEditModalByIndex(${idx});">
+      <i data-lucide="pencil" size="15" color="#4f46e5"></i><span>수정</span>
+    </button>
+    <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); quickDeleteOwnedByIndex(${idx});">
+      <i data-lucide="trash-2" size="15"></i><span>서재에서 삭제</span>
+    </button>
+    <div class="quick-popover-divider"></div>
+    <div class="quick-popover-section-label">독서상태</div>
+    <div class="quick-popover-status-grid">${statusBtns}</div>
+    <div class="quick-popover-section-label" style="margin-top:2px;">소장 상태</div>
+    <div class="quick-popover-status-grid">${ownBtns}</div>
+    <div class="quick-popover-divider"></div>
     <div class="quick-popover-book-header">
       <img class="quick-popover-book-thumb" src="${escapeHtml(popThumb)}" alt="" onerror="this.onerror=null;this.src=NO_COVER_SVG">
       <div class="quick-popover-book-meta">
@@ -999,18 +1012,6 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
         <p class="quick-popover-book-author">${escapeHtml(formatAuthorText(b.author))}</p>
       </div>
     </div>
-    <div class="quick-popover-divider"></div>
-    <div class="quick-popover-section-label">독서상태</div>
-    <div class="quick-popover-status-grid">${statusBtns}</div>
-    <div class="quick-popover-section-label" style="margin-top:2px;">소장 상태</div>
-    <div class="quick-popover-status-grid">${ownBtns}</div>
-    <div class="quick-popover-divider"></div>
-    <button type="button" class="quick-popover-item" onclick="closeQuickPopover(); enterMyLibMultiSelectMode(myOwnedBooks[${idx}]?.row);">
-      <i data-lucide="check-square" size="15" color="#4f46e5"></i><span>선택</span>
-    </button>
-    <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); quickDeleteOwnedByIndex(${idx});">
-      <i data-lucide="trash-2" size="15"></i><span>이 책 삭제</span>
-    </button>
   `;
   backdrop.classList.remove('hidden');
   positionQuickPopover(ev.currentTarget);
@@ -1120,10 +1121,7 @@ async function quickChangeOwnedStatus(idx, newStatus) {
      if (!b) return;
      if (myLibSelectedRows.has(b.row)) myLibSelectedRows.delete(b.row);
      else myLibSelectedRows.add(b.row);
-     if (myLibSelectedRows.size === 0) {
-       exitMyLibMultiSelectMode();
-       return;
-     }
+
      updateMyLibMultiSelectBar();
      const cardEl = ev.currentTarget || ev.target.closest('.mylib-item');
      if (cardEl) cardEl.classList.toggle('is-selected', myLibSelectedRows.has(b.row));

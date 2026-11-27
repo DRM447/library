@@ -1253,6 +1253,7 @@ let lastSearchFromBarcode = false;
  }
 
  function rebuildOwnedBooksIndex() {
+ if (typeof lastFilteredOwnedBooks !== 'undefined') lastFilteredOwnedBooks = null;
  const byIsbn = new Map();
  const byBaseTitle = new Map();
 

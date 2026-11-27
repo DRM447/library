@@ -190,6 +190,9 @@ function updateMainBookPlotToggleBtn() {
  loadBookmarks(false);
 
  if (document.getElementById('myLibModalOverlay').classList.contains('open')) {
+ if (typeof lastFilteredOwnedBooks !== 'undefined') lastFilteredOwnedBooks = null;
+ const _lc = document.getElementById('myLibListContainer');
+ if (_lc) _lc.dataset.renderedCount = '0';
  renderMyLibStatsBar();
  populateMyLibFilters();
  renderMyLibraryList(false);

@@ -93,9 +93,7 @@
  }
 
  function refreshIcons(rootEl = document) {
- if (!window.lucide || !rootEl) return;
- if (rootEl.querySelector && !rootEl.querySelector('[data-lucide]')) return;
- lucide.createIcons();
+ if (typeof renderLocalIcons === 'function') renderLocalIcons(rootEl || document);
  }
 
  refreshIcons();

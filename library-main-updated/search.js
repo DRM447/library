@@ -1007,7 +1007,7 @@ searchInputEl.addEventListener('input', function () {
 
  const cleanIsbnLabel = normalizeIsbn((matchedMeta && matchedMeta.isbn) || isbn);
  const altBannerHtml = (matchedMeta && matchedMeta.isbn)
-    ? `<li class="alt-edition-banner"><i data-lucide="info" size="13" style="flex-shrink:0;"></i><span>다른 판본(${matchedMeta.pubYear ? escapeHtml(matchedMeta.pubYear) + '년' : '구판'})으로 조회했어요</span></li>`
+    ? `<li class="alt-edition-banner"><span>다른 판본(${matchedMeta.pubYear ? escapeHtml(matchedMeta.pubYear) + '년' : '구판'})으로 조회했어요</span></li>`
     : '';
  const tsLabel = checkedTs ? `저장됨 · ${formatShortTimestamp(checkedTs)}` : '방금 조회됨';
  const hasRemaining = Array.isArray(remainingKeys) && remainingKeys.length > 0;
@@ -1060,7 +1060,7 @@ searchInputEl.addEventListener('input', function () {
  <li class="${itemClass}" style="flex-direction:column; align-items:stretch;">
  <a href="${escapeHtml(targetUrl)}" target="_blank" rel="noopener" class="library-item-link">
  <div class="fav-lib-wrap">
- <span class="${textClass}"><i data-lucide="${iconName}" size="14"></i> ${escapeHtml(lib.name)}</span>
+ <span class="${textClass}">${escapeHtml(lib.name)}</span>
  ${subTextHtml}
  </div>
  ${badgeHtml}

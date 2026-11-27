@@ -1,4 +1,4 @@
-const CACHE_NAME = 'allbooks-cache-v134';
+const CACHE_NAME = 'allbooks-cache-v139';
 const CORE_URLS = [
   './all_books.html',
   './styles.css',
@@ -15,11 +15,7 @@ const CORE_URLS = [
   './apple-touch-icon.png'
 ];
 
-const LUCIDE_CDN_URL = 'https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js';
-
-const OPTIONAL_ASSETS = [
-  LUCIDE_CDN_URL
-];
+const OPTIONAL_ASSETS = [];
 
 self.addEventListener('install', event => {
   self.skipWaiting();
@@ -50,9 +46,7 @@ self.addEventListener('fetch', event => {
 
   const requestUrl = new URL(event.request.url);
   const isSameOrigin = requestUrl.origin === self.location.origin;
-  const isAllowedCdn = event.request.url === LUCIDE_CDN_URL;
-
-  if (!isSameOrigin && !isAllowedCdn) return;
+  if (!isSameOrigin) return;
 
   const isDynamicCore = isSameOrigin && (
     requestUrl.pathname.endsWith('/all_books.html') ||

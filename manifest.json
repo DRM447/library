@@ -1,6 +1,6 @@
 {
-  "name": "All BOOKs - 프리미엄 통합 도서 검색",
-  "short_name": "All BOOKs",
+  "name": "All Books - 프리미엄 통합 도서 검색",
+  "short_name": "All Books",
   "description": "원하는 책을 한 번에 여러 도서관과 서점에서 찾아보세요.",
   "start_url": "./all_books.html",
   "display": "standalone",

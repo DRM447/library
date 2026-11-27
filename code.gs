@@ -1,5 +1,5 @@
 /**
- * All BOOKs 통합 Google Apps Script (Code.gs)
+ * All Books 통합 Google Apps Script (Code.gs)
  *
  * [시트 1: 전체_도서_리스트 — 22개 열 정렬 구성]
  *  - 기본 서지 (A~I): A:책 제목, B:저자, C:저자 외, D:출판사, E:출간연도, F:ISBN, G:분류, H:시리즈, I:시리즈 넘버(숫자만)

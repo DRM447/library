@@ -2,7 +2,7 @@ let lastFilteredOwnedBooks = null;
 let isMyLibActivelyScrolling = false;
 let myLibScrollIdleTimer = null;
 /* =========================================================
- * All BOOKs 내 서재 · 필터 · 기록 수정 · 바코드 스캐너 (library.js)
+ * All Books 내 서재 · 필터 · 기록 수정 · 바코드 스캐너 (library.js)
  * ========================================================= */
  /* =========================================================
  * ISBN 바코드 스캐너 (BarcodeDetector API + 수동 입력 Fallback)

@@ -1,5 +1,5 @@
 /* =========================================================
- * All BOOKs 통합 검색 · 선택 도서 · 대출 현황 · 최근 검색어 (search.js)
+ * All Books 통합 검색 · 선택 도서 · 대출 현황 · 최근 검색어 (search.js)
  * ========================================================= */
 let postSearchOwnedMatches = [];
 let postSearchOwnedFilter = 'all'; // 'all' | 'exact' | 'same_author'

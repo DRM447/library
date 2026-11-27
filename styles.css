@@ -3496,3 +3496,51 @@ body[data-tab="library"] .app-tab-library {
   justify-content: flex-end;
   margin-top: 6px;
 }
+
+
+/* === 홈 '대여도서' 타이틀 이미지 === */
+.home-borrowed-title-img {
+  height: 30px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* === 북마크 · 내 서재 상단 좌측 All Books 브랜드 (API 배지 대체) === */
+.tab-brand-corner {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  color: #1e293b;
+}
+.tab-corner-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+}
+.tab-corner-text {
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  color: #1e293b;
+}
+body[data-tab="bookmark"] #apiUsagePill,
+body[data-tab="library"] #apiUsagePill {
+  display: none !important;
+}
+body[data-tab="bookmark"] #tabBrandCorner,
+body[data-tab="library"] #tabBrandCorner {
+  display: inline-flex !important;
+}
+
+/* 내 북마크 · 내 서재 타이틀 한 줄 아래로 배치 */
+.app-tab-bookmark,
+.app-tab-library {
+  padding-top: 32px;
+}

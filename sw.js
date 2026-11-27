@@ -1,4 +1,4 @@
-const CACHE_NAME = 'allbooks-cache-v143';
+const CACHE_NAME = 'allbooks-cache-v145';
 const CORE_URLS = [
   './all_books.html',
   './styles.css',
@@ -21,7 +21,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
-      await cache.addAll(CORE_URLS);
+      await Promise.all(CORE_URLS.map(url => cache.add(new Request(url, { cache: 'reload' }))));
       await Promise.allSettled(OPTIONAL_ASSETS.map(url => cache.add(url)));
     })
   );
@@ -63,7 +63,7 @@ self.addEventListener('fetch', event => {
 
   if (isDynamicCore) {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: 'no-cache' })
         .then(response => {
           if (response && response.ok) {
             const clone = response.clone();
@@ -90,7 +90,7 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
-      return fetch(event.request)
+      return fetch(event.request, { cache: 'no-cache' })
         .then(response => {
           if (response && (response.ok || response.type === 'opaque')) {
             const clone = response.clone();

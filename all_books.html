@@ -11,9 +11,9 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <meta name="theme-color" content="#4f46e5">
 
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=145">
 </head>
-<body>
+<body data-tab="home">
 
   <div class="header">
     <div class="brand-mark" onclick="resetToHomeDashboard()" title="홈 대시보드로 돌아가기">
@@ -247,7 +247,7 @@
   </div>
 
   <!-- 내 북마크 전체 모달 -->
-  <div id="bookmarkModal" class="memo-modal-overlay" data-close-fn="closeBookmarkModal">
+  <div id="bookmarkModal" class="app-tab-view app-tab-bookmark">
     <div class="bookmark-modal-box">
       <div class="mylib-header">
         <h3 class="mylib-header-title" style="color:#d97706;">내 북마크</h3>
@@ -405,7 +405,7 @@
   </div>
 
   <!-- 내 서재 전체 모달 -->
-  <div id="myLibModalOverlay" class="memo-modal-overlay" data-close-fn="closeMyLibraryModal">
+  <div id="myLibModalOverlay" class="app-tab-view app-tab-library">
     <div class="mylib-modal-box">
       <div class="mylib-header">
         <h3 class="mylib-header-title">내 서재</h3>
@@ -901,12 +901,64 @@
   <div id="quickPopoverBackdrop" class="quick-popover-backdrop hidden" onclick="closeQuickPopover()"></div>
   <div id="quickPopoverMenu" class="quick-popover-menu hidden" onclick="event.stopPropagation()"></div>
 
+
+  <!-- 추가(+) 탭 바텀시트 -->
+  <div id="addBookSheetOverlay" class="bottom-sheet-overlay" onclick="if(event.target===this) closeAddBookSheet()">
+    <div class="bottom-sheet-box">
+      <div class="bottom-sheet-handle"></div>
+      <div class="bottom-sheet-title">내 서재에 책 추가</div>
+      <div class="bottom-sheet-list">
+        <button type="button" class="bottom-sheet-item" onclick="closeAddBookSheet(); openAddBookWithBarcode();">
+          <span class="bottom-sheet-item-left"><span>바코드 스캔으로 등록</span></span>
+        </button>
+        <button type="button" class="bottom-sheet-item" onclick="closeAddBookSheet(); openAddBookWithSearch();">
+          <span class="bottom-sheet-item-left"><span>제목 검색으로 등록</span></span>
+        </button>
+        <button type="button" class="bottom-sheet-item" onclick="closeAddBookSheet(); openOwnedEditModal(null);">
+          <span class="bottom-sheet-item-left"><span>직접 입력해서 추가</span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 하단 5탭 네비게이션 바 (접힘 · 펼침 공통) -->
+  <nav id="appBottomNav" class="app-bottom-nav" aria-label="주요 메뉴">
+    <div class="app-bottom-nav-inner">
+      <button type="button" class="app-nav-btn active" data-nav="home" onclick="switchAppTab('home')">
+        <span class="app-nav-icon"><i data-lucide="home" size="20"></i></span>
+        <span class="app-nav-label">홈</span>
+      </button>
+      <button type="button" class="app-nav-btn" data-nav="search" onclick="switchAppTab('search')">
+        <span class="app-nav-icon"><i data-lucide="search" size="20"></i></span>
+        <span class="app-nav-label">검색</span>
+      </button>
+      <button type="button" class="app-nav-btn app-nav-add" data-nav="add" onclick="openAddBookSheet()" aria-label="책 추가">
+        <span class="app-nav-add-pill"><i data-lucide="plus" size="20"></i></span>
+        <span class="app-nav-label">추가</span>
+      </button>
+      <button type="button" class="app-nav-btn" data-nav="bookmark" onclick="switchAppTab('bookmark')">
+        <span class="app-nav-icon">
+          <i data-lucide="bookmark" size="20"></i>
+          <span id="navBookmarkBadge" class="app-nav-badge hidden">0</span>
+        </span>
+        <span class="app-nav-label">북마크</span>
+      </button>
+      <button type="button" class="app-nav-btn" data-nav="library" onclick="switchAppTab('library')">
+        <span class="app-nav-icon">
+          <i data-lucide="library" size="20"></i>
+          <span id="navMyLibBadge" class="app-nav-badge hidden">0</span>
+        </span>
+        <span class="app-nav-label">내 서재</span>
+      </button>
+    </div>
+  </nav>
+
   <!-- 분리된 JS 모듈 로드 (순서 유지) -->
-  <script src="icons.js"></script>
-  <script src="api.js"></script>
-  <script src="library.js"></script>
-  <script src="search.js"></script>
-  <script src="bookmark.js"></script>
-  <script src="app.js"></script>
+  <script src="icons.js?v=145"></script>
+  <script src="api.js?v=145"></script>
+  <script src="library.js?v=145"></script>
+  <script src="search.js?v=145"></script>
+  <script src="bookmark.js?v=145"></script>
+  <script src="app.js?v=145"></script>
 </body>
 </html>

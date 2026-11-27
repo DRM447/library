@@ -141,21 +141,19 @@ refreshIcons();
  });
 
 (function initMyLibScrollAndPullToRefresh() {
-   const scrollEl = document.getElementById('myLibScrollBody');
    const listEl = document.getElementById('myLibListContainer');
-   const ptrEl = document.getElementById('myLibPtrIndicator');
-   if (!scrollEl) return;
+   if (!listEl) return;
 
-   // 스크롤 중 강제 레이아웃(scrollHeight) 계산을 제거하고 IntersectionObserver로 부드럽게 추가 로드
+   // 네이티브 window 스크롤 기준 IntersectionObserver로 부드럽게 추가 로드
    let autoLoadBusy = false;
    let loadMoreObserver = null;
    function observeLoadMoreBtn() {
-     if (!listEl || typeof IntersectionObserver === 'undefined') return;
+     if (typeof IntersectionObserver === 'undefined') return;
      const btn = listEl.querySelector('.mylib-load-more');
      if (!btn) return;
      if (!loadMoreObserver) {
        loadMoreObserver = new IntersectionObserver((entries) => {
-         if (autoLoadBusy) return;
+         if (autoLoadBusy || document.body.dataset.tab !== 'library') return;
          if (entries.some(entry => entry.isIntersecting)) {
            autoLoadBusy = true;
            requestAnimationFrame(() => {
@@ -165,107 +163,123 @@ refreshIcons();
              }
            });
          }
-       }, { root: scrollEl, rootMargin: '700px 0px' });
+       }, { root: null, rootMargin: '700px 0px' });
      }
      loadMoreObserver.disconnect();
      loadMoreObserver.observe(btn);
    }
-   if (listEl && typeof MutationObserver !== 'undefined') {
+   if (typeof MutationObserver !== 'undefined') {
      new MutationObserver(() => observeLoadMoreBtn()).observe(listEl, { childList: true });
    }
 
-   // 스크롤 상태 갱신 + 필터창 열린 상태로 아래로 스크롤 시 자동 숨김
-   scrollEl.addEventListener('scroll', () => {
+   // 네이티브 window 스크롤: 내 서재 탭에서 필터창 열린 채 스크롤 내리면 자동 숨김
+   window.addEventListener('scroll', () => {
+     if (document.body.dataset.tab !== 'library') return;
      isMyLibActivelyScrolling = true;
      if (myLibScrollIdleTimer) clearTimeout(myLibScrollIdleTimer);
      myLibScrollIdleTimer = setTimeout(() => { isMyLibActivelyScrolling = false; }, 140);
      const filterDrawer = document.getElementById('myLibFilterDrawer');
-     if (filterDrawer && !filterDrawer.classList.contains('hidden') && scrollEl.scrollTop > 20) {
+     if (filterDrawer && !filterDrawer.classList.contains('hidden') && window.scrollY > 24) {
        if (typeof toggleMyLibFilterDrawer === 'function') toggleMyLibFilterDrawer(false);
      }
    }, { passive: true });
-
-   // 최상단 Pull-to-Refresh: 세로 당김이 확실할 때만 동작 + touchcancel 정리 + rAF 배치
-   let ptrStartX = 0;
-   let ptrStartY = 0;
-   let ptrPulling = false;
-   let ptrTriggered = false;
-   let ptrSyncing = false;
-   let ptrRaf = 0;
-
-   function resetPtrUI() {
-     ptrPulling = false;
-     ptrTriggered = false;
-     if (ptrRaf) { cancelAnimationFrame(ptrRaf); ptrRaf = 0; }
-     if (ptrEl) { ptrEl.style.height = '0px'; ptrEl.classList.remove('visible'); }
-   }
-
-   scrollEl.addEventListener('touchstart', (e) => {
-     if (ptrSyncing || scrollEl.scrollTop > 0 || e.touches.length !== 1) return;
-     ptrStartX = e.touches[0].clientX;
-     ptrStartY = e.touches[0].clientY;
-     ptrPulling = true;
-     ptrTriggered = false;
-   }, { passive: true });
-
-   scrollEl.addEventListener('touchmove', (e) => {
-     if (!ptrPulling || ptrSyncing || e.touches.length !== 1) return;
-     if (scrollEl.scrollTop > 0) {
-       resetPtrUI();
-       return;
-     }
-     const dx = Math.abs(e.touches[0].clientX - ptrStartX);
-     const dy = e.touches[0].clientY - ptrStartY;
-     if (dy <= 0) {
-       resetPtrUI();
-       return;
-     }
-     // 대각선/가로 제스처가 섞이면 PTR 즉시 해제해 일반 스크롤 방해 금지
-     if (dx > 18 && dy < dx * 1.6) {
-       resetPtrUI();
-       return;
-     }
-     if (dy > 36 && ptrEl) {
-       const h = Math.min(46, Math.round((dy - 36) * 0.55));
-       const ready = dy >= 82;
-       ptrTriggered = ready;
-       if (!ptrRaf) {
-         ptrRaf = requestAnimationFrame(() => {
-           ptrRaf = 0;
-           if (!ptrPulling || !ptrEl) return;
-           ptrEl.style.height = h + 'px';
-           ptrEl.classList.add('visible');
-           ptrEl.textContent = ready ? '놓아서 시트 동기화' : '당겨서 시트 동기화';
-         });
-       }
-     }
-   }, { passive: true });
-
-   scrollEl.addEventListener('touchcancel', () => {
-     if (!ptrSyncing) resetPtrUI();
-   }, { passive: true });
-
-   scrollEl.addEventListener('touchend', async () => {
-     if (!ptrPulling) return;
-     const shouldSync = ptrTriggered && !ptrSyncing;
-     ptrPulling = false;
-     if (ptrRaf) { cancelAnimationFrame(ptrRaf); ptrRaf = 0; }
-     if (shouldSync) {
-       ptrSyncing = true;
-       if (ptrEl) {
-         ptrEl.style.height = '38px';
-         ptrEl.classList.add('visible');
-         ptrEl.textContent = '시트 동기화 중...';
-       }
-       try { await syncAllFromSheet(true); } finally {
-         ptrSyncing = false;
-         resetPtrUI();
-       }
-     } else {
-       resetPtrUI();
-     }
-   }, { passive: true });
  })();
+
+/* =========================================================
+ * 하단 5탭 네비게이션 제어 (홈 / 검색 / 추가 / 북마크 / 내 서재)
+ * ========================================================= */
+let currentAppTab = 'home';
+
+function syncBottomNavBadges() {
+  const bmSrc = document.getElementById('bookmarkBadge');
+  const bmDst = document.getElementById('navBookmarkBadge');
+  if (bmSrc && bmDst) {
+    const cnt = Number(bmSrc.textContent || '0') || 0;
+    bmDst.textContent = cnt > 99 ? '99+' : String(cnt);
+    bmDst.classList.toggle('hidden', cnt <= 0);
+  }
+  const libSrc = document.getElementById('myLibBadge');
+  const libDst = document.getElementById('navMyLibBadge');
+  if (libSrc && libDst) {
+    const cnt = Number(libSrc.textContent || '0') || 0;
+    libDst.textContent = cnt > 999 ? '999+' : String(cnt);
+    libDst.classList.toggle('hidden', cnt <= 0);
+  }
+}
+
+(function observeBadgeSync() {
+  if (typeof MutationObserver === 'undefined') return;
+  ['bookmarkBadge', 'myLibBadge'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) new MutationObserver(syncBottomNavBadges).observe(el, { childList: true, characterData: true, subtree: true });
+  });
+})();
+
+function openAddBookSheet() {
+  closeQuickPopover();
+  const el = document.getElementById('addBookSheetOverlay');
+  if (el) el.classList.add('open');
+}
+
+function closeAddBookSheet() {
+  const el = document.getElementById('addBookSheetOverlay');
+  if (el) el.classList.remove('open');
+}
+
+function switchAppTab(tab, opts = {}) {
+  const target = ['home', 'search', 'bookmark', 'library'].includes(tab) ? tab : 'home';
+  closeQuickPopover();
+  closeAddBookSheet();
+  if (typeof closeMyLibManageSheet === 'function') closeMyLibManageSheet();
+
+  // 다른 탭으로 이동할 때 멀티 선택 모드 정리
+  if (target !== 'library' && typeof myLibMultiSelectMode !== 'undefined' && myLibMultiSelectMode) {
+    exitMyLibMultiSelectMode();
+  }
+  if (target !== 'bookmark' && typeof bmMultiSelectMode !== 'undefined' && bmMultiSelectMode) {
+    exitBookmarkMultiSelectMode();
+  }
+
+  currentAppTab = target;
+  document.body.dataset.tab = target;
+  document.querySelectorAll('#appBottomNav .app-nav-btn[data-nav]').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-nav') === target);
+  });
+
+  if (target === 'home') {
+    document.getElementById('myLibModalOverlay')?.classList.remove('open');
+    document.getElementById('bookmarkModal')?.classList.remove('open');
+    if (!opts.skipReset && typeof resetToHomeDashboard === 'function') {
+      resetToHomeDashboard(true);
+    }
+  } else if (target === 'search') {
+    document.getElementById('myLibModalOverlay')?.classList.remove('open');
+    document.getElementById('bookmarkModal')?.classList.remove('open');
+    if (!opts.skipFocus) {
+      const inp = document.getElementById('searchInput');
+      if (inp && !inp.value.trim()) {
+        setTimeout(() => inp.focus(), 40);
+      }
+    }
+  } else if (target === 'bookmark') {
+    document.getElementById('myLibModalOverlay')?.classList.remove('open');
+    document.getElementById('bookmarkModal')?.classList.add('open');
+    if (typeof loadBookmarks === 'function') loadBookmarks(false);
+    if (typeof enrichMissingBookmarkMeta === 'function') enrichMissingBookmarkMeta();
+  } else if (target === 'library') {
+    document.getElementById('bookmarkModal')?.classList.remove('open');
+    document.getElementById('myLibModalOverlay')?.classList.add('open');
+    if (!opts.fromOpenMyLib && typeof openMyLibraryModal === 'function') {
+      openMyLibraryModal(false, null, true);
+    }
+  }
+
+  if (!opts.keepScroll) {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+  syncBottomNavBadges();
+  refreshIcons();
+}
 
  window.onload = async function () {
  renderApiUsagePill();
@@ -273,6 +287,7 @@ refreshIcons();
  loadBookmarks(false);
  await loadCachedOwnedBooks();
  renderHomeReadingDashboard();
+ syncBottomNavBadges();
  await syncAllFromSheet(false);
  checkFollowedAuthorsNewReleases(false);
  };

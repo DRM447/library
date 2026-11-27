@@ -261,10 +261,13 @@ let myLibScrollIdleTimer = null;
   renderMyLibActiveChips();
 }
 
-function openMyLibraryModal(openSetup = false, initialStatus = null) {
+function openMyLibraryModal(openSetup = false, initialStatus = null, _fromTab = false) {
   resetMyLibFiltersAndSearch();
-  document.getElementById('myLibModalOverlay').classList.add('open');
-  pushModalHistory('myLib');
+  if (!_fromTab && typeof switchAppTab === 'function') {
+    switchAppTab('library', { fromOpenMyLib: true });
+  } else {
+    document.getElementById('myLibModalOverlay').classList.add('open');
+  }
   const setupBox = document.getElementById('myLibSetupBox');
   document.getElementById('myLibUrlInput').value = getUnifiedApiUrl();
   document.getElementById('myLibPinInput').value = getSheetWritePin();
@@ -311,14 +314,13 @@ function openMyLibraryModal(openSetup = false, initialStatus = null) {
  closeQuickPopover();
  closeMyLibManageSheet();
  if (myLibMultiSelectMode) {
-   myLibMultiSelectMode = false;
-   myLibSelectedRows.clear();
-   updateMyLibMultiSelectBar();
+   exitMyLibMultiSelectMode();
  }
- toggleMyLibFabMenu(false);
  resetMyLibFiltersAndSearch();
  document.getElementById('myLibModalOverlay').classList.remove('open');
- popModalHistory('myLib');
+ if (typeof switchAppTab === 'function' && currentAppTab === 'library') {
+   switchAppTab('home', { skipReset: true });
+ }
  }
 
  function toggleMyLibSetupBox(forceOpen) {

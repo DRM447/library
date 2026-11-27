@@ -306,6 +306,7 @@ searchInputEl.addEventListener('input', function () {
  }
 
  function executeSearch(clickedKeyword = null, options = {}) {
+ if (typeof switchAppTab === 'function' && currentAppTab !== 'search') switchAppTab('search', { skipFocus: true, keepScroll: true });
   const keyword = clickedKeyword || document.getElementById('searchInput').value.trim();
   if (!keyword) { showToast('검색어를 입력해 주세요.', 'error'); return; }
 

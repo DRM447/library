@@ -4,7 +4,8 @@
  /* =========================================================
  * 홈 독서 대시보드 (검색 전)
  * ========================================================= */
- function resetToHomeDashboard() {
+ function resetToHomeDashboard(_fromTab = false) {
+ if (!_fromTab && typeof switchAppTab === 'function' && currentAppTab !== 'home') { switchAppTab('home', { skipReset: true }); }
  isSearchActive = false;
  document.getElementById('searchInput').value = '';
  updateSearchClearBtn();
@@ -449,24 +450,16 @@ function getBookmarks() {
     bmSelectedIsbns.clear();
     updateBookmarkMultiSelectBar();
   }
-  const modal = document.getElementById('bookmarkModal');
-  if (modal && modal.classList.contains('open')) {
-    modal.classList.remove('open');
-    popModalHistory('bookmark');
+  document.getElementById('bookmarkModal')?.classList.remove('open');
+  if (typeof switchAppTab === 'function' && currentAppTab === 'bookmark') {
+    switchAppTab('home', { skipReset: true });
   }
 }
 
  function toggleBookmarkModal() {
- const modal = document.getElementById('bookmarkModal');
- if (!modal) return;
- if (modal.classList.contains('open')) {
- closeBookmarkModal();
- } else {
- modal.classList.add('open');
- pushModalHistory('bookmark');
- enrichMissingBookmarkMeta();
- refreshIcons();
- }
+  if (typeof switchAppTab === 'function') {
+    switchAppTab('bookmark');
+  }
  }
 
  function refreshCurrentBookBookmarkUI() {

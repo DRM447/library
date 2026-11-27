@@ -814,7 +814,7 @@ function openBookmarkMorePopover(ev, isbn, hasOwned) {
     </button>` : ''}
     <div class="quick-popover-divider"></div>
     <button type="button" class="quick-popover-item danger" onclick="closeQuickPopover(); removeBookmark('${safeIsbn}');">
-      <i data-lucide="bookmark-x" size="15"></i><span>삭제</span>
+      <i data-lucide="bookmark-x" size="15"></i><span>북마크 해제</span>
     </button>
   `;
   backdrop.classList.remove('hidden');

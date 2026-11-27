@@ -1,4 +1,4 @@
-const CACHE_NAME = 'allbooks-cache-v135';
+const CACHE_NAME = 'allbooks-cache-v136';
 const CORE_URLS = [
   './all_books.html',
   './styles.css',

@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <meta name="theme-color" content="#4f46e5">
 
-  <link rel="stylesheet" href="styles.css?v=147">
+  <link rel="stylesheet" href="styles.css?v=148">
 </head>
 <body data-tab="home">
 
@@ -902,22 +902,6 @@
   <div id="quickPopoverMenu" class="quick-popover-menu hidden" onclick="event.stopPropagation()"></div>
 
 
-  <!-- 추가(+) 탭 바텀시트 -->
-  <div id="addBookSheetOverlay" class="bottom-sheet-overlay" onclick="if(event.target===this) closeAddBookSheet()">
-    <div class="bottom-sheet-box">
-      <div class="bottom-sheet-handle"></div>
-      <div class="bottom-sheet-title">내 서재에 책 추가</div>
-      <div class="bottom-sheet-list">
-        <button type="button" class="bottom-sheet-item" onclick="closeAddBookSheet(); openAddBookWithBarcode();">
-          <span class="bottom-sheet-item-left"><span>바코드 스캔으로 등록</span></span>
-        </button>
-        <button type="button" class="bottom-sheet-item" onclick="closeAddBookSheet(); openOwnedEditModal(null);">
-          <span class="bottom-sheet-item-left"><span>직접 입력해서 추가</span></span>
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- 하단 5탭 네비게이션 바 (접힘 · 펼침 공통) -->
   <nav id="appBottomNav" class="app-bottom-nav" aria-label="주요 메뉴">
     <div class="app-bottom-nav-inner">
@@ -925,11 +909,11 @@
         <span class="app-nav-icon"><i data-lucide="home" size="20"></i></span>
         <span class="app-nav-label">홈</span>
       </button>
-      <button type="button" class="app-nav-btn" data-nav="search" onclick="switchAppTab('search')">
-        <span class="app-nav-icon"><i data-lucide="search" size="20"></i></span>
-        <span class="app-nav-label">검색</span>
+      <button type="button" class="app-nav-btn" data-nav="barcode" onclick="closeQuickPopover(); openBarcodeScanner('search')" aria-label="바코드 스캔">
+        <span class="app-nav-icon"><i data-lucide="scan-barcode" size="20"></i></span>
+        <span class="app-nav-label">바코드</span>
       </button>
-      <button type="button" class="app-nav-btn app-nav-add" data-nav="add" onclick="openAddBookSheet()" aria-label="책 추가">
+      <button type="button" class="app-nav-btn app-nav-add" data-nav="add" onclick="closeQuickPopover(); openOwnedEditModal(null)" aria-label="책 추가">
         <span class="app-nav-add-pill"><i data-lucide="plus" size="20"></i></span>
         <span class="app-nav-label">추가</span>
       </button>
@@ -951,11 +935,11 @@
   </nav>
 
   <!-- 분리된 JS 모듈 로드 (순서 유지) -->
-  <script src="icons.js?v=147"></script>
-  <script src="api.js?v=147"></script>
-  <script src="library.js?v=147"></script>
-  <script src="search.js?v=147"></script>
-  <script src="bookmark.js?v=147"></script>
-  <script src="app.js?v=147"></script>
+  <script src="icons.js?v=148"></script>
+  <script src="api.js?v=148"></script>
+  <script src="library.js?v=148"></script>
+  <script src="search.js?v=148"></script>
+  <script src="bookmark.js?v=148"></script>
+  <script src="app.js?v=148"></script>
 </body>
 </html>

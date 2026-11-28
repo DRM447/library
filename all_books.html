@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#4f46e5">
 
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-  <link rel="stylesheet" href="styles.css?v=157">
+  <link rel="stylesheet" href="styles.css?v=158">
 </head>
 <body data-tab="home">
 
@@ -62,6 +62,7 @@
         <div class="search-input-wrap">
           <input type="text" id="searchInput" autocomplete="off" placeholder="도서명, 저자명, 출판사, ISBN을 입력해주세요." onkeydown="if(event.key==='Enter') executeSearch()">
           <button type="button" id="searchClearBtn" class="search-clear-btn hidden" onclick="clearSearchInput()" title="검색어 지우기" aria-label="검색어 지우기"><i data-lucide="x" size="13"></i></button>
+          <button type="button" id="searchBarcodeBtn" class="search-barcode-btn" onclick="closeQuickPopover(); openBarcodeScanner('search')" title="ISBN 바코드 스캔" aria-label="ISBN 바코드 스캔"><i data-lucide="scan-barcode" size="18"></i></button>
         </div>
         <button class="search-btn" onclick="executeSearch()" aria-label="도서 검색"><i data-lucide="search" size="19"></i></button>
       </div>
@@ -258,6 +259,25 @@
     <button class="fab-btn" onclick="toggleBookmarkModal()" title="내 북마크" aria-label="내 북마크"><i data-lucide="bookmark" fill="currentColor"></i><span id="bookmarkBadge" class="fab-badge">0</span></button>
   </div>
 
+  <!-- 관심 작가 독립 탭 뷰 -->
+  <div id="authorsModal" class="app-tab-view app-tab-authors">
+    <div class="bookmark-modal-box">
+      <div class="mylib-header authors-tab-header">
+        <h3 class="mylib-header-title" style="color:#be123c;">관심 작가</h3>
+        <button type="button" class="authors-add-pill-btn" onclick="promptAddFollowedAuthor()" title="관심 작가 추가" aria-label="관심 작가 추가">
+          <i data-lucide="plus" size="15"></i><span>작가 추가</span>
+        </button>
+      </div>
+      <div class="authors-search-bar">
+        <div class="search-input-wrap">
+          <input type="text" id="authorsFilterInput" class="mylib-search-input" placeholder="관심 작가 이름으로 찾기" oninput="filterFollowedAuthorsTab()">
+          <button type="button" id="authorsFilterClearBtn" class="search-clear-btn hidden" onclick="clearAuthorsFilterInput()" title="검색어 지우기" aria-label="검색어 지우기"><i data-lucide="x" size="13"></i></button>
+        </div>
+      </div>
+      <div id="authorsTabContent" class="authors-profile-grid"></div>
+    </div>
+  </div>
+
   <!-- 내 북마크 전체 모달 -->
   <div id="bookmarkModal" class="app-tab-view app-tab-bookmark">
     <div class="bookmark-modal-box">
@@ -265,7 +285,6 @@
         <h3 class="mylib-header-title" style="color:#d97706;">내 북마크</h3>
         <button type="button" class="mylib-ghost-icon-btn" onclick="closeBookmarkModal()" title="닫기" aria-label="닫기"><i data-lucide="x" size="18"></i></button>
       </div>
-      <div id="bookmarkFollowedAuthorsBox" class="bm-followed-box"></div>
       <div id="bookmarkModalContent" class="bookmark-modal-content"></div>
       <div id="bmMultiSelectBar" class="mylib-multiselect-bar hidden">
         <div class="mylib-multiselect-top">
@@ -945,9 +964,12 @@
         <span class="app-nav-icon"><i data-lucide="home" size="20"></i></span>
         <span class="app-nav-label">홈</span>
       </button>
-      <button type="button" class="app-nav-btn" data-nav="barcode" onclick="closeQuickPopover(); openBarcodeScanner('search')" aria-label="바코드 스캔">
-        <span class="app-nav-icon"><i data-lucide="scan-barcode" size="20"></i></span>
-        <span class="app-nav-label">바코드</span>
+      <button type="button" class="app-nav-btn" data-nav="authors" onclick="switchAppTab('authors')" aria-label="관심 작가">
+        <span class="app-nav-icon">
+          <i data-lucide="heart" size="20"></i>
+          <span id="navAuthorsBadge" class="app-nav-badge hidden">0</span>
+        </span>
+        <span class="app-nav-label">관심 작가</span>
       </button>
       <button type="button" class="app-nav-btn app-nav-add" data-nav="add" onclick="closeQuickPopover(); openOwnedEditModal(null)" aria-label="책 추가">
         <span class="app-nav-add-pill"><i data-lucide="plus" size="20"></i></span>
@@ -971,11 +993,11 @@
   </nav>
 
   <!-- 분리된 JS 모듈 로드 (순서 유지) -->
-  <script src="icons.js?v=157"></script>
-  <script src="api.js?v=157"></script>
-  <script src="library.js?v=157"></script>
-  <script src="search.js?v=157"></script>
-  <script src="bookmark.js?v=157"></script>
-  <script src="app.js?v=157"></script>
+  <script src="icons.js?v=158"></script>
+  <script src="api.js?v=158"></script>
+  <script src="library.js?v=158"></script>
+  <script src="search.js?v=158"></script>
+  <script src="bookmark.js?v=158"></script>
+  <script src="app.js?v=158"></script>
 </body>
 </html>

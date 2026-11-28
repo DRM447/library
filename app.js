@@ -207,6 +207,12 @@ function syncBottomNavBadges() {
     libDst.textContent = cnt > 999 ? '999+' : String(cnt);
     libDst.classList.toggle('hidden', cnt <= 0);
   }
+  const authDst = document.getElementById('navAuthorsBadge');
+  if (authDst && typeof getFollowedAuthors === 'function') {
+    const aCnt = getFollowedAuthors().length;
+    authDst.textContent = aCnt > 99 ? '99+' : String(aCnt);
+    authDst.classList.toggle('hidden', aCnt <= 0);
+  }
 }
 
 (function observeBadgeSync() {
@@ -229,7 +235,7 @@ function closeAddBookSheet() {
 }
 
 function switchAppTab(tab, opts = {}) {
-  const target = ['home', 'search', 'bookmark', 'library'].includes(tab) ? tab : 'home';
+  const target = ['home', 'search', 'authors', 'bookmark', 'library'].includes(tab) ? tab : 'home';
   closeQuickPopover();
   closeAddBookSheet();
   if (typeof closeMyLibManageSheet === 'function') closeMyLibManageSheet();
@@ -249,12 +255,14 @@ function switchAppTab(tab, opts = {}) {
   });
 
   if (target === 'home') {
+    document.getElementById('authorsModal')?.classList.remove('open');
     document.getElementById('myLibModalOverlay')?.classList.remove('open');
     document.getElementById('bookmarkModal')?.classList.remove('open');
     if (!opts.skipReset && typeof resetToHomeDashboard === 'function') {
       resetToHomeDashboard(true);
     }
   } else if (target === 'search') {
+    document.getElementById('authorsModal')?.classList.remove('open');
     document.getElementById('myLibModalOverlay')?.classList.remove('open');
     document.getElementById('bookmarkModal')?.classList.remove('open');
     if (!opts.skipFocus) {
@@ -263,12 +271,20 @@ function switchAppTab(tab, opts = {}) {
         setTimeout(() => inp.focus(), 40);
       }
     }
+  } else if (target === 'authors') {
+    document.getElementById('authorsModal')?.classList.remove('open');
+    document.getElementById('myLibModalOverlay')?.classList.remove('open');
+    document.getElementById('bookmarkModal')?.classList.remove('open');
+    document.getElementById('authorsModal')?.classList.add('open');
+    if (typeof renderFollowedAuthorsTab === 'function') renderFollowedAuthorsTab();
   } else if (target === 'bookmark') {
+    document.getElementById('authorsModal')?.classList.remove('open');
     document.getElementById('myLibModalOverlay')?.classList.remove('open');
     document.getElementById('bookmarkModal')?.classList.add('open');
     if (typeof loadBookmarks === 'function') loadBookmarks(false);
     if (typeof enrichMissingBookmarkMeta === 'function') enrichMissingBookmarkMeta();
   } else if (target === 'library') {
+    document.getElementById('authorsModal')?.classList.remove('open');
     document.getElementById('bookmarkModal')?.classList.remove('open');
     document.getElementById('myLibModalOverlay')?.classList.add('open');
     if (!opts.fromOpenMyLib && typeof openMyLibraryModal === 'function') {

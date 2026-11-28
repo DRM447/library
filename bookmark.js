@@ -1207,43 +1207,225 @@ async function promptAddFollowedAuthor() {
   toggleFollowAuthorByName(clean);
 }
 
-function renderBookmarkFollowedAuthors() {
-  const box = document.getElementById('bookmarkFollowedAuthorsBox');
-  if (!box) return;
-  const authors = getFollowedAuthors();
-  const cardsHtml = authors.map(a => {
-    const safe = escapeHtml(a).replace(/'/g, "\\'");
-    const photo = getCachedAuthorPhoto(a);
-    const initial = escapeHtml(String(a || '?').trim().charAt(0));
-    const photoHtml = photo
-      ? `<img class="bm-author-photo" src="${escapeHtml(photo)}" alt="${escapeHtml(a)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=\'bm-author-photo-fallback\'>${initial}</div>'">`
-      : `<div class="bm-author-photo-fallback">${initial}</div>`;
-    return `
-      <div class="bm-author-card">
-        <div class="bm-author-photo-wrap">
-          ${photoHtml}
-          <button type="button" class="bm-author-more-btn" onclick="openFollowedAuthorMorePopover(event, '${safe}')" title="관심 저자 메뉴" aria-label="관심 저자 메뉴">${MORE_ICON_SVG_14}</button>
-        </div>
-        <span class="bm-author-name" title="${escapeHtml(a)}">${escapeHtml(a)}</span>
+const AUTHOR_PROFILE_CACHE_KEY = 'allbooks_author_profiles_v1';
+const AUTHOR_PROFILE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const _inFlightAuthorProfiles = new Set();
+
+function getAuthorProfileCacheMap() {
+  return safeReadJson(AUTHOR_PROFILE_CACHE_KEY, {}) || {};
+}
+
+function getCachedAuthorProfile(authorName) {
+  const key = String(authorName || '').trim();
+  if (!key) return null;
+  const map = getAuthorProfileCacheMap();
+  const entry = map[key];
+  if (!entry || !entry.ts) return null;
+  if (Date.now() - entry.ts > AUTHOR_PROFILE_TTL_MS) return null;
+  return entry;
+}
+
+function saveCachedAuthorProfile(authorName, profileObj) {
+  const key = String(authorName || '').trim();
+  if (!key) return;
+  const map = getAuthorProfileCacheMap();
+  map[key] = {
+    authorBio: String(profileObj.authorBio || '').trim(),
+    books: Array.isArray(profileObj.books) ? profileObj.books.slice(0, 8) : [],
+    ts: Date.now()
+  };
+  try { localStorage.setItem(AUTHOR_PROFILE_CACHE_KEY, JSON.stringify(map)); } catch (e) {}
+}
+
+function getAuthorOwnedStats(authorName) {
+  const target = String(authorName || '').trim();
+  if (!target || !Array.isArray(myOwnedBooks)) return { total: 0, done: 0 };
+  let total = 0;
+  let done = 0;
+  myOwnedBooks.forEach(b => {
+    if (typeof hasAuthorOverlap === 'function' ? hasAuthorOverlap(target, b.author) : String(b.author || '').includes(target)) {
+      total++;
+      if (typeof normalizeReadingStatus === 'function' && normalizeReadingStatus(b.status) === '완독') done++;
+    }
+  });
+  return { total, done };
+}
+
+function toggleAuthorBioExpand(el) {
+  if (el) el.classList.toggle('is-expanded');
+}
+
+function openAuthorRecentBook(title, isbn) {
+  const query = String(isbn || title || '').trim();
+  if (!query) return;
+  if (typeof switchAppTab === 'function') switchAppTab('search', { skipFocus: true });
+  const inp = document.getElementById('searchInput');
+  if (inp) inp.value = query;
+  if (typeof executeSearch === 'function') executeSearch();
+}
+
+function clearAuthorsFilterInput() {
+  const inp = document.getElementById('authorsFilterInput');
+  const clearBtn = document.getElementById('authorsFilterClearBtn');
+  if (inp) inp.value = '';
+  if (clearBtn) clearBtn.classList.add('hidden');
+  renderFollowedAuthorsTab();
+  inp?.focus();
+}
+
+function filterFollowedAuthorsTab() {
+  const inp = document.getElementById('authorsFilterInput');
+  const clearBtn = document.getElementById('authorsFilterClearBtn');
+  if (clearBtn && inp) clearBtn.classList.toggle('hidden', !inp.value);
+  renderFollowedAuthorsTab();
+}
+
+async function fetchSingleAuthorProfile(authorName) {
+  const clean = String(authorName || '').trim();
+  if (!clean || _inFlightAuthorProfiles.has(clean)) return;
+  _inFlightAuthorProfiles.add(clean);
+  try {
+    const url = buildSheetGetUrl({ action: 'authorProfile', author: clean });
+    const res = await fetchWithTimeout(url, { method: 'GET' }, 15000);
+    const data = await res.json();
+    if (data && data.status === 'ok') {
+      saveCachedAuthorProfile(clean, {
+        authorBio: data.authorBio || '',
+        books: Array.isArray(data.books) ? data.books : []
+      });
+      if (document.body.dataset.tab === 'authors') {
+        renderFollowedAuthorsTab(true);
+      }
+    }
+  } catch (e) {
+    console.warn('authorProfile fetch failed:', clean, e);
+  } finally {
+    _inFlightAuthorProfiles.delete(clean);
+  }
+}
+
+async function ensureFollowedAuthorProfiles(authors) {
+  const missing = (authors || []).filter(a => !getCachedAuthorProfile(a) && !_inFlightAuthorProfiles.has(a));
+  if (missing.length === 0) return;
+  // 2명씩 순차 병렬 로드해 Apps Script 부하 방지
+  for (let i = 0; i < missing.length; i += 2) {
+    await Promise.all(missing.slice(i, i + 2).map(a => fetchSingleAuthorProfile(a)));
+  }
+}
+
+function renderFollowedAuthorsTab(skipFetch = false) {
+  const container = document.getElementById('authorsTabContent');
+  if (!container) return;
+  const allAuthors = getFollowedAuthors();
+  if (typeof syncBottomNavBadges === 'function') syncBottomNavBadges();
+
+  const filterKw = String(document.getElementById('authorsFilterInput')?.value || '').trim().toLowerCase();
+  const authors = filterKw
+    ? allAuthors.filter(a => String(a || '').toLowerCase().includes(filterKw))
+    : allAuthors;
+
+  if (allAuthors.length === 0) {
+    container.innerHTML = `
+      <div class="author-empty-state">
+        아직 구독 중인 관심 작가가 없어요.<br>
+        우측 상단의 <b>+ 작가 추가</b> 버튼이나 도서 상세 화면에서 좋아하는 작가를 구독해 보세요.
       </div>
     `;
+    return;
+  }
+
+  if (authors.length === 0) {
+    container.innerHTML = `<div class="author-empty-state">'${escapeHtml(filterKw)}'와 일치하는 관심 작가가 없습니다.</div>`;
+    return;
+  }
+
+  container.innerHTML = authors.map(a => {
+    const safe = escapeHtml(a).replace(/'/g, "\'");
+    const photo = getCachedAuthorPhoto(a);
+    const initial = escapeHtml(String(a || '?').trim().charAt(0));
+    const avatarHtml = photo
+      ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(a)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=\'author-card-avatar-fallback\'>${initial}</div>'">`
+      : `<div class="author-card-avatar-fallback">${initial}</div>`;
+
+    const stats = getAuthorOwnedStats(a);
+    const profile = getCachedAuthorProfile(a);
+    const bioText = profile ? profile.authorBio : '';
+    const recentBooks = profile && Array.isArray(profile.books) ? profile.books.slice(0, 6) : [];
+
+    const bioHtml = profile
+      ? (bioText
+          ? `<p class="author-card-bio" onclick="toggleAuthorBioExpand(this)" title="눌러서 저자 소개 펼치기/접기">${escapeHtml(bioText)}</p>`
+          : `<p class="author-card-bio is-loading">등록된 저자 소개가 없습니다.</p>`)
+      : `<p class="author-card-bio is-loading">저자 소개와 최근 출간작을 불러오는 중...</p>`;
+
+    let recentHtml = '';
+    if (profile && recentBooks.length > 0) {
+      const itemsHtml = recentBooks.map(bk => {
+        const bTitle = String(bk.title || '').trim();
+        const bIsbn = String(bk.isbn || '').trim();
+        const safeT = escapeHtml(bTitle).replace(/'/g, "\'");
+        const safeI = escapeHtml(bIsbn).replace(/'/g, "\'");
+        const coverSrc = bk.cover || (typeof NO_COVER_SVG !== 'undefined' ? NO_COVER_SVG : '');
+        return `
+          <div class="author-recent-book" onclick="openAuthorRecentBook('${safeT}', '${safeI}')" title="${escapeHtml(bTitle)}">
+            <img class="author-recent-cover" src="${escapeHtml(coverSrc)}" alt="${escapeHtml(bTitle)}" loading="lazy" onerror="this.onerror=null;this.src=NO_COVER_SVG">
+            <span class="author-recent-title">${escapeHtml(bTitle)}</span>
+            ${bk.pubYear ? `<span class="author-recent-year">${escapeHtml(String(bk.pubYear).slice(0, 4))}</span>` : ''}
+          </div>
+        `;
+      }).join('');
+      recentHtml = `
+        <div class="author-recent-section">
+          <div class="author-recent-label">
+            <span>최근 출간작</span>
+            <span style="color:var(--primary); cursor:pointer;" onclick="searchFollowedAuthorFromBookmark('${safe}')">전체 검색 ↗</span>
+          </div>
+          <div class="author-recent-scroll">${itemsHtml}</div>
+        </div>
+      `;
+    } else if (profile) {
+      recentHtml = `
+        <div class="author-recent-section">
+          <div class="author-recent-label">
+            <span>최근 출간작 정보가 없습니다</span>
+            <span style="color:var(--primary); cursor:pointer;" onclick="searchFollowedAuthorFromBookmark('${safe}')">통합 검색 ↗</span>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <article class="author-profile-card">
+        <div class="author-card-head">
+          <div class="author-card-avatar-wrap" onclick="openAuthorPhotoModal('${safe}')" title="사진 교체">
+            ${avatarHtml}
+          </div>
+          <div class="author-card-meta">
+            <div class="author-card-name-row">
+              <h4 class="author-card-name" onclick="searchFollowedAuthorFromBookmark('${safe}')" title="${escapeHtml(a)} 도서 검색">${escapeHtml(a)}</h4>
+              <button type="button" class="mylib-card-more-btn" onclick="openFollowedAuthorMorePopover(event, '${safe}')" title="관심 작가 메뉴" aria-label="관심 작가 메뉴">${MORE_ICON_SVG_14}</button>
+            </div>
+            <div class="author-card-badges">
+              ${stats.total > 0 ? `<span class="author-owned-pill">내 서재 ${stats.total}권${stats.done > 0 ? ` · 완독 ${stats.done}` : ''}</span>` : `<span class="author-count-pill">내 서재 0권</span>`}
+              ${profile && recentBooks.length > 0 ? `<span class="author-count-pill">최근작 ${recentBooks.length}권</span>` : ''}
+            </div>
+          </div>
+        </div>
+        ${bioHtml}
+        ${recentHtml}
+      </article>
+    `;
   }).join('');
-  const addCardHtml = `
-    <div class="bm-author-card bm-author-add-card" onclick="promptAddFollowedAuthor()" title="관심 저자 추가" aria-label="관심 저자 추가">
-      <div class="bm-author-photo-wrap bm-author-add-wrap">
-        <i data-lucide="plus" size="22" color="#be123c"></i>
-      </div>
-      <span class="bm-author-name" style="color:#be123c; font-weight:700;">추가</span>
-    </div>
-  `;
-  box.innerHTML = `
-    <div class="bm-followed-header">
-      <span style="display:inline-flex; align-items:center; gap:5px;">${HEART_FILLED_SVG} 관심 저자 (${authors.length}명)</span>
-    </div>
-    <div class="bm-followed-cards">${cardsHtml}${addCardHtml}</div>
-  `;
-  refreshIcons(box);
-  if (authors.length > 0) ensureFollowedAuthorPhotos(authors);
+
+  refreshIcons(container);
+  if (!skipFetch && allAuthors.length > 0) {
+    ensureFollowedAuthorPhotos(allAuthors);
+    ensureFollowedAuthorProfiles(allAuthors);
+  }
+}
+
+function renderBookmarkFollowedAuthors() {
+  renderFollowedAuthorsTab();
 }
 
 function openFollowedAuthorMorePopover(ev, authorName) {

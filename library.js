@@ -364,11 +364,15 @@ function openMyLibraryModal(openSetup = false, initialStatus = null, _fromTab = 
  }
  }
 
- function handleMyLibSearchInput() {
+ let myLibSearchDebounceTimer = null;
+function handleMyLibSearchInput() {
  const input = document.getElementById('myLibSearchInput');
  const clearBtn = document.getElementById('myLibSearchClearBtn');
  if (clearBtn && input) clearBtn.classList.toggle('hidden', !input.value);
+ if (myLibSearchDebounceTimer) clearTimeout(myLibSearchDebounceTimer);
+ myLibSearchDebounceTimer = setTimeout(() => {
  renderMyLibraryList(true);
+ }, 150);
  }
 
  function clearMyLibSearchInput() {
@@ -3373,7 +3377,113 @@ function toggleOwnedPlotExpand() {
  setOwnedEbookFlag(bookPayload, selectedOwnedIsEbook);
  setOwnedBorrowFlag(bookPayload, selectedOwnedIsBorrowed);
 
- const shouldSyncSiblings = true;
+ const normNewTitle = typeof normalizeBookTitle === 'function'
+ ? normalizeBookTitle(bookPayload.title)
+ : String(bookPayload.title || '').trim().toLowerCase();
+
+ // 편집 모드: 낙관적 업데이트(Optimistic UI)로 즉시 반영 후 백그라운드 시트 저장
+ if (activeOwnedEditContext.mode === 'edit' && !activeOwnedEditContext.fromBookmarkIsbn) {
+ const origBook = activeOwnedEditContext.book;
+ const origBackup = { ...origBook };
+ const syncFieldsChanged =
+ String(origBook.rating || '').trim() !== String(bookPayload.rating || '').trim() ||
+ String(origBook.review || '').trim() !== String(bookPayload.review || '').trim() ||
+ String(origBook.memo || '').trim() !== String(bookPayload.memo || '').trim();
+
+ const siblingMatches = (syncFieldsChanged && normNewTitle)
+ ? myOwnedBooks.filter(b => b.row !== origBook.row && (
+ typeof normalizeBookTitle === 'function'
+ ? normalizeBookTitle(b.title) === normNewTitle
+ : String(b.title || '').trim().toLowerCase() === normNewTitle
+ ))
+ : [];
+ const shouldSyncSiblings = siblingMatches.length > 0;
+ const siblingRows = siblingMatches.map(b => b.row).filter(r => typeof r === 'number' && r >= 2);
+ const siblingBackups = siblingMatches.map(b => ({ row: b.row, prev: { ...b } }));
+
+ const optimisticBook = { ...origBook, ...bookPayload, row: origBook.row };
+ const targetIdx = myOwnedBooks.findIndex(b => b.row === origBook.row);
+ if (targetIdx > -1) myOwnedBooks[targetIdx] = optimisticBook;
+ if (shouldSyncSiblings) {
+ siblingMatches.forEach(sb => {
+ const sIdx = myOwnedBooks.findIndex(b => b.row === sb.row);
+ if (sIdx > -1) {
+ myOwnedBooks[sIdx] = {
+ ...myOwnedBooks[sIdx],
+ rating: bookPayload.rating,
+ review: bookPayload.review,
+ memo: bookPayload.memo
+ };
+ }
+ });
+ }
+
+ saveOwnedBooksToCache(myOwnedBooks);
+ rebuildOwnedBooksIndex();
+ refreshOwnedUIEverywhere();
+ renderHomeReadingDashboard();
+
+ saveBtn.disabled = false;
+ saveBtn.innerText = '저장';
+ saveBtn.style.opacity = '';
+ closeOwnedEditModal(true);
+ showToast(shouldSyncSiblings ? `저장했습니다. (같은 책 ${siblingMatches.length}권 동기화 중)` : '저장했습니다.', 'success');
+
+ const rollbackEdit = (errMsg) => {
+ const idx = myOwnedBooks.findIndex(b => b.row === origBackup.row);
+ if (idx > -1) myOwnedBooks[idx] = origBackup;
+ siblingBackups.forEach(({ row, prev }) => {
+ const sIdx = myOwnedBooks.findIndex(b => b.row === row);
+ if (sIdx > -1) myOwnedBooks[sIdx] = prev;
+ });
+ saveOwnedBooksToCache(myOwnedBooks);
+ rebuildOwnedBooksIndex();
+ refreshOwnedUIEverywhere();
+ renderHomeReadingDashboard();
+ showToast(errMsg, 'error');
+ };
+
+ sendSheetPost({
+ target: 'library',
+ action: 'lib_update',
+ row: origBackup.row,
+ origTitle: origBackup.title,
+ origAuthor: origBackup.author,
+ origIsbn: origBackup.isbn,
+ origIsEbook: isOwnedEbook(origBackup),
+ syncSiblings: shouldSyncSiblings,
+ siblingRows: siblingRows,
+ book: bookPayload
+ }).then(res => {
+ if (!res || res.status !== 'ok') {
+ rollbackEdit(
+ res && res.status === 'unauthorized'
+ ? 'PIN 인증이 필요해 변경 사항을 되돌렸습니다.'
+ : ((res && res.message) || '시트 저장 중 오류가 발생해 변경 사항을 되돌렸습니다.')
+ );
+ }
+ }).catch(err => {
+ console.error(err);
+ rollbackEdit('구글 시트와 통신하지 못해 변경 사항을 되돌렸습니다.');
+ });
+ return;
+ }
+
+ // 신규 추가 / 북마크 이동 시에도 같은 제목 도서가 있고 평점·한줄평·메모가 있을 때만 형제 동기화
+ const hasSyncContent = !!(
+ String(bookPayload.rating || '').trim() ||
+ String(bookPayload.review || '').trim() ||
+ String(bookPayload.memo || '').trim()
+ );
+ const addSiblingMatches = (hasSyncContent && normNewTitle)
+ ? myOwnedBooks.filter(b => (
+ typeof normalizeBookTitle === 'function'
+ ? normalizeBookTitle(b.title) === normNewTitle
+ : String(b.title || '').trim().toLowerCase() === normNewTitle
+ ))
+ : [];
+ const shouldSyncSiblings = addSiblingMatches.length > 0;
+ const addSiblingRows = addSiblingMatches.map(b => b.row).filter(r => typeof r === 'number' && r >= 2);
 
  try {
  let res;
@@ -3384,6 +3494,7 @@ function toggleOwnedPlotExpand() {
  isbn: activeOwnedEditContext.fromBookmarkIsbn,
  removeBookmark: removeBm,
  syncSiblings: shouldSyncSiblings,
+ siblingRows: addSiblingRows,
  book: bookPayload
  });
  if (res && res.status === 'duplicate') {
@@ -3394,29 +3505,19 @@ function toggleOwnedPlotExpand() {
  removeBookmark: removeBm,
  force: true,
  syncSiblings: shouldSyncSiblings,
+ siblingRows: addSiblingRows,
  book: bookPayload
  });
  } else {
  return;
  }
  }
- } else if (activeOwnedEditContext.mode === 'edit') {
- res = await sendSheetPost({
- target: 'library',
- action: 'lib_update',
- row: activeOwnedEditContext.book.row,
- origTitle: activeOwnedEditContext.book.title,
- origAuthor: activeOwnedEditContext.book.author,
- origIsbn: activeOwnedEditContext.book.isbn,
- origIsEbook: isOwnedEbook(activeOwnedEditContext.book),
- syncSiblings: shouldSyncSiblings,
- book: bookPayload
- });
  } else {
  res = await sendSheetPost({
  target: 'library',
  action: 'lib_add',
  syncSiblings: shouldSyncSiblings,
+ siblingRows: addSiblingRows,
  book: bookPayload
  });
  if (res && res.status === 'duplicate') {
@@ -3426,6 +3527,7 @@ function toggleOwnedPlotExpand() {
  action: 'lib_add',
  force: true,
  syncSiblings: shouldSyncSiblings,
+ siblingRows: addSiblingRows,
  book: bookPayload
  });
  } else {

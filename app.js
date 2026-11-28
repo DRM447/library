@@ -365,3 +365,40 @@ window.addEventListener('resize', () => {
     }
   });
 }, { passive: true });
+
+
+/* =========================================================
+ * 다크 모드 테마 초기화 및 수동 토글
+ * ========================================================= */
+function applyAppTheme(theme) {
+  const isDark = theme === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) metaTheme.setAttribute('content', isDark ? '#0f172a' : '#4f46e5');
+  const btn = document.getElementById('themeToggleBtn');
+  if (btn) {
+    btn.title = isDark ? '라이트 모드 전환' : '다크 모드 전환';
+    btn.setAttribute('aria-label', btn.title);
+    btn.innerHTML = `<i data-lucide="${isDark ? 'sun' : 'moon'}" size="16"></i>`;
+    if (typeof refreshIcons === 'function') refreshIcons();
+  }
+}
+
+function toggleAppTheme() {
+  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('allbooks_theme', next); } catch (e) {}
+  applyAppTheme(next);
+}
+
+(function initAppTheme() {
+  let saved = '';
+  try { saved = localStorage.getItem('allbooks_theme') || ''; } catch (e) {}
+  if (saved === 'dark' || saved === 'light') {
+    applyAppTheme(saved);
+  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    applyAppTheme('dark');
+  } else {
+    applyAppTheme('light');
+  }
+})();

@@ -11,20 +11,20 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <meta name="theme-color" content="#4f46e5">
 
-  <link rel="stylesheet" href="styles.css?v=155">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="styles.css?v=156">
 </head>
 <body data-tab="home">
 
-  <div class="header">
+  <header class="header">
     <div class="brand-mark" onclick="resetToHomeDashboard()" title="홈 대시보드로 돌아가기">
       <img id="mainBrandLogo" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="All Books Logo" class="main-logo">
       <img id="mainWordmarkImg" class="brand-wordmark-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="All Books">
     </div>
     <h1 class="main-headline">세상의 모든 책</h1>
-  </div>
+  </header>
 
   <div class="api-usage-corner">
-    <span id="apiUsagePill" class="api-usage-pill">API 0/500</span>
     <button type="button" id="tabBrandCorner" class="tab-brand-corner" onclick="switchAppTab('home')" title="홈으로 이동">
       <img id="tabCornerStackedIcon" class="tab-corner-icon" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="">
       <img id="tabCornerWordmarkImg" class="tab-corner-wordmark-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="All Books">
@@ -32,11 +32,15 @@
   </div>
 
   <div class="barcode-corner">
+    <button type="button" id="themeToggleBtn" class="barcode-icon-btn" onclick="toggleAppTheme()" title="다크 모드 전환" aria-label="다크 모드 전환">
+      <i data-lucide="moon" size="16"></i>
+    </button>
     <button type="button" id="fullscreenToggleBtn" class="barcode-icon-btn" onclick="toggleAppFullscreen()" title="전체화면 전환" aria-label="전체화면 전환">
       <i data-lucide="maximize" size="17"></i>
     </button>
   </div>
 
+  <main class="app-main">
   <div class="search-container">
     <div class="top-quick-links" style="margin: 0 auto 10px auto;" aria-label="주요 도서관 및 서점 바로가기">
       <a href="https://www.yslibrary.or.kr/dream/menu/10102/program/30037/searchSimple.do" target="_blank" rel="noopener" class="top-quick-btn">
@@ -160,41 +164,41 @@
           <div class="link-group">
             <div class="link-group-title">즐겨찾는 도서관</div>
             <div class="link-grid ebook-icon-grid">
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://www.millie.co.kr/v3/search/result/{kw}" target="_blank" rel="noopener" title="밀리의 서재" aria-label="밀리의 서재"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="millie" class="site-logo" alt="밀리의 서재"></a>
-              <a href="#" class="link-pill icon-only-pill color-used dynamic-link" data-template="https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Used&KeyWord={kw}&OutStock=0&ViewType=Detail&KeyFullWord={kw}&KeyLastWord={kw}&CategorySearch=&chkKeyTitle=&chkKeyAuthor=&chkKeyPublisher=&chkKeyISBN=&chkKeyTag=&chkKeyTOC=&chkKeySubject=" target="_blank" rel="noopener" title="알라딘 중고" aria-label="알라딘 중고"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="aladin_used" class="site-logo" alt="알라딘 중고"></a>
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elib.seoul.go.kr/contents/search/content?t=EB&k={kw}" target="_blank" rel="noopener" title="서울시 전자도서관" aria-label="서울시 전자도서관"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="seoul_lib" class="site-logo" alt="서울시 전자도서관"></a>
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://e-lib.sen.go.kr/contents/search?type=&searchOpt=0&searchKeyword={kw}" target="_blank" rel="noopener" title="서울교육청 도서관" aria-label="서울교육청 도서관"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="seoul_edu" class="site-logo" alt="서울교육청 도서관"></a>
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://lib.ewha.ac.kr/searchA/ebz?st=KWRD&si=TOTAL&q={kw}" target="_blank" rel="noopener" title="이화여대 전자도서관" aria-label="이화여대 전자도서관"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="ewha" class="site-logo" alt="이화여대 전자도서관"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://www.millie.co.kr/v3/search/result/{kw}" target="_blank" rel="noopener" title="밀리의 서재" aria-label="밀리의 서재"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="millie" class="site-logo" alt="밀리의 서재"><span class="lib-pill-label">밀리</span></a>
+              <a href="#" class="link-pill icon-only-pill color-used dynamic-link" data-template="https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Used&KeyWord={kw}&OutStock=0&ViewType=Detail&KeyFullWord={kw}&KeyLastWord={kw}&CategorySearch=&chkKeyTitle=&chkKeyAuthor=&chkKeyPublisher=&chkKeyISBN=&chkKeyTag=&chkKeyTOC=&chkKeySubject=" target="_blank" rel="noopener" title="알라딘 중고" aria-label="알라딘 중고"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="aladin_used" class="site-logo" alt="알라딘 중고"><span class="lib-pill-label">알라딘중고</span></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elib.seoul.go.kr/contents/search/content?t=EB&k={kw}" target="_blank" rel="noopener" title="서울시 전자도서관" aria-label="서울시 전자도서관"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="seoul_lib" class="site-logo" alt="서울시 전자도서관"><span class="lib-pill-label">서울전자</span></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://e-lib.sen.go.kr/contents/search?type=&searchOpt=0&searchKeyword={kw}" target="_blank" rel="noopener" title="서울교육청 도서관" aria-label="서울교육청 도서관"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="seoul_edu" class="site-logo" alt="서울교육청 도서관"><span class="lib-pill-label">서울교육청</span></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://lib.ewha.ac.kr/searchA/ebz?st=KWRD&si=TOTAL&q={kw}" target="_blank" rel="noopener" title="이화여대 전자도서관" aria-label="이화여대 전자도서관"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="ewha" class="site-logo" alt="이화여대 전자도서관"><span class="lib-pill-label">이화여대</span></a>
             </div>
           </div>
 
           <div class="link-group">
             <div class="link-group-title">서울시 자치구 전자도서관</div>
             <div class="link-grid ebook-icon-grid">
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ydplib.dkyobobook.co.kr/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="영등포구" aria-label="영등포구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yeongdeungpo" class="site-logo" alt="영등포구"></a>
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://splib.dkyobobook.co.kr/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="송파구" aria-label="송파구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="songpa" class="site-logo" alt="송파구"></a>
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://gdlib.dkyobobook.co.kr/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener" title="강동구A" aria-label="강동구A"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangdong_a" class="site-logo" alt="강동구A"></a>
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.jungnanglib.seoul.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="중랑구" aria-label="중랑구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="jungnang" class="site-logo" alt="중랑구"></a>
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://e-book.l4d.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="동대문구" aria-label="동대문구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="dongdaemun" class="site-logo" alt="동대문구"></a>
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elibrary.sblib.seoul.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="성북구" aria-label="성북구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="seongbuk" class="site-logo" alt="성북구"></a>
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://e-lib.gwanak.go.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener" title="관악구" aria-label="관악구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gwanak" class="site-logo" alt="관악구"></a>
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.yslibrary.or.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener" title="용산구" aria-label="용산구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yongsan" class="site-logo" alt="용산구"></a>
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.gdlibrary.or.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener" title="강동구B" aria-label="강동구B"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangdong_b" class="site-logo" alt="강동구B"></a>
-              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://eb.nowonlib.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="노원구" aria-label="노원구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="nowon" class="site-logo" alt="노원구"></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ydplib.dkyobobook.co.kr/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="영등포구" aria-label="영등포구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yeongdeungpo" class="site-logo" alt="영등포구"><span class="lib-pill-label">영등포</span></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://splib.dkyobobook.co.kr/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="송파구" aria-label="송파구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="songpa" class="site-logo" alt="송파구"><span class="lib-pill-label">송파</span></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://gdlib.dkyobobook.co.kr/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener" title="강동구A" aria-label="강동구A"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangdong_a" class="site-logo" alt="강동구A"><span class="lib-pill-label">강동A</span></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.jungnanglib.seoul.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="중랑구" aria-label="중랑구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="jungnang" class="site-logo" alt="중랑구"><span class="lib-pill-label">중랑</span></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://e-book.l4d.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="동대문구" aria-label="동대문구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="dongdaemun" class="site-logo" alt="동대문구"><span class="lib-pill-label">동대문</span></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elibrary.sblib.seoul.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="성북구" aria-label="성북구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="seongbuk" class="site-logo" alt="성북구"><span class="lib-pill-label">성북</span></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://e-lib.gwanak.go.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener" title="관악구" aria-label="관악구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gwanak" class="site-logo" alt="관악구"><span class="lib-pill-label">관악</span></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.yslibrary.or.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener" title="용산구" aria-label="용산구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yongsan" class="site-logo" alt="용산구"><span class="lib-pill-label">용산</span></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.gdlibrary.or.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener" title="강동구B" aria-label="강동구B"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangdong_b" class="site-logo" alt="강동구B"><span class="lib-pill-label">강동B</span></a>
+              <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://eb.nowonlib.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="노원구" aria-label="노원구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="nowon" class="site-logo" alt="노원구"><span class="lib-pill-label">노원</span></a>
 
               <details class="hidden-districts">
                 <summary>미가입 자치구 펼치기</summary>
                 <div class="link-grid ebook-icon-grid" style="margin-top: 8px;">
-                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.mapo.go.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener" title="마포구" aria-label="마포구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="mapo" class="site-logo" alt="마포구"></a>
-                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elib.dobong.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="도봉구" aria-label="도봉구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="dobong" class="site-logo" alt="도봉구"></a>
-                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.gangseo.seoul.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener" title="강서구" aria-label="강서구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangseo" class="site-logo" alt="강서구"></a>
-                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elib.jongno.go.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener" title="종로구" aria-label="종로구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="jongno" class="site-logo" alt="종로구"></a>
-                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.dongjak.go.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="동작구" aria-label="동작구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="dongjak" class="site-logo" alt="동작구"></a>
-                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elib.geumcheonlib.seoul.kr/FxLibrary/m/product/search/?searchstr={kw}" target="_blank" rel="noopener" title="금천구" aria-label="금천구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="geumcheon" class="site-logo" alt="금천구"></a>
-                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.guro.go.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="구로구" aria-label="구로구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="guro" class="site-logo" alt="구로구"></a>
-                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.junggulib.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="중구" aria-label="중구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="junggu" class="site-logo" alt="중구"></a>
-                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.yangcheon.or.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener" title="양천구" aria-label="양천구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yangcheon" class="site-logo" alt="양천구"></a>
-                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.gblib.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="강북구" aria-label="강북구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangbuk" class="site-logo" alt="강북구"></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.mapo.go.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener" title="마포구" aria-label="마포구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="mapo" class="site-logo" alt="마포구"><span class="lib-pill-label">마포</span></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elib.dobong.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="도봉구" aria-label="도봉구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="dobong" class="site-logo" alt="도봉구"><span class="lib-pill-label">도봉</span></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.gangseo.seoul.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener" title="강서구" aria-label="강서구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangseo" class="site-logo" alt="강서구"><span class="lib-pill-label">강서</span></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elib.jongno.go.kr/search/?srch_order=total&src_key={kw}" target="_blank" rel="noopener" title="종로구" aria-label="종로구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="jongno" class="site-logo" alt="종로구"><span class="lib-pill-label">종로</span></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.dongjak.go.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="동작구" aria-label="동작구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="dongjak" class="site-logo" alt="동작구"><span class="lib-pill-label">동작</span></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://elib.geumcheonlib.seoul.kr/FxLibrary/m/product/search/?searchstr={kw}" target="_blank" rel="noopener" title="금천구" aria-label="금천구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="geumcheon" class="site-logo" alt="금천구"><span class="lib-pill-label">금천</span></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.guro.go.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="구로구" aria-label="구로구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="guro" class="site-logo" alt="구로구"><span class="lib-pill-label">구로</span></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.junggulib.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="중구" aria-label="중구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="junggu" class="site-logo" alt="중구"><span class="lib-pill-label">중구</span></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.yangcheon.or.kr/elibrary-front/search/searchList.ink?schDvsn=000&orderByKey=&schClst=all&schTxt={kw}" target="_blank" rel="noopener" title="양천구" aria-label="양천구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="yangcheon" class="site-logo" alt="양천구"><span class="lib-pill-label">양천</span></a>
+                  <a href="#" class="link-pill icon-only-pill color-lib dynamic-link" data-template="https://ebook.gblib.or.kr/elibrary-front/search/searchList.ink?schClst=all&schDvsn=000&orderByKey=&schTxt={kw}" target="_blank" rel="noopener" title="강북구" aria-label="강북구"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="gangbuk" class="site-logo" alt="강북구"><span class="lib-pill-label">강북</span></a>
                 </div>
               </details>
             </div>
@@ -203,8 +207,8 @@
           <div class="link-group">
             <div class="link-group-title">그 외</div>
             <div class="link-grid ebook-icon-grid">
-              <a href="#" class="link-pill icon-only-pill color-store dynamic-link" data-template="https://play.google.com/store/search?q={kw}&c=books&hl=ko" target="_blank" rel="noopener" title="구글 플레이북" aria-label="구글 플레이북"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="googleplaybook" class="site-logo" alt="구글 플레이북"></a>
-              <a href="#" class="link-pill icon-only-pill color-free dynamic-link" data-template="https://archive.org/search?query={kw}&and%5B%5D=mediatype%3A%22texts%22" target="_blank" rel="noopener" title="인터넷 아카이브" aria-label="인터넷 아카이브"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="internetarchive" class="site-logo" alt="인터넷 아카이브"></a>
+              <a href="#" class="link-pill icon-only-pill color-store dynamic-link" data-template="https://play.google.com/store/search?q={kw}&c=books&hl=ko" target="_blank" rel="noopener" title="구글 플레이북" aria-label="구글 플레이북"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="googleplaybook" class="site-logo" alt="구글 플레이북"><span class="lib-pill-label">플레이북</span></a>
+              <a href="#" class="link-pill icon-only-pill color-free dynamic-link" data-template="https://archive.org/search?query={kw}&and%5B%5D=mediatype%3A%22texts%22" target="_blank" rel="noopener" title="인터넷 아카이브" aria-label="인터넷 아카이브"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-icon="internetarchive" class="site-logo" alt="인터넷 아카이브"><span class="lib-pill-label">아카이브</span></a>
             </div>
           </div>
         </div>
@@ -244,6 +248,10 @@
 
     </div>
   </div>
+  <footer class="app-footer" aria-label="API 사용량 및 앱 정보">
+    <span id="apiUsagePill" class="api-usage-pill" title="오늘 정보나루 API 사용량">API 0/500</span>
+  </footer>
+  </main>
 
   <!-- 좌측 하단: 내 북마크 FAB -->
   <div id="fabContainer" class="fab-container">
@@ -707,62 +715,6 @@
         <div id="ownedBookCandidatesList" class="owned-cand-scroll"></div>
       </div>
 
-      <!-- 출간일 · 분류 · ISBN · 출판사 · 저자 · 저자 외 -->
-      <div class="owned-meta-table">
-        <div class="owned-meta-row">
-          <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">출간일</div>
-          <div class="owned-meta-val-wrap">
-            <button type="button" id="ownedMetaBtn_pubYear" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('pubYear')"></button>
-            <input type="text" id="ownedInputPubYear" class="owned-meta-inline-input hidden" placeholder="예: 2025" onblur="finishInlineMetaEdit('pubYear')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
-          </div>
-        </div>
-        <div class="owned-meta-row">
-          <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">분류</div>
-          <div class="owned-meta-val-wrap">
-            <button type="button" id="ownedMetaBtn_kdc" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('kdc')"></button>
-            <input type="text" id="ownedInputKdc" class="owned-meta-inline-input hidden" placeholder="예: 문학" onblur="finishInlineMetaEdit('kdc')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
-          </div>
-        </div>
-        <div class="owned-meta-row">
-          <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">ISBN</div>
-          <div class="owned-meta-val-wrap">
-            <button type="button" id="ownedMetaBtn_isbn" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('isbn')"></button>
-            <input type="text" id="ownedInputIsbn" class="owned-meta-inline-input hidden" placeholder="10 또는 13자리" onblur="finishInlineMetaEdit('isbn');" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
-          </div>
-        </div>
-        <div class="owned-meta-row">
-          <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">출판사</div>
-          <div class="owned-meta-val-wrap">
-            <button type="button" id="ownedMetaBtn_publisher" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('publisher')"></button>
-            <input type="text" id="ownedInputPublisher" class="owned-meta-inline-input hidden" placeholder="출판사명" onblur="finishInlineMetaEdit('publisher')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
-          </div>
-        </div>
-        <div class="owned-meta-row">
-          <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">저자</div>
-          <div class="owned-meta-val-wrap has-trailing-btn">
-            <button type="button" id="ownedMetaBtn_author" class="owned-meta-val-btn is-empty" style="flex:1; min-width:0;" onclick="startInlineMetaEdit('author')"></button>
-            <input type="text" id="ownedInputAuthor" class="owned-meta-inline-input hidden" style="flex:1; min-width:0;" placeholder="저자명" onblur="finishInlineMetaEdit('author')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
-            <button type="button" id="ownedMetaAuthorSubBtn" class="meta-author-mini-sub hidden" onclick="event.stopPropagation(); toggleFollowMetaAuthor();" title="관심 저자 구독" aria-label="관심 저자 구독">+</button>
-          </div>
-        </div>
-        <div class="owned-meta-row">
-          <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">저자 외</div>
-          <div class="owned-meta-val-wrap">
-            <button type="button" id="ownedMetaBtn_translator" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('translator')"></button>
-            <input type="text" id="ownedInputTranslator" class="owned-meta-inline-input hidden" placeholder="옮긴이, 감수, 엮은이 등" onblur="finishInlineMetaEdit('translator')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
-          </div>
-        </div>
-      </div>
-
-      <!-- 책 소개 카드 (카드 클릭 시 3줄 접힘/펼침) -->
-      <div id="ownedMetaPlotBox" class="owned-meta-plot-box hidden" onclick="handleOwnedMetaPlotBoxClick(event)">
-        <div class="owned-meta-plot-header">
-          <span id="ownedMetaPlotHeading" class="owned-meta-plot-heading">책 소개</span>
-        </div>
-        <div id="ownedMetaPlotBody" class="owned-meta-plot-body is-clamped"></div>
-        <div id="ownedAuthorBioBox" class="owned-author-bio-box hidden"></div>
-      </div>
-
       <!-- 상태 · 형태 · 대여처 · 반납일 · 진행도 · 평점 · 태그 -->
       <div class="owned-ridi-panel">
         <div class="ridi-filter-row">
@@ -848,6 +800,66 @@
         <input type="text" id="ownedInputMemo" class="form-input" placeholder="개인 메모를 남겨보세요.">
       </div>
 
+
+      <details class="owned-meta-accordion">
+        <summary class="owned-meta-accordion-summary">서지 정보 · 책 소개 · 저자의 다른 도서</summary>
+        <div class="owned-meta-accordion-body">
+      <!-- 출간일 · 분류 · ISBN · 출판사 · 저자 · 저자 외 -->
+      <div class="owned-meta-table">
+        <div class="owned-meta-row">
+          <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">출간일</div>
+          <div class="owned-meta-val-wrap">
+            <button type="button" id="ownedMetaBtn_pubYear" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('pubYear')"></button>
+            <input type="text" id="ownedInputPubYear" class="owned-meta-inline-input hidden" placeholder="예: 2025" onblur="finishInlineMetaEdit('pubYear')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
+          </div>
+        </div>
+        <div class="owned-meta-row">
+          <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">분류</div>
+          <div class="owned-meta-val-wrap">
+            <button type="button" id="ownedMetaBtn_kdc" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('kdc')"></button>
+            <input type="text" id="ownedInputKdc" class="owned-meta-inline-input hidden" placeholder="예: 문학" onblur="finishInlineMetaEdit('kdc')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
+          </div>
+        </div>
+        <div class="owned-meta-row">
+          <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">ISBN</div>
+          <div class="owned-meta-val-wrap">
+            <button type="button" id="ownedMetaBtn_isbn" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('isbn')"></button>
+            <input type="text" id="ownedInputIsbn" class="owned-meta-inline-input hidden" placeholder="10 또는 13자리" onblur="finishInlineMetaEdit('isbn');" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
+          </div>
+        </div>
+        <div class="owned-meta-row">
+          <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">출판사</div>
+          <div class="owned-meta-val-wrap">
+            <button type="button" id="ownedMetaBtn_publisher" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('publisher')"></button>
+            <input type="text" id="ownedInputPublisher" class="owned-meta-inline-input hidden" placeholder="출판사명" onblur="finishInlineMetaEdit('publisher')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
+          </div>
+        </div>
+        <div class="owned-meta-row">
+          <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">저자</div>
+          <div class="owned-meta-val-wrap has-trailing-btn">
+            <button type="button" id="ownedMetaBtn_author" class="owned-meta-val-btn is-empty" style="flex:1; min-width:0;" onclick="startInlineMetaEdit('author')"></button>
+            <input type="text" id="ownedInputAuthor" class="owned-meta-inline-input hidden" style="flex:1; min-width:0;" placeholder="저자명" onblur="finishInlineMetaEdit('author')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
+            <button type="button" id="ownedMetaAuthorSubBtn" class="meta-author-mini-sub hidden" onclick="event.stopPropagation(); toggleFollowMetaAuthor();" title="관심 저자 구독" aria-label="관심 저자 구독">+</button>
+          </div>
+        </div>
+        <div class="owned-meta-row">
+          <div class="owned-meta-key clickable-meta-key" onclick="openOwnedMetaExternalLink('aladin')" title="알라딘 책 정보 페이지로 이동">저자 외</div>
+          <div class="owned-meta-val-wrap">
+            <button type="button" id="ownedMetaBtn_translator" class="owned-meta-val-btn is-empty" onclick="startInlineMetaEdit('translator')"></button>
+            <input type="text" id="ownedInputTranslator" class="owned-meta-inline-input hidden" placeholder="옮긴이, 감수, 엮은이 등" onblur="finishInlineMetaEdit('translator')" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
+          </div>
+        </div>
+      </div>
+
+      <!-- 책 소개 카드 (카드 클릭 시 3줄 접힘/펼침) -->
+      <div id="ownedMetaPlotBox" class="owned-meta-plot-box hidden" onclick="handleOwnedMetaPlotBoxClick(event)">
+        <div class="owned-meta-plot-header">
+          <span id="ownedMetaPlotHeading" class="owned-meta-plot-heading">책 소개</span>
+        </div>
+        <div id="ownedMetaPlotBody" class="owned-meta-plot-body is-clamped"></div>
+        <div id="ownedAuthorBioBox" class="owned-author-bio-box hidden"></div>
+      </div>
+
       <div id="ownedAuthorOtherBooksDetails" class="owned-author-other-box hidden">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:2px;">
           <div id="ownedAuthorOtherBooksTitle" class="owned-author-other-title" style="margin:0;">저자의 다른 도서</div>
@@ -856,7 +868,10 @@
         <div id="ownedAuthorOtherBooksList" class="owned-author-other-scroll"></div>
       </div>
 
-      <div class="memo-modal-actions">
+        </div>
+      </details>
+
+      <div class="memo-modal-actions owned-sticky-actions">
         <button type="button" id="ownedDeleteBtn" class="memo-btn memo-btn-delete hidden" onclick="deleteOwnedBookFromModal()" title="이 책 삭제" aria-label="이 책 삭제"><i data-lucide="trash-2" size="17"></i></button>
         <button class="memo-btn memo-btn-cancel" onclick="closeOwnedEditModal()">취소</button>
         <button id="ownedSaveBtn" class="memo-btn memo-btn-save" onclick="saveOwnedBookFromModal()">저장</button>
@@ -939,11 +954,11 @@
   </nav>
 
   <!-- 분리된 JS 모듈 로드 (순서 유지) -->
-  <script src="icons.js?v=155"></script>
-  <script src="api.js?v=155"></script>
-  <script src="library.js?v=155"></script>
-  <script src="search.js?v=155"></script>
-  <script src="bookmark.js?v=155"></script>
-  <script src="app.js?v=155"></script>
+  <script src="icons.js?v=156"></script>
+  <script src="api.js?v=156"></script>
+  <script src="library.js?v=156"></script>
+  <script src="search.js?v=156"></script>
+  <script src="bookmark.js?v=156"></script>
+  <script src="app.js?v=156"></script>
 </body>
 </html>

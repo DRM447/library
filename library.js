@@ -2478,7 +2478,7 @@ function toggleOwnedPlotExpand() {
  let badgeHtml = '';
  if (ownedMatch) {
  const eb = isOwnedEbook(ownedMatch.owned);
- badgeHtml = `<span class="cover-badge ${eb ? 'ebook' : 'owned'}" style="font-size:9px; padding:1px 4px;">${eb ? 'e-book' : '서재'}</span>`;
+ badgeHtml = `<span class="cover-badge ${eb ? 'ebook' : 'owned'}" style="font-size:9px; padding:1px 4px;">${eb ? 'e-book' : '내 서재'}</span>`;
  }
  return `
  <div class="owned-author-other-card" onclick="openModalAuthorOtherBook(${idx})" title="${escapeHtml(b.title)}">
@@ -3002,7 +3002,7 @@ function toggleOwnedPlotExpand() {
  const sd = isOwnedSold(ownedMatch.owned);
  if (sd) badgeHtml = '<span class="cover-badge sold" style="font-size:9px; padding:1px 4px;">판매</span>';
  else if (br) badgeHtml = '<span class="cover-badge borrowed" style="font-size:9px; padding:1px 4px;">대여</span>';
- else badgeHtml = `<span class="cover-badge ${eb ? 'ebook' : 'owned'}" style="font-size:9px; padding:1px 4px;">${eb ? 'e-book' : '서재'}</span>`;
+ else badgeHtml = `<span class="cover-badge ${eb ? 'ebook' : 'owned'}" style="font-size:9px; padding:1px 4px;">${eb ? 'e-book' : '내 서재'}</span>`;
  }
  return `
  <div class="owned-cand-card" onclick="applyOwnedBookCandidate(${idx})" title="${escapeHtml(b.title)}">

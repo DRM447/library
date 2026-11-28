@@ -128,7 +128,7 @@ function updateMainBookPlotToggleBtn() {
  if (mbBadge) {
  const ebFlag = isOwnedEbook(owned);
  mbBadge.className = `cover-badge cover-badge-btn ${ebFlag ? 'ebook' : 'owned'}`;
- mbBadge.textContent = ebFlag ? 'e-book' : '서재';
+ mbBadge.textContent = ebFlag ? 'e-book' : '내 서재';
  mbBadge.title = '내 서재 기록 열기';
  mbBadge.onclick = (e) => { e.stopPropagation(); if (ownedIdx > -1) openOwnedEditModalByIndex(ownedIdx); };
  }
@@ -155,7 +155,7 @@ function updateMainBookPlotToggleBtn() {
  if (mbWrap) mbWrap.classList.remove('cover-status-planned', 'cover-status-reading', 'cover-status-done', 'cover-status-stop');
  if (mbBadge) {
  mbBadge.className = 'cover-badge cover-badge-btn add-lib';
- mbBadge.textContent = '+추가';
+ mbBadge.textContent = '+내 서재';
  mbBadge.title = '내 서재에 추가';
  mbBadge.onclick = (e) => { e.stopPropagation(); openOwnedAddModalForCurrent(); };
  }
@@ -285,8 +285,8 @@ searchInputEl.addEventListener('input', function () {
  ? '<span class="search-fmt-pill ebook">e-book</span>'
  : '<span class="search-fmt-pill paper">종이책</span>';
  const coverBadgeHtml = ownedObj
- ? `<button type="button" class="cover-badge cover-badge-btn ${isOwnedEbook(ownedObj) ? 'ebook' : 'owned'}" onclick="event.stopPropagation(); openOwnedEditModalByIndex(${ownedIdx})" title="내 서재 기록 열기">${isOwnedEbook(ownedObj) ? 'e-book' : '서재'}</button>`
- : `<button type="button" class="cover-badge cover-badge-btn add-lib" onclick="event.stopPropagation(); openOwnedAddModalForSearchIndex(${index})" title="내 서재에 추가">+추가</button>`;
+ ? `<button type="button" class="cover-badge cover-badge-btn ${isOwnedEbook(ownedObj) ? 'ebook' : 'owned'}" onclick="event.stopPropagation(); openOwnedEditModalByIndex(${ownedIdx})" title="내 서재 기록 열기">${isOwnedEbook(ownedObj) ? 'e-book' : '내 서재'}</button>`
+ : '';
  listHtml += `
  <div class="search-result-item" id="book-item-${index}" onclick="selectBook(${index})">
  <div class="cover-wrap ${ownedObj ? getCoverStatusBorderCls(ownedObj) : ''}" style="border-radius:8px; overflow:hidden;">
@@ -650,7 +650,7 @@ searchInputEl.addEventListener('input', function () {
  let displayTitle = b.bookname;
  if (ownedMatch) {
  const ebook = isOwnedEbook(ownedMatch.owned);
- badgeHtml = `<span class="cover-badge ${ebook ? 'ebook' : 'owned'}">${ebook ? 'e-book' : '서재'}</span>`;
+ badgeHtml = `<span class="cover-badge ${ebook ? 'ebook' : 'owned'}">${ebook ? 'e-book' : '내 서재'}</span>`;
 
  }
 

@@ -855,7 +855,7 @@ function loadBookmarks(shouldEnrich = true) {
       const isEbookOwned = isOwnedEbook(ownedMatch.owned);
       const ownBadge = document.createElement('span');
       ownBadge.className = `cover-badge ${isEbookOwned ? 'ebook' : 'owned'}`;
-      ownBadge.innerText = isEbookOwned ? 'e-book 서재' : '서재';
+      ownBadge.innerText = isEbookOwned ? 'e-book 내 서재' : '내 서재';
       coverWrap.appendChild(ownBadge);
     }
 

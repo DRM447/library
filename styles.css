@@ -3313,7 +3313,6 @@ body {
 body[data-tab="home"] .main-container {
   display: none !important;
 }
-body[data-tab="search"] .header,
 body[data-tab="search"] #homeReadingDashboard {
   display: none !important;
 }
@@ -3543,4 +3542,43 @@ body[data-tab="library"] #tabBrandCorner {
 .app-tab-bookmark,
 .app-tab-library {
   padding-top: 32px;
+}
+
+
+/* === 내 서재 · 북마크 헤더 타이틀 가운데 정렬 === */
+.app-tab-view .mylib-header {
+  position: relative;
+  justify-content: center !important;
+  align-items: center;
+  min-height: 36px;
+}
+.app-tab-view .mylib-header-title {
+  justify-content: center;
+  text-align: center;
+}
+.app-tab-view .mylib-header-actions {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+
+/* === All Books 필기체 워드마크 로고 === */
+.brand-wordmark-img {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+@media (max-width: 440px) {
+  .brand-wordmark-img {
+    height: 30px;
+  }
+}
+.tab-corner-wordmark-img {
+  height: 18px;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }

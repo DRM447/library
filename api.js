@@ -209,7 +209,7 @@ let syncStateDebounceTimer = null;
  el.className = 'api-usage-pill' + (rec.count >= 450 ? ' danger' : (rec.count >= 350 ? ' warn' : ''));
  }
 
- function showApiUsageInfo() {
+ async function showApiUsageInfo() {
  const rec = getApiUsageRecord();
  const sCnt = Object.keys(readCacheBucket('d4lCache_search')).length;
  const aCnt = Object.keys(readCacheBucket('d4lCache_author')).length;
@@ -217,7 +217,7 @@ let syncStateDebounceTimer = null;
  const lCnt = Object.keys(readCacheBucket('d4lCache_libStatus')).length;
  const cCnt = Object.keys(getBookCoverCache()).length;
  const libCnt = Object.keys(getFixedTargetLibCodes()).length;
- if (confirm(`오늘 정보나루 API 사용: ${rec.count} / ${DAILY_API_LIMIT}회\n저장된 캐시: 검색 ${sCnt}건 · 저자 ${aCnt}명 · 추천 ${rCnt}건 · 대출 ${lCnt}건 · 표지 ${cCnt}개\n고정된 관심 도서관 코드: ${libCnt}/4곳\n\n[확인]을 누르면 캐시된 검색/저자/추천/대출 데이터를 초기화합니다. (취소 시 유지)`)) {
+ if (await showAppConfirm(`오늘 정보나루 API 사용: ${rec.count} / ${DAILY_API_LIMIT}회\n저장된 캐시: 검색 ${sCnt}건 · 저자 ${aCnt}명 · 추천 ${rCnt}건 · 대출 ${lCnt}건 · 표지 ${cCnt}개\n고정된 관심 도서관 코드: ${libCnt}/4곳\n\n[초기화]를 누르면 캐시된 검색·저자·추천·대출 데이터를 비웁니다.`, { title: 'API 사용량 · 캐시 관리', okText: '캐시 초기화', cancelText: '닫기', danger: true })) {
  localStorage.removeItem('d4lCache_search');
  localStorage.removeItem('d4lCache_author');
  localStorage.removeItem('d4lCache_rec');
@@ -1350,8 +1350,8 @@ function getOwnedSource(book) { return normalizeSourceName(getOwnedSourceRaw_(bo
  renderMyLibraryList(true);
  }
 
- function resetSkippedDuplicates() {
- if (!confirm('건너뛰기한 중복 항목들을 모두 중복 확인 목록으로 복원할까요?')) return;
+ async function resetSkippedDuplicates() {
+ if (!(await showAppConfirm('건너뛰기한 중복 항목들을 모두 중복 확인 목록으로 복원할까요?', { title: '중복 목록 복원', okText: '복원' }))) return;
  localStorage.removeItem('ignoredDuplicateGroups');
  lastSkippedDupUndo = null;
  isViewingSkippedDuplicates = false;
@@ -1386,7 +1386,7 @@ function getOwnedSource(book) { return normalizeSourceName(getOwnedSourceRaw_(bo
 async function quickDeleteOwnedByIndex(idx) {
   const target = myOwnedBooks[idx];
   if (!target) return;
-  if (!confirm(`'${formatOwnedTitle(target)}' 도서를 내 서재에서 삭제할까요?`)) return;
+  if (!(await showAppConfirm(`'${formatOwnedTitle(target)}' 도서를 내 서재에서 삭제할까요?`, { title: '도서 삭제', okText: '삭제', danger: true }))) return;
   const backup = { ...target };
   try {
     const res = await sendSheetPost({

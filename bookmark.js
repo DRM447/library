@@ -724,10 +724,10 @@ function toggleSelectAllBookmarks() {
   loadBookmarks(false);
 }
 
-function batchDeleteSelectedBookmarks() {
+async function batchDeleteSelectedBookmarks() {
   const targets = Array.from(bmSelectedIsbns);
   if (targets.length === 0) return;
-  if (!confirm(`선택한 북마크 ${targets.length}권을 삭제할까요?`)) return;
+  if (!(await showAppConfirm(`선택한 북마크 ${targets.length}권을 삭제할까요?`, { title: '북마크 삭제', okText: '삭제', danger: true }))) return;
   const current = mergeBookmarksWithMeta(safeReadJson('myBookmarks', []));
   const removedItems = current.filter(b => targets.includes(String(b.isbn)));
   const remaining = current.filter(b => !targets.includes(String(b.isbn)));
@@ -926,11 +926,11 @@ function loadBookmarks(shouldEnrich = true) {
   }
 }
 
-function removeBookmark(isbn, skipConfirm = false) {
+async function removeBookmark(isbn, skipConfirm = false) {
   const targetIsbn = String(isbn);
   const current = mergeBookmarksWithMeta(safeReadJson('myBookmarks', []));
   const removed = current.find(b => String(b.isbn) === targetIsbn);
-  if (!skipConfirm && removed && !confirm(`'${removed.title || '이 도서'}' 북마크를 삭제할까요?`)) return;
+  if (!skipConfirm && removed && !(await showAppConfirm(`'${removed.title || '이 도서'}' 북마크를 삭제할까요?`, { title: '북마크 삭제', okText: '삭제', danger: true }))) return;
   const next = current.filter(b => String(b.isbn) !== targetIsbn);
   localStorage.setItem('myBookmarks', JSON.stringify(next));
   loadBookmarks(false);
@@ -1194,8 +1194,8 @@ function removeBookmark(isbn, skipConfirm = false) {
 
  let activePhotoEditAuthor = '';
 
-function promptAddFollowedAuthor() {
-  const entered = prompt('관심 저자로 추가할 저자 이름을 입력해 주세요.');
+async function promptAddFollowedAuthor() {
+  const entered = await showAppPrompt('관심 저자로 추가할 저자 이름을 입력해 주세요.', '', { title: '관심 저자 추가', placeholder: '저자 이름 입력' });
   if (entered === null) return;
   const clean = String(entered || '').trim();
   if (!clean) return;

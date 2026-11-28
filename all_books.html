@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#4f46e5">
 
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-  <link rel="stylesheet" href="styles.css?v=156">
+  <link rel="stylesheet" href="styles.css?v=157">
 </head>
 <body data-tab="home">
 
@@ -94,14 +94,14 @@
     <div class="home-grid">
       <div class="card">
         <div class="section-title" style="justify-content: space-between; margin-bottom: 10px;">
-          <img id="homeBorrowedTitleImg" class="home-borrowed-title-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="대여도서">
+          <h2 class="home-section-heading"><i data-lucide="book-open" size="17"></i><span>대여도서</span></h2>
           <span id="homeBorrowedCountText" style="font-size:12px; font-weight:700; color:var(--sec-text);"></span>
         </div>
         <div id="homeReadingNowList" class="reading-now-list"></div>
       </div>
       <div class="card">
         <div class="section-title" style="justify-content: space-between; margin-bottom: 10px;">
-          <img id="homeWhatToReadTitleImg" class="home-borrowed-title-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="오늘 뭐 읽지?">
+          <h2 class="home-section-heading"><i data-lucide="sparkles" size="17"></i><span>오늘 뭐 읽지?</span></h2>
           <button class="owned-chip-btn indigo icon-trash-btn" onclick="pickRandomUnreadBook(true)" title="다시 뽑기" aria-label="다시 뽑기"><i data-lucide="dices" size="15"></i></button>
         </div>
         <div id="homeRandomPickContainer"></div>
@@ -540,7 +540,7 @@
           </div>
         </div>
 
-        <div id="myLibListContainer" class="mylib-list" style="padding-bottom: 72px;"></div>
+        <div id="myLibListContainer" class="mylib-list" style="padding-bottom: 72px;"><div class="mylib-skeleton-card" aria-hidden="true"><div class="mylib-skel-thumb"></div><div class="mylib-skel-lines"><div class="mylib-skel-line w-70"></div><div class="mylib-skel-line w-45"></div><div class="mylib-skel-line w-85"></div></div></div><div class="mylib-skeleton-card" aria-hidden="true"><div class="mylib-skel-thumb"></div><div class="mylib-skel-lines"><div class="mylib-skel-line w-70"></div><div class="mylib-skel-line w-45"></div><div class="mylib-skel-line w-85"></div></div></div><div class="mylib-skeleton-card" aria-hidden="true"><div class="mylib-skel-thumb"></div><div class="mylib-skel-lines"><div class="mylib-skel-line w-70"></div><div class="mylib-skel-line w-45"></div><div class="mylib-skel-line w-85"></div></div></div><div class="mylib-skeleton-card" aria-hidden="true"><div class="mylib-skel-thumb"></div><div class="mylib-skel-lines"><div class="mylib-skel-line w-70"></div><div class="mylib-skel-line w-45"></div><div class="mylib-skel-line w-85"></div></div></div></div>
         <div id="myLibMultiSelectBar" class="mylib-multiselect-bar hidden">
           <!-- 수정 클릭 시 펼쳐지는 일괄 수정 필터 패널 -->
           <div id="myLibBatchEditPanel" class="mylib-batch-panel hidden">
@@ -894,6 +894,23 @@
     </div>
   </div>
 
+
+  <!-- 공용 커스텀 확인/입력 모달 (네이티브 confirm/prompt 대체) -->
+  <div id="appDialogModalOverlay" class="memo-modal-overlay" style="z-index: 2450;" data-close-fn="cancelAppDialog">
+    <div class="memo-modal-box" style="max-width: 360px;">
+      <div class="owned-edit-top-bar" style="align-items:center; margin-bottom:8px;">
+        <h3 class="memo-modal-title" id="appDialogTitle" style="margin:0;">확인</h3>
+        <button type="button" class="mylib-ghost-icon-btn" onclick="cancelAppDialog()" title="닫기" aria-label="닫기"><i data-lucide="x" size="16"></i></button>
+      </div>
+      <p id="appDialogMessage" class="app-dialog-message"></p>
+      <input type="text" id="appDialogInput" class="form-input hidden" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault(); confirmAppDialog();}">
+      <div class="memo-modal-actions" style="justify-content:flex-end; gap:8px; margin-top:14px;">
+        <button type="button" id="appDialogCancelBtn" class="memo-btn memo-btn-cancel" onclick="cancelAppDialog()">취소</button>
+        <button type="button" id="appDialogOkBtn" class="memo-btn memo-btn-save" onclick="confirmAppDialog()">확인</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 내 서재 관리 하단 바텀시트 -->
   <div id="myLibManageSheetOverlay" class="bottom-sheet-overlay" onclick="if(event.target===this) closeMyLibManageSheet()">
     <div class="bottom-sheet-box">
@@ -954,11 +971,11 @@
   </nav>
 
   <!-- 분리된 JS 모듈 로드 (순서 유지) -->
-  <script src="icons.js?v=156"></script>
-  <script src="api.js?v=156"></script>
-  <script src="library.js?v=156"></script>
-  <script src="search.js?v=156"></script>
-  <script src="bookmark.js?v=156"></script>
-  <script src="app.js?v=156"></script>
+  <script src="icons.js?v=157"></script>
+  <script src="api.js?v=157"></script>
+  <script src="library.js?v=157"></script>
+  <script src="search.js?v=157"></script>
+  <script src="bookmark.js?v=157"></script>
+  <script src="app.js?v=157"></script>
 </body>
 </html>

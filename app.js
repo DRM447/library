@@ -33,7 +33,8 @@ refreshIcons();
  function closeTopModal() {
  if (openModalStack.length === 0) return false;
  const topModal = openModalStack[openModalStack.length - 1];
- if (topModal === 'pinPrompt') closePinPromptModal();
+ if (topModal === 'appDialog') cancelAppDialog();
+ else if (topModal === 'pinPrompt') closePinPromptModal();
  else if (topModal === 'authorPhoto') closeAuthorPhotoModal();
  else if (topModal === 'dirtyConfirm') cancelDirtyConfirmModal();
  else if (topModal === 'barcode') closeBarcodeScanner();
@@ -112,6 +113,7 @@ refreshIcons();
  closePinPromptModal,
  closeAuthorPhotoModal,
  cancelDirtyConfirmModal,
+ cancelAppDialog,
  };
  document.querySelectorAll('.memo-modal-overlay[data-close-fn]').forEach(overlay => {
  overlay.addEventListener('pointerdown', (e) => {
@@ -402,3 +404,93 @@ function toggleAppTheme() {
     applyAppTheme('light');
   }
 })();
+
+
+/* =========================================================
+ * 공용 커스텀 확인/입력 모달 (confirm / prompt 대체)
+ * ========================================================= */
+let _appDialogResolver = null;
+let _appDialogMode = 'confirm';
+
+function showAppConfirm(message, opts = {}) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('appDialogModalOverlay');
+    if (!overlay) { resolve(window.confirm(message)); return; }
+    _appDialogResolver = resolve;
+    _appDialogMode = 'confirm';
+
+    document.getElementById('appDialogTitle').textContent = opts.title || '확인';
+    document.getElementById('appDialogMessage').textContent = message || '';
+    const inputEl = document.getElementById('appDialogInput');
+    if (inputEl) { inputEl.classList.add('hidden'); inputEl.value = ''; }
+
+    const cancelBtn = document.getElementById('appDialogCancelBtn');
+    const okBtn = document.getElementById('appDialogOkBtn');
+    if (cancelBtn) cancelBtn.textContent = opts.cancelText || '취소';
+    if (okBtn) {
+      okBtn.textContent = opts.okText || '확인';
+      okBtn.classList.toggle('memo-btn-danger-solid', !!opts.danger);
+    }
+
+    overlay.classList.add('open');
+    pushModalHistory('appDialog');
+    setTimeout(() => okBtn?.focus(), 40);
+  });
+}
+
+function showAppPrompt(message, defaultVal = '', opts = {}) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('appDialogModalOverlay');
+    if (!overlay) { resolve(window.prompt(message, defaultVal)); return; }
+    _appDialogResolver = resolve;
+    _appDialogMode = 'prompt';
+
+    document.getElementById('appDialogTitle').textContent = opts.title || '입력';
+    document.getElementById('appDialogMessage').textContent = message || '';
+    const inputEl = document.getElementById('appDialogInput');
+    if (inputEl) {
+      inputEl.classList.remove('hidden');
+      inputEl.value = defaultVal || '';
+      inputEl.placeholder = opts.placeholder || '내용을 입력해 주세요';
+    }
+
+    const cancelBtn = document.getElementById('appDialogCancelBtn');
+    const okBtn = document.getElementById('appDialogOkBtn');
+    if (cancelBtn) cancelBtn.textContent = opts.cancelText || '취소';
+    if (okBtn) {
+      okBtn.textContent = opts.okText || '확인';
+      okBtn.classList.remove('memo-btn-danger-solid');
+    }
+
+    overlay.classList.add('open');
+    pushModalHistory('appDialog');
+    setTimeout(() => { inputEl?.focus(); inputEl?.select(); }, 40);
+  });
+}
+
+function confirmAppDialog() {
+  const overlay = document.getElementById('appDialogModalOverlay');
+  if (overlay) overlay.classList.remove('open');
+  popModalHistory('appDialog');
+  const resolver = _appDialogResolver;
+  const mode = _appDialogMode;
+  _appDialogResolver = null;
+  if (resolver) {
+    if (mode === 'prompt') {
+      const val = document.getElementById('appDialogInput')?.value ?? '';
+      resolver(val);
+    } else {
+      resolver(true);
+    }
+  }
+}
+
+function cancelAppDialog() {
+  const overlay = document.getElementById('appDialogModalOverlay');
+  if (overlay) overlay.classList.remove('open');
+  popModalHistory('appDialog');
+  const resolver = _appDialogResolver;
+  const mode = _appDialogMode;
+  _appDialogResolver = null;
+  if (resolver) resolver(mode === 'prompt' ? null : false);
+}

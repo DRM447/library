@@ -1480,7 +1480,7 @@ async function quickChangeOwnedStatus(idx, newStatus) {
  async function batchUpdateSelectedTags() {
    const targets = myOwnedBooks.filter(b => myLibSelectedRows.has(b.row));
    if (targets.length === 0) { showToast('선택된 책이 없어요.', 'info'); return; }
-   const raw = prompt(`선택한 ${targets.length}권에 추가할 태그를 입력하세요 (쉼표 또는 띄어쓰기로 구분):`, '');
+   const raw = await showAppPrompt(`선택한 ${targets.length}권에 추가할 태그를 입력하세요 (쉼표 또는 띄어쓰기로 구분):`, '', { title: '태그 일괄 추가', placeholder: '예: 소설, 추천' });
    if (raw === null) return;
    const newTags = raw.split(/[,\s]+/).map(t => t.replace(/^#+/, '').trim()).filter(Boolean);
    if (newTags.length === 0) return;
@@ -1510,7 +1510,7 @@ async function quickChangeOwnedStatus(idx, newStatus) {
  async function batchDeleteSelectedBooks() {
   const targets = myOwnedBooks.filter(b => myLibSelectedRows.has(b.row)).sort((a, b) => (Number(b.row) || 0) - (Number(a.row) || 0));
   if (targets.length === 0) { showToast('선택된 책이 없어요.', 'info'); return; }
-  if (!confirm(`선택한 ${targets.length}권의 도서를 내 서재에서 삭제할까요?`)) return;
+  if (!(await showAppConfirm(`선택한 ${targets.length}권의 도서를 내 서재에서 삭제할까요?`, { title: '도서 일괄 삭제', okText: '삭제', danger: true }))) return;
   const backups = targets.map(t => ({ ...t }));
   let okCount = 0;
   showToast(`${targets.length}권 삭제 중...`, '');
@@ -1960,9 +1960,9 @@ async function quickChangeOwnedStatus(idx, newStatus) {
  gridEl.appendChild(addBtn);
  }
 
- function promptCustomOwnedSource() {
+ async function promptCustomOwnedSource() {
  const inputEl = document.getElementById('ownedInputSource');
- const entered = prompt('소장처 또는 대여처 이름을 입력해 주세요.', inputEl?.value || '');
+ const entered = await showAppPrompt('소장처 또는 대여처 이름을 입력해 주세요.', inputEl?.value || '', { title: '소장처·대여처 입력', placeholder: '예: 남산도서관, 알라딘' });
  if (entered === null) return;
  const clean = entered.trim();
  if (inputEl) inputEl.value = clean;
@@ -3498,7 +3498,7 @@ function toggleOwnedPlotExpand() {
  book: bookPayload
  });
  if (res && res.status === 'duplicate') {
- if (confirm('이미 비슷한 제목의 도서가 시트에 있습니다. 그래도 추가할까요?')) {
+ if (await showAppConfirm('이미 비슷한 제목의 도서가 시트에 있습니다. 그래도 추가할까요?', { title: '중복 도서 확인', okText: '추가' })) {
  res = await sendSheetPost({
  action: 'moveBookmarkToLibrary',
  isbn: activeOwnedEditContext.fromBookmarkIsbn,
@@ -3521,7 +3521,7 @@ function toggleOwnedPlotExpand() {
  book: bookPayload
  });
  if (res && res.status === 'duplicate') {
- if (confirm('이미 비슷한 제목의 도서가 시트에 있습니다. 그래도 새로 추가할까요?')) {
+ if (await showAppConfirm('이미 비슷한 제목의 도서가 시트에 있습니다. 그래도 새로 추가할까요?', { title: '중복 도서 확인', okText: '새로 추가' })) {
  res = await sendSheetPost({
  target: 'library',
  action: 'lib_add',
@@ -3556,7 +3556,7 @@ function toggleOwnedPlotExpand() {
  async function deleteOwnedBookFromModal() {
   if (!activeOwnedEditContext || activeOwnedEditContext.mode !== 'edit') return;
   const target = activeOwnedEditContext.book;
-  if (!confirm(`'${formatOwnedTitle(target)}' 도서를 내 서재에서 삭제할까요?`)) return;
+  if (!(await showAppConfirm(`'${formatOwnedTitle(target)}' 도서를 내 서재에서 삭제할까요?`, { title: '도서 삭제', okText: '삭제', danger: true }))) return;
   const backup = { ...target };
 
   try {
